@@ -1,0 +1,13 @@
+.DS_Store
+.env
+.env.*
+!.env.example
+node_modules/
+dist/
+coverage/
+uploads/
+DerivedData/
+*.xcuserdata/
+*.xcuserstate
+ios/BodyCompass/.build/
+ios/BodyCompass/Package.resolved
