@@ -7,6 +7,7 @@ Native iOS fat-loss coach for reaching 12% body fat with HealthKit history, dail
 - `ios/BodyCompass` - SwiftUI iOS app source plus testable core logic.
 - `server` - Node API for health logs, meal analysis, coach chat, and provider routing.
 - `docs` - Product, setup, API, and HealthKit notes.
+- `ai` - AI-native repo context for future agents and implementation planning.
 
 ## MVP
 
@@ -23,6 +24,7 @@ Native iOS fat-loss coach for reaching 12% body fat with HealthKit history, dail
 - Step-by-step phases: `docs/phases.md`
 - Beginner Swift guide: `docs/swift-beginner-guide.md`
 - Xcode Phase 1 guide: `docs/xcode-phase-1.md`
+- AI repo context: `ai/README.md`
 
 ## Quick Start
 
