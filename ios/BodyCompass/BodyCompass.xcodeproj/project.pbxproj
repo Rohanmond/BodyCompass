@@ -1,0 +1,416 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		30FE1F035D724FB9874B2E6C /* BodyCompassApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D489589B99744533BC61F82C /* BodyCompassApp.swift */; };
+		53E2DEE75137405D909E13DA /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 104976314DCC4BE696608BB6 /* AppStore.swift */; };
+		3968E992129E47B2B174A87D /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB9A8FF6D38440A087540C82 /* RootView.swift */; };
+		A34C3E3DEDAE46BC990C3FF3 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583605B7B67D46B787978A94 /* Theme.swift */; };
+		DB55F80455F54976B22882E4 /* TodayView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C95C2DBC81D24B87A9B949E8 /* TodayView.swift */; };
+		6D4BCFA712DF45168EB5F364 /* MealLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1F0C7010FD7642318310C796 /* MealLogView.swift */; };
+		A11F08BD23C447AA931DCFD1 /* GoalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8D925B285BA346D398F1B0B5 /* GoalView.swift */; };
+		B608998B5AA94E6CB1783D68 /* HistoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49B5652FA1894B829223EE29 /* HistoryView.swift */; };
+		B49214323C30478C99CB4133 /* CoachChatView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7941E9948B9F4B91AF523C8B /* CoachChatView.swift */; };
+		454DCD5CD1B24C4EB15471EA /* HealthKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 211A805EEE4449608136F410 /* HealthKitService.swift */; };
+		BAE28A71FC7D4AC285D3DAB5 /* BodyProfile.swift in Sources */ = {isa = PBXBuildFile; fileRef = 466D1DCD15A5467BBD4068DE /* BodyProfile.swift */; };
+		B294F333562547C8BE577E84 /* DailyHealthSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F70F0B18E9E42F5A322C7BE /* DailyHealthSnapshot.swift */; };
+		E32A5F6E499946E6AB520A20 /* GoalProjection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0496068A1A154719B34DF1DE /* GoalProjection.swift */; };
+		CF620A74A25649D498F2816F /* MealAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = C97F2A19AD344594B96EF1B4 /* MealAnalysis.swift */; };
+		8C1B8501AC0441C9987C575C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 08B7464CBFA64999BF9A4C0A /* Assets.xcassets */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		D489589B99744533BC61F82C /* BodyCompassApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyCompassApp.swift; sourceTree = "<group>"; };
+		104976314DCC4BE696608BB6 /* AppStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppStore.swift; sourceTree = "<group>"; };
+		CB9A8FF6D38440A087540C82 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		583605B7B67D46B787978A94 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		C95C2DBC81D24B87A9B949E8 /* TodayView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayView.swift; sourceTree = "<group>"; };
+		1F0C7010FD7642318310C796 /* MealLogView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealLogView.swift; sourceTree = "<group>"; };
+		8D925B285BA346D398F1B0B5 /* GoalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalView.swift; sourceTree = "<group>"; };
+		49B5652FA1894B829223EE29 /* HistoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryView.swift; sourceTree = "<group>"; };
+		7941E9948B9F4B91AF523C8B /* CoachChatView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoachChatView.swift; sourceTree = "<group>"; };
+		211A805EEE4449608136F410 /* HealthKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HealthKitService.swift; sourceTree = "<group>"; };
+		466D1DCD15A5467BBD4068DE /* BodyProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyProfile.swift; sourceTree = "<group>"; };
+		2F70F0B18E9E42F5A322C7BE /* DailyHealthSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyHealthSnapshot.swift; sourceTree = "<group>"; };
+		0496068A1A154719B34DF1DE /* GoalProjection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalProjection.swift; sourceTree = "<group>"; };
+		C97F2A19AD344594B96EF1B4 /* MealAnalysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealAnalysis.swift; sourceTree = "<group>"; };
+		08B7464CBFA64999BF9A4C0A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		E19FB870D78A44B09B1E4706 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		46CFA48E5F8F4BBF894A3F95 /* BodyCompass.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BodyCompass.entitlements; sourceTree = "<group>"; };
+		AE32B164E769415AAAE52C96 /* BodyCompass.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BodyCompass.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		A09057FD99D0429987E41BAC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		6A62CC6ACCC5455093ACB033 = {
+			isa = PBXGroup;
+			children = (
+				32F95FAED8B949148DADC7ED /* App */,
+				5D4B84F375D440FC82C60AE4 /* BodyCompassCore */,
+				3DFB5F2C0D2D43DFB62EB7E3 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		32F95FAED8B949148DADC7ED /* App */ = {
+			isa = PBXGroup;
+			children = (
+				104976314DCC4BE696608BB6 /* AppStore.swift */,
+				D489589B99744533BC61F82C /* BodyCompassApp.swift */,
+				CB9A8FF6D38440A087540C82 /* RootView.swift */,
+				E19FB870D78A44B09B1E4706 /* Info.plist */,
+				46CFA48E5F8F4BBF894A3F95 /* BodyCompass.entitlements */,
+				F46DD9BC07BF44839777402F /* Design */,
+				E71691CE4A3E4F1193863AF8 /* Features */,
+				C24BF8EBFF7E46FF85C51782 /* Services */,
+				5D4BEFBBA618452FB385FAF1 /* Resources */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		F46DD9BC07BF44839777402F /* Design */ = {
+			isa = PBXGroup;
+			children = (
+				583605B7B67D46B787978A94 /* Theme.swift */,
+			);
+			path = Design;
+			sourceTree = "<group>";
+		};
+		E71691CE4A3E4F1193863AF8 /* Features */ = {
+			isa = PBXGroup;
+			children = (
+				7941E9948B9F4B91AF523C8B /* CoachChatView.swift */,
+				8D925B285BA346D398F1B0B5 /* GoalView.swift */,
+				49B5652FA1894B829223EE29 /* HistoryView.swift */,
+				1F0C7010FD7642318310C796 /* MealLogView.swift */,
+				C95C2DBC81D24B87A9B949E8 /* TodayView.swift */,
+			);
+			path = Features;
+			sourceTree = "<group>";
+		};
+		C24BF8EBFF7E46FF85C51782 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				211A805EEE4449608136F410 /* HealthKitService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		5D4BEFBBA618452FB385FAF1 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				08B7464CBFA64999BF9A4C0A /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		5D4B84F375D440FC82C60AE4 /* BodyCompassCore */ = {
+			isa = PBXGroup;
+			children = (
+				466D1DCD15A5467BBD4068DE /* BodyProfile.swift */,
+				2F70F0B18E9E42F5A322C7BE /* DailyHealthSnapshot.swift */,
+				0496068A1A154719B34DF1DE /* GoalProjection.swift */,
+				C97F2A19AD344594B96EF1B4 /* MealAnalysis.swift */,
+			);
+			path = Sources/BodyCompassCore;
+			sourceTree = "<group>";
+		};
+		3DFB5F2C0D2D43DFB62EB7E3 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				AE32B164E769415AAAE52C96 /* BodyCompass.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		19BB11C40B334A7FBBA8B968 /* BodyCompass */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A02BD4D47CE84800A75421D7 /* Build configuration list for PBXNativeTarget "BodyCompass" */;
+			buildPhases = (
+				1F52F9485A9043DBA991347C /* Sources */,
+				A09057FD99D0429987E41BAC /* Frameworks */,
+				C643470AA2F54B919DD6839B /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BodyCompass;
+			productName = BodyCompass;
+			productReference = AE32B164E769415AAAE52C96 /* BodyCompass.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		93465B898AB74DB09BEE5566 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1600;
+				LastUpgradeCheck = 1600;
+				TargetAttributes = {
+					19BB11C40B334A7FBBA8B968 = {
+						CreatedOnToolsVersion = 16.0;
+					};
+				};
+			};
+			buildConfigurationList = B29FE71A37604C6185163FA5 /* Build configuration list for PBXProject "BodyCompass" */;
+			compatibilityVersion = "Xcode 15.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 6A62CC6ACCC5455093ACB033;
+			productRefGroup = 3DFB5F2C0D2D43DFB62EB7E3 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				19BB11C40B334A7FBBA8B968 /* BodyCompass */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		C643470AA2F54B919DD6839B /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				8C1B8501AC0441C9987C575C /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		1F52F9485A9043DBA991347C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				30FE1F035D724FB9874B2E6C /* BodyCompassApp.swift in Sources */,
+				53E2DEE75137405D909E13DA /* AppStore.swift in Sources */,
+				3968E992129E47B2B174A87D /* RootView.swift in Sources */,
+				A34C3E3DEDAE46BC990C3FF3 /* Theme.swift in Sources */,
+				DB55F80455F54976B22882E4 /* TodayView.swift in Sources */,
+				6D4BCFA712DF45168EB5F364 /* MealLogView.swift in Sources */,
+				A11F08BD23C447AA931DCFD1 /* GoalView.swift in Sources */,
+				B608998B5AA94E6CB1783D68 /* HistoryView.swift in Sources */,
+				B49214323C30478C99CB4133 /* CoachChatView.swift in Sources */,
+				454DCD5CD1B24C4EB15471EA /* HealthKitService.swift in Sources */,
+				BAE28A71FC7D4AC285D3DAB5 /* BodyProfile.swift in Sources */,
+				B294F333562547C8BE577E84 /* DailyHealthSnapshot.swift in Sources */,
+				E32A5F6E499946E6AB520A20 /* GoalProjection.swift in Sources */,
+				CF620A74A25649D498F2816F /* MealAnalysis.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		82829ED8707A4DB2B7C4B6FC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		87001807F7E545229EAEAF4D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		708CF35FDA764CA0B406A955 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/BodyCompass.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rohanmondal.bodycompass;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		3AEE54088F82473D97FF30AE /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_ENTITLEMENTS = App/BodyCompass.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "";
+				DEVELOPMENT_TEAM = "";
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = App/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rohanmondal.bodycompass;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		B29FE71A37604C6185163FA5 /* Build configuration list for PBXProject "BodyCompass" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				82829ED8707A4DB2B7C4B6FC /* Debug */,
+				87001807F7E545229EAEAF4D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A02BD4D47CE84800A75421D7 /* Build configuration list for PBXNativeTarget "BodyCompass" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				708CF35FDA764CA0B406A955 /* Debug */,
+				3AEE54088F82473D97FF30AE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 93465B898AB74DB09BEE5566 /* Project object */;
+}

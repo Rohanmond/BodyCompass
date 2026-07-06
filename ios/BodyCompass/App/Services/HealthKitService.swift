@@ -1,6 +1,8 @@
 import Foundation
 import HealthKit
+#if canImport(BodyCompassCore)
 import BodyCompassCore
+#endif
 
 final class HealthKitService {
     private let store = HKHealthStore()

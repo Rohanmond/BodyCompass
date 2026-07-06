@@ -22,6 +22,7 @@ Native iOS fat-loss coach for reaching 12% body fat with HealthKit history, dail
 - Product requirements: `docs/prd.md`
 - Step-by-step phases: `docs/phases.md`
 - Beginner Swift guide: `docs/swift-beginner-guide.md`
+- Xcode Phase 1 guide: `docs/xcode-phase-1.md`
 
 ## Quick Start
 
@@ -33,7 +34,7 @@ npm test
 npm run dev
 ```
 
-Open the iOS folder in Xcode and run the `BodyCompass` app target. Core goal logic can also be tested from the command line:
+Open `ios/BodyCompass/BodyCompass.xcodeproj` in Xcode and run the `BodyCompass` app target. Core goal logic can also be tested from the command line:
 
 ```sh
 cd ios/BodyCompass

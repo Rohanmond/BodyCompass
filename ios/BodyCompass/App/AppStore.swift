@@ -1,5 +1,7 @@
 import Foundation
+#if canImport(BodyCompassCore)
 import BodyCompassCore
+#endif
 
 @MainActor
 final class AppStore: ObservableObject {

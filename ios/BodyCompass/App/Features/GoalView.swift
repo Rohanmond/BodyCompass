@@ -15,9 +15,9 @@ struct GoalView: View {
                         .foregroundStyle(.secondary)
 
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                        MetricCard(title: "Current fat mass", value: "\(projection.currentFatMassKg, specifier: "%.1f") kg", caption: "Estimated", systemImage: "scalemass")
-                        MetricCard(title: "Target weight", value: "\(projection.targetWeightKg, specifier: "%.1f") kg", caption: "At 12%", systemImage: "flag.checkered")
-                        MetricCard(title: "Fat to lose", value: "\(projection.fatToLoseKg, specifier: "%.1f") kg", caption: "Protect lean mass", systemImage: "arrow.down.forward")
+                        MetricCard(title: "Current fat mass", value: String(format: "%.1f kg", projection.currentFatMassKg), caption: "Estimated", systemImage: "scalemass")
+                        MetricCard(title: "Target weight", value: String(format: "%.1f kg", projection.targetWeightKg), caption: "At 12%", systemImage: "flag.checkered")
+                        MetricCard(title: "Fat to lose", value: String(format: "%.1f kg", projection.fatToLoseKg), caption: "Protect lean mass", systemImage: "arrow.down.forward")
                         MetricCard(title: "Optimum time", value: "\(projection.optimumWeeks) wk", caption: "\(projection.dailyDeficitKcal) kcal/day deficit", systemImage: "clock")
                     }
 

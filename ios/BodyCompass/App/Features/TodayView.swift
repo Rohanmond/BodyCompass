@@ -21,7 +21,7 @@ struct TodayView: View {
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                         MetricCard(title: "Steps", value: "\(store.today.steps)", caption: "Goal: 10,000", systemImage: "figure.walk")
                         MetricCard(title: "Active energy", value: "\(Int(store.today.activeEnergyKcal)) kcal", caption: "From HealthKit", systemImage: "flame")
-                        MetricCard(title: "Sleep", value: "\(store.today.sleepHours ?? 0, specifier: "%.1f") h", caption: "Recovery input", systemImage: "bed.double")
+                        MetricCard(title: "Sleep", value: String(format: "%.1f h", store.today.sleepHours ?? 0), caption: "Recovery input", systemImage: "bed.double")
                         MetricCard(title: "Workout", value: "\(store.today.workoutMinutes) min", caption: "Strength protects lean mass", systemImage: "dumbbell")
                     }
 

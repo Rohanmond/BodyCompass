@@ -18,13 +18,21 @@ Without API keys, the backend returns deterministic mock responses. Add real key
 
 ## iOS
 
-Open `ios/BodyCompass` in Xcode. The SwiftUI app currently uses mock data and a local HealthKit service wrapper.
+Open the Xcode project:
+
+```text
+ios/BodyCompass/BodyCompass.xcodeproj
+```
+
+The SwiftUI app currently uses mock data and a local HealthKit service wrapper.
 
 HealthKit requires:
 
 - HealthKit capability enabled in Xcode.
 - `NSHealthShareUsageDescription` in the app Info configuration.
 - A real device for the most reliable HealthKit behavior.
+
+For detailed Xcode steps, see `docs/xcode-phase-1.md`.
 
 ## Command-Line Checks
 

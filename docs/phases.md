@@ -11,19 +11,20 @@ Implemented:
 - Backend unit tests pass with `npm test`.
 - Backend health and goal projection endpoints have been smoke tested locally.
 - PRD, setup docs, HealthKit notes, API notes, and beginner Swift guide exist.
+- Phase 1 Xcode project, shared scheme, Info.plist, entitlements, and asset catalog exist.
+- Phase 1 iOS simulator build succeeds with Xcode.
 
 Partially implemented:
 
-- Phase 1 has source files for the SwiftUI app shell, but not a full Xcode `.xcodeproj` app target yet.
 - Phase 3 has a HealthKit service wrapper and requested data types, but not the full metric query implementation.
 - Phase 4 has mock schedule UI and a basic next best action.
 - Phase 5 and Phase 6 have backend mock provider flows and UI placeholders, but not real photo upload, real provider API calls, or persistence.
 - Phase 7 has a History tab placeholder, but not real weekly analytics yet.
+- Phase 1 still needs you to open Xcode locally and choose signing for real-device runs.
 
 Not implemented yet:
 
 - Real onboarding/profile persistence.
-- Real Xcode project/signing/capabilities.
 - Camera/photo picker.
 - Database-backed storage.
 - Real OpenAI/Gemini HTTP integrations.
@@ -69,7 +70,19 @@ Phase 0 done status: done.
 
 Goal: make the app open and run from Xcode on simulator/device.
 
-Status: not implemented.
+Status: implemented and simulator-build verified.
+
+Implemented in this phase:
+
+- `BodyCompass.xcodeproj` exists.
+- Shared `BodyCompass` scheme exists.
+- Existing SwiftUI app files are attached to the app target.
+- Bundle ID is set to `com.rohanmondal.bodycompass`.
+- App Info.plist includes HealthKit, camera, and photo library usage descriptions.
+- HealthKit entitlements file exists.
+- Placeholder asset catalog exists.
+- Xcode beginner guide exists at `docs/xcode-phase-1.md`.
+- Simulator build succeeds with `xcodebuild` when full Xcode is selected.
 
 Deliverables:
 
@@ -78,6 +91,11 @@ Deliverables:
 - Configure bundle ID, signing, app icon placeholder, and deployment target.
 - Enable HealthKit capability.
 - Add Info usage descriptions for HealthKit and camera/photo access.
+
+Local verification note:
+
+- Terminal verification with `xcodebuild` requires the active developer directory to point to full Xcode, not Command Line Tools.
+- Real-device runs still require your Apple signing team in Xcode.
 
 Done when:
 
