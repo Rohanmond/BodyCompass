@@ -2,6 +2,33 @@
 
 This roadmap is written so each phase produces something useful and testable. Do not jump to App Store or payments before the core coach loop works.
 
+## Current Implementation Status
+
+Implemented:
+
+- Phase 0 is implemented as the initial repo foundation.
+- Swift core goal projection check passes with `swift run BodyCompassCoreCheck`.
+- Backend unit tests pass with `npm test`.
+- Backend health and goal projection endpoints have been smoke tested locally.
+- PRD, setup docs, HealthKit notes, API notes, and beginner Swift guide exist.
+
+Partially implemented:
+
+- Phase 1 has source files for the SwiftUI app shell, but not a full Xcode `.xcodeproj` app target yet.
+- Phase 3 has a HealthKit service wrapper and requested data types, but not the full metric query implementation.
+- Phase 4 has mock schedule UI and a basic next best action.
+- Phase 5 and Phase 6 have backend mock provider flows and UI placeholders, but not real photo upload, real provider API calls, or persistence.
+- Phase 7 has a History tab placeholder, but not real weekly analytics yet.
+
+Not implemented yet:
+
+- Real onboarding/profile persistence.
+- Real Xcode project/signing/capabilities.
+- Camera/photo picker.
+- Database-backed storage.
+- Real OpenAI/Gemini HTTP integrations.
+- App Store/TestFlight readiness.
+
 ## Phase 0: Foundation
 
 Goal: make the repo understandable and runnable.
@@ -14,7 +41,21 @@ Deliverables:
 - Node backend with mock AI providers.
 - Beginner docs for Swift and setup.
 
-Status: started.
+Status: implemented.
+
+Implemented in this phase:
+
+- Root repo docs and `.gitignore`.
+- Swift package at `ios/BodyCompass`.
+- SwiftUI app source files for Today, Meals, Goal, History, and Coach tabs.
+- Shared Swift design components and mock app state.
+- HealthKit service wrapper with the intended read types.
+- Swift body-fat goal projection logic.
+- Swift command-line verification through `BodyCompassCoreCheck`.
+- Node backend with routes for health, goal projection, meal analysis, chat, and health snapshots.
+- Mock OpenAI + Gemini provider flow.
+- Backend goal projection tests.
+- PRD, phased roadmap, API notes, HealthKit notes, setup guide, and Swift beginner guide.
 
 Done when:
 
@@ -22,9 +63,13 @@ Done when:
 - `npm test` passes.
 - Backend `/health` and `/api/goal/projection` work locally.
 
+Phase 0 done status: done.
+
 ## Phase 1: Real iOS Project
 
 Goal: make the app open and run from Xcode on simulator/device.
+
+Status: not implemented.
 
 Deliverables:
 
@@ -44,6 +89,8 @@ Done when:
 
 Goal: let the user enter real starting data.
 
+Status: not implemented.
+
 Deliverables:
 
 - Onboarding screens for age, height, weight, current body fat, target body fat, and schedule preference.
@@ -60,6 +107,14 @@ Done when:
 ## Phase 3: HealthKit Daily Sync
 
 Goal: connect BodyCompass to Apple Health data.
+
+Status: partially implemented.
+
+Implemented so far:
+
+- HealthKit service file exists.
+- Intended HealthKit read types are listed in code and docs.
+- Manual/mock fallback data exists in `AppStore`.
 
 Deliverables:
 
@@ -78,6 +133,14 @@ Done when:
 
 Goal: make the app a daily accountability system.
 
+Status: partially implemented.
+
+Implemented so far:
+
+- Mock daily schedule exists.
+- Today screen shows schedule completion.
+- Today screen shows a simple next best action message.
+
 Deliverables:
 
 - Editable daily schedule.
@@ -95,6 +158,16 @@ Done when:
 ## Phase 5: Meal Photo Logging
 
 Goal: make meal logging fast and useful.
+
+Status: partially implemented.
+
+Implemented so far:
+
+- Meal Log screen exists.
+- Portion notes field exists.
+- Backend meal analysis endpoint exists.
+- Backend calls mock OpenAI and Gemini provider functions.
+- Reconciled estimate shape exists.
 
 Deliverables:
 
@@ -116,6 +189,15 @@ Done when:
 
 Goal: connect AI answers to the user’s real goal data.
 
+Status: partially implemented.
+
+Implemented so far:
+
+- Coach tab exists.
+- Combined, ChatGPT, and Gemini UI tabs exist.
+- Backend chat endpoint exists.
+- Backend calls mock OpenAI and Gemini provider functions.
+
 Deliverables:
 
 - Chat UI with combined, ChatGPT, and Gemini tabs.
@@ -131,6 +213,13 @@ Done when:
 ## Phase 7: Weekly Review and History
 
 Goal: turn logs into progress decisions.
+
+Status: partially implemented.
+
+Implemented so far:
+
+- History tab placeholder exists.
+- Planned history sections are visible.
 
 Deliverables:
 
@@ -150,6 +239,8 @@ Done when:
 
 Goal: stop relying on in-memory/mock data.
 
+Status: not implemented.
+
 Deliverables:
 
 - Database schema for users, profiles, snapshots, meals, schedule items, and chats.
@@ -166,6 +257,8 @@ Done when:
 ## Phase 9: Polish and Beta
 
 Goal: make it reliable enough for daily use.
+
+Status: not implemented.
 
 Deliverables:
 
@@ -186,6 +279,8 @@ Done when:
 ## Phase 10: Future Ideas
 
 Only consider these after the MVP loop works:
+
+Status: not implemented.
 
 - Nutrition database barcode/search integration.
 - Apple Watch companion.
