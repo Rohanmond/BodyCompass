@@ -17,9 +17,9 @@ Implemented:
 - Phase 1 iOS simulator build succeeds with Xcode.
 - Phase 2 onboarding, profile persistence, profile editing, and live goal recalculation are implemented.
 - Phase 3 HealthKit permission flow, real daily metric queries, manual fallback entries, and Today-screen refresh are implemented.
-- Phase 4 editable/persisted daily schedule, completion tracking, daily and 7-day adherence scores, metric-aware next best action, and optional local reminders are implemented.
 
 Partially implemented:
+- Phase 4 still needs the weekly training plan, exercise prescriptions, performance logging, progression, and coach confirmation workflow.
 - Phase 5 and Phase 6 have backend mock provider flows and UI placeholders, but not real photo upload, real provider API calls, or persistence.
 - Phase 7 has a History tab placeholder, but not real weekly analytics or progress-photo analysis yet.
 - Phase 1 still needs you to open Xcode locally and choose signing for real-device runs.
@@ -166,11 +166,11 @@ Done when:
 
 Phase 3 done status: implementation complete and simulator target builds; confirm the permission sheet, partial/denied access, and real metrics on a signed iPhone run.
 
-## Phase 4: Daily Schedule and Adherence
+## Phase 4: Daily Schedule, Training Plan, and Adherence
 
 Goal: make the app a daily accountability system.
 
-Status: implemented and build-verified. Notification delivery still needs a signed device run.
+Status: partially implemented. Daily schedule and adherence are build-verified; structured training plans and coach-confirmed updates are not implemented.
 
 Implemented in this phase:
 
@@ -182,6 +182,17 @@ Implemented in this phase:
 - Next-best-action logic that ranks training, protein, steps, sleep, and remaining tasks using real metrics and meal protein.
 - Optional local reminders (UserNotifications) with a master toggle and a per-task reminder time.
 - Pure schedule/adherence/next-best-action logic in `BodyCompassCore`, exercised by `BodyCompassCoreCheck`.
+
+Training plan still to implement:
+
+- Seed the user's Monday-to-Sunday chest/triceps, back/biceps, legs, swimming, upper-body, and arms/swimming split.
+- Add a weekly routine view and a detailed session screen.
+- Store exercises, warm-ups, working sets, rep ranges, target RIR/RPE, rest time, substitutions, and coaching notes.
+- Log completed load, reps, effort, pain/limitations, and swimming duration/intensity.
+- Suggest double-progression changes from recent performance without automatically applying them.
+- Let Coach return a structured routine-change proposal with reasons, recovery impact, and a before/after diff.
+- Require Confirm, Edit, or Reject before changing the active routine.
+- Version routines so a confirmed change can be reviewed or rolled back.
 
 Deliverables:
 
@@ -196,8 +207,10 @@ Done when:
 - User can check off daily tasks.
 - Today screen explains the most important remaining action.
 - Weekly adherence score can be calculated.
+- User can see what exercises, sets, reps, effort, and rest to perform today.
+- Coach cannot modify the active routine until the user confirms the proposal.
 
-Phase 4 done status: implementation complete and simulator target builds; confirm reminder delivery and the notification permission prompt on a signed iPhone run.
+Phase 4 done status: daily schedule foundation is complete; training programming and coach approval workflow remain.
 
 ## Phase 5: Meal Photo Logging
 
@@ -336,7 +349,6 @@ Status: not implemented.
 
 - Nutrition database barcode/search integration.
 - Apple Watch companion.
-- Custom workout plan.
 - Streaks and habit analytics.
 - Subscription/payment model.
 - Android version.

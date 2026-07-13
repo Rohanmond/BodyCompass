@@ -2,26 +2,27 @@
 
 ## Best Next Phase
 
-Proceed with Phase 5: Meal Photo Logging.
+Continue Phase 4: Structured Training Plan.
 
 ## Recommended Scope
 
-Build the first real meal capture and analysis loop:
+Build the first structured training loop:
 
-- camera and photo-library input,
-- portion and preparation notes,
-- multipart upload to the backend,
-- provider and reconciled result states,
-- user correction before saving.
+- seed the user's weekly strength and swimming split,
+- show today's detailed session,
+- prescribe exercises, sets, rep ranges, RIR/RPE, rest, and substitutions,
+- record completed sets and swimming work,
+- create Coach routine-change proposals that require confirmation.
 
 ## Suggested Implementation
 
-- Add a SwiftUI photo picker and camera capture flow to `MealLogView`.
-- Resize images and remove metadata before upload.
-- Add a typed iOS API client for `/api/meals/analyze`.
-- Keep OpenAI and Gemini keys and provider calls on the backend.
-- Add loading, low-confidence, provider-failure, correction, and retry states.
-- Persist corrected results separately from raw provider estimates.
+- Add pure routine, training-day, exercise-prescription, workout-log, and change-proposal models to `BodyCompassCore`.
+- Seed Monday chest/triceps; Tuesday back/biceps plus swim; Wednesday legs; Thursday swim; Friday upper body; Saturday arms plus swim; Sunday swim.
+- Add weekly routine and session-detail SwiftUI views.
+- Implement a conservative double-progression rule using rep range and target RIR/RPE.
+- Extend Coach responses with a validated structured proposal schema.
+- Add Confirm, Edit, Reject, version history, and rollback behavior.
+- Ask for training experience, equipment, limitations, and swimming intensity before generating the first detailed prescription.
 
 ## Verification
 

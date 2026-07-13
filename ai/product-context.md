@@ -12,6 +12,8 @@ The user wants:
 - Apple Health history,
 - weekly morning progress-photo comparison,
 - daily schedule tracking,
+- a structured weekly strength/swimming plan with sets, reps, effort, rest, and progression,
+- coach-suggested routine updates that require confirmation,
 - feedback from both ChatGPT and Gemini,
 - guidance while learning iOS development.
 
@@ -23,6 +25,7 @@ BodyCompass should answer:
 2. What went wrong today?
 3. What should I do next?
 4. Is my physique visibly changing under comparable conditions?
+5. What exactly should I train today, and how should I progress it?
 
 ## Tone
 

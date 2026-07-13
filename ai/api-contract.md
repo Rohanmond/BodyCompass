@@ -132,3 +132,28 @@ Response:
 ```
 
 The endpoint must reject unsuitable images, remove metadata, avoid public image URLs, and return ranges rather than a single body-fat measurement.
+
+## `GET /api/training/routine` (Planned)
+
+Returns the active versioned weekly routine with strength exercises, swimming sessions, set and rep ranges, effort targets, rest periods, progression rules, and substitutions.
+
+## `POST /api/training/logs` (Planned)
+
+Stores completed strength sets or swimming-session results. Logged effort and performance inform future progression suggestions.
+
+## `POST /api/training/proposals` (Planned)
+
+Creates a pending routine-change proposal from Coach. The response includes a before/after diff, rationale, recovery impact, and structured routine version. Creating a proposal never changes the active routine.
+
+## `POST /api/training/proposals/:id/decision` (Planned)
+
+Request:
+
+```json
+{
+  "decision": "confirm",
+  "editedRoutine": null
+}
+```
+
+`decision` must be `confirm`, `edit`, or `reject`. Only confirmation of a valid proposal activates a new routine version.

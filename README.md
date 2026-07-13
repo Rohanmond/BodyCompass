@@ -16,12 +16,15 @@ Native iOS fat-loss coach for reaching 12% body fat with HealthKit history, dail
 - Meal-photo analysis through both ChatGPT and Gemini.
 - Standardized weekly progress photos with an AI-estimated body-fat range and trend feedback.
 - Daily schedule and adherence dashboard.
+- Weekly strength/swimming routine with exercise, set, rep, rest, and progression guidance.
+- Coach-proposed routine updates that require user confirmation.
 - Weekly review and history trends.
 - Coach chat with combined answer and provider comparison.
 
 ## Planning Docs
 
 - Current implementation status: `docs/implementation-status.md`
+- Training plan requirements: `docs/training-plan.md`
 - Product requirements: `docs/prd.md`
 - Step-by-step phases: `docs/phases.md`
 - Beginner Swift guide: `docs/swift-beginner-guide.md`

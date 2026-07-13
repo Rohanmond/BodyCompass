@@ -25,6 +25,7 @@ Responsibilities:
 - HealthKit authorization and metric reads.
 - Camera/photo picker for meals and standardized weekly progress check-ins.
 - Local user state and manual fallback inputs.
+- Versioned weekly routine, session logging, and pending coach-change proposals.
 - Display AI comparison and reconciled recommendations.
 
 Current app tabs:
@@ -58,6 +59,7 @@ Responsibilities:
 - Analyze meals through both providers.
 - Compare weekly progress photos through both providers using health trends as context.
 - Create combined coach chat answers.
+- Validate and reconcile structured training-plan proposals without activating them.
 - Accept health snapshots and future persisted logs.
 - Calculate or mirror goal projections for API clients.
 

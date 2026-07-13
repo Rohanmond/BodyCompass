@@ -32,6 +32,7 @@ The initial target user is a focused adult fitness user who:
 - “Apple Health has my activity/sleep data, but it does not explain what to do.”
 - “Generic AI advice is not connected to my real history.”
 - “I cannot tell whether my physique is visibly changing from week to week.”
+- “I know which body parts I want to train, but I need exact exercises, sets, reps, rest, and progression guidance.”
 
 ## 5. MVP Scope
 
@@ -42,6 +43,8 @@ The initial target user is a focused adult fitness user who:
 - Manual fallback entries for missing HealthKit data.
 - 12% body-fat projection engine.
 - Today dashboard with schedule, calories, protein, activity, sleep, and next best action.
+- Editable weekly strength and swimming routine with exercise prescriptions and completion tracking.
+- Coach-proposed routine changes with an explicit confirmation step.
 - Meal logging with photo/context input.
 - Backend endpoint that sends meal analysis to both OpenAI and Gemini.
 - Reconciled calorie/macro estimate with confidence and warnings.
@@ -83,6 +86,21 @@ The initial target user is a focused adult fitness user who:
 3. User sees progress against calories, protein, steps, workout, sleep, and schedule.
 4. App gives one next best action.
 
+### Training Session
+
+1. App loads the planned session for the day.
+2. User sees exercises, warm-up guidance, working sets, rep ranges, target effort, rest time, and substitutions.
+3. User records completed sets, reps, and weight or marks a swimming session complete.
+4. App suggests the next load or rep target using recent performance and recovery data.
+
+### Coach Routine Update
+
+1. User asks Coach to review or change the routine.
+2. Coach considers goals, training history, available equipment, injuries or limitations, recent performance, sleep, adherence, and swimming load.
+3. App shows the proposed changes as a before/after summary with reasons and recovery impact.
+4. User chooses Confirm, Edit, or Reject.
+5. Only a confirmed proposal becomes the active routine; the previous version remains in history and can be restored.
+
 ### Meal Photo Analysis
 
 1. User adds meal photo.
@@ -106,6 +124,7 @@ The initial target user is a focused adult fitness user who:
 - User completes daily check-in at least 5 days per week.
 - User reviews weekly projection at least once per week.
 - User completes a standardized progress-photo check-in at least three times per month.
+- User completes planned training sessions and records enough set data to calculate progression.
 - User corrects inaccurate meal estimates instead of abandoning logging.
 - App can explain timeline changes in plain language.
 
@@ -120,6 +139,10 @@ The initial target user is a focused adult fitness user who:
 - Prefer change over time under consistent photo conditions over claims about absolute body-fat percentage.
 - Do not infer identity, ethnicity, medical conditions, attractiveness, or other unrelated sensitive traits from progress photos.
 - Avoid medical diagnosis, extreme calorie cuts, unsafe supplement advice, or eating-disorder reinforcement.
+- Never change the active training routine directly from chat; return a structured proposal that requires confirmation.
+- Use rep ranges and effort targets instead of pretending one exact load fits every session.
+- Ask about experience, equipment, injuries, pain, and swimming intensity before making material programming changes.
+- Stop or redirect when the user reports sharp pain, neurological symptoms, chest pain, fainting, or other urgent warning signs.
 
 ## 9. Privacy Requirements
 
@@ -131,11 +154,29 @@ The initial target user is a focused adult fitness user who:
 - HealthKit permissions must be requested clearly and only for needed data.
 - User data should not be used for training unless the user explicitly opts in.
 
-## 10. MVP Acceptance Criteria
+## 10. Initial Training Routine
+
+The first user routine to seed in the app is:
+
+| Day | Planned training |
+| --- | --- |
+| Monday | Chest + triceps |
+| Tuesday | Back + biceps, then swimming |
+| Wednesday | Legs |
+| Thursday | Swimming |
+| Friday | Upper body |
+| Saturday | Arms, then swimming |
+| Sunday | Swimming |
+
+The app should treat this as an editable starting plan, not a permanent prescription. Because it contains five strength sessions and four swimming sessions with no full rest day, Coach should monitor fatigue, soreness, sleep, performance, and adherence and may propose recovery changes. No proposal is applied without confirmation.
+
+## 11. MVP Acceptance Criteria
 
 - User can open the app and see the five main tabs.
 - User can calculate a 12% body-fat timeline from profile inputs.
 - Backend returns mock AI meal/chat responses without API keys.
 - Backend can later use real OpenAI/Gemini keys without changing iOS code.
 - HealthKit service exists and is ready for real metric query implementation.
+- User can view the current weekly routine and a detailed prescription for each strength session.
+- Coach routine changes remain pending until the user confirms them.
 - Docs explain how to run, learn, and continue development.

@@ -9,7 +9,6 @@ Human-readable quick summary: `docs/implementation-status.md`.
 - Phase 1 Xcode project.
 - Phase 2 onboarding, profile editing, and local persistence.
 - Phase 3 HealthKit permission flow, metric queries, manual fallbacks, and Today refresh; real-device verification remains.
-- Phase 4 editable schedule, persisted completion, adherence history, next-best-action logic, and local reminder implementation; real-device reminder verification remains.
 - SwiftUI app shell with five tabs.
 - Swift core goal projection logic.
 - Xcode simulator build verification.
@@ -18,6 +17,7 @@ Human-readable quick summary: `docs/implementation-status.md`.
 
 ## Partially Implemented
 
+- Phase 4 daily schedule, persisted completion, adherence history, next-best-action logic, and reminders exist. Weekly workout programming, set/rep logging, progression, and coach-confirmed routine updates are not implemented.
 - Meal Log UI exists, but photo picker and upload are not implemented.
 - Backend AI provider functions are mocks.
 - Coach chat UI and endpoint exist, but real context wiring is not implemented.
@@ -27,6 +27,7 @@ Human-readable quick summary: `docs/implementation-status.md`.
 ## Not Implemented
 
 - Camera/photo picker.
+- Structured training routine, exercise prescriptions, workout logs, progression, and routine-change confirmation.
 - Progress-photo capture, private storage, comparison, and body-fat range analysis.
 - Real OpenAI and Gemini HTTP calls.
 - Database and object storage.

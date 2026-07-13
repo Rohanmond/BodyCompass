@@ -44,6 +44,10 @@ Coach answers should use:
 
 Answers should end with one next best action.
 
+When Coach suggests a routine change, it must return a structured proposal rather than mutate the routine. The proposal must include the exact days/exercises changed, sets and rep ranges, rationale, expected recovery impact, and any missing information. It remains pending until the user confirms or edits it.
+
+Training prescriptions should consider experience, equipment, limitations, recent set performance, target effort, sleep, soreness, adherence, and swimming load. Prefer rep ranges, RIR/RPE, rest periods, and explicit progression rules over fixed-load guesses.
+
 ## Progress Photo Prompt Goals
 
 For each standardized weekly check-in, providers should return:

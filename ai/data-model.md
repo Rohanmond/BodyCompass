@@ -87,6 +87,51 @@
 - combined response
 - provider responses
 
+`training_routines`
+
+- id and userId
+- version and status (active, proposed, archived)
+- effective date
+- source (user, coach proposal)
+- change rationale and recovery impact
+- createdAt and confirmedAt
+
+`training_days`
+
+- routineId
+- weekday and order
+- title and session type (strength, swimming, recovery)
+- muscle groups
+- notes
+
+`exercise_prescriptions`
+
+- trainingDayId
+- exercise name and order
+- warm-up instructions
+- working sets and rep range
+- target RIR or RPE
+- rest seconds
+- progression rule
+- substitutions
+
+`workout_logs`
+
+- userId and trainingDayId
+- performedAt
+- exercise, set, load, reps, and actual RIR/RPE
+- pain or limitation note
+- swimming duration, distance, and intensity when applicable
+
+`routine_change_proposals`
+
+- currentRoutineId and proposedRoutineId
+- originating coach message
+- structured before/after changes
+- reasons, expected benefit, and recovery impact
+- status (pending, confirmed, edited, rejected)
+- user decision timestamp
+
 `progress_check_ins`
 
 - userId
