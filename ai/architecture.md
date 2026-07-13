@@ -10,6 +10,7 @@ flowchart TD
     IOS <--> Watch["BodyCompass watchOS Companion"]
     Watch --> HealthKit
     IOS --> API["BodyCompass Node API"]
+    API --> Email["Resend Email OTP"]
     API --> OpenAI["OpenAI Provider"]
     API --> Gemini["Gemini Provider"]
     API --> Store["Private SQLite Metadata"]
@@ -31,6 +32,8 @@ Responsibilities:
 - Sync routine/session data with the offline-capable watchOS companion.
 - Display AI comparison and reconciled recommendations.
 - Persist Coach exchanges locally and validate AI routine instructions before creating pending proposals.
+- Request and verify passwordless email codes, then keep only the opaque session in Keychain.
+- Display server-enforced per-user daily AI allowances.
 
 Current app tabs:
 
@@ -77,7 +80,8 @@ Responsibilities:
 - Validate and reconcile structured training-plan proposals without activating them.
 - Accept health snapshots and future persisted logs.
 - Persist accepted result metadata in SQLite; never persist meal or progress photos.
-- Authenticate the configured private owner, export their data, and delete relational records.
+- Authenticate users through one-time email codes, scope every record to the session user, export their data, and delete relational records.
+- Enforce configurable per-user meal, Coach, and progress AI limits before provider calls.
 - Calculate or mirror goal projections for API clients.
 - Expose liveness/readiness probes, validate production configuration, and shut down cleanly.
 
@@ -90,13 +94,13 @@ Current state:
 - SQLite persists users, profiles, health snapshots, schedules, accepted meals, Coach exchanges, and progress check-ins in WAL mode.
 - Meal and progress photos exist only in the capture UI and transient provider-analysis request. They are not written to iOS history, SQLite, backup, or export.
 - iOS remains local-first with `UserDefaults` result metadata, then asynchronously backs up accepted records without images.
-- A bearer token is optional for local private mode, required in production, and stored in iOS Keychain.
+- A bearer session token is required for account API routes and stored in iOS Keychain. Raw OTP values and raw session tokens are never stored in SQLite.
 
 Deployment-ready operations:
 
 - A non-root Node container mounts durable SQLite storage at `/data` and exposes separate liveness/readiness probes.
 - Backup creates a consistent SQLite snapshot plus photo-free checksum manifest; restore verifies checksum and integrity and preserves the previous database.
-- Actual HTTPS hosting, production secret setup, and a host-level restore drill remain Phase 9D execution work.
+- Railway HTTPS hosting is live. Resend production variables, a verified sending domain, and a host-level restore drill remain Phase 9D execution work.
 - Managed relational storage is considered only when deployment scale justifies replacing the single-instance SQLite adapter.
 - SQLite now stores multi-user accounts and hashed expiring sessions. Move to managed Postgres before horizontal API scaling.
 

@@ -20,34 +20,53 @@ private struct CurrentAccountResponse: Decodable {
     let user: AuthenticatedUser
 }
 
-struct AuthenticationAPIClient {
-    private struct RegisterRequest: Encodable {
-        let displayName: String
-        let email: String
-        let password: String
+struct EmailCodeChallenge: Decodable, Equatable {
+    let challengeId: String
+    let expiresAt: String
+    let message: String
+    let developmentCode: String?
+}
+
+struct AIUsageSummary: Decodable, Equatable {
+    struct Allowance: Decodable, Equatable {
+        let used: Int
+        let limit: Int
+        let remaining: Int
     }
-    private struct LoginRequest: Encodable {
-        let email: String
-        let password: String
+
+    struct Usage: Decodable, Equatable {
+        let meal: Allowance
+        let chat: Allowance
+        let progress: Allowance
+    }
+
+    let day: String
+    let resetsAt: String
+    let usage: Usage
+}
+
+struct AuthenticationAPIClient {
+    private struct EmailCodeRequest: Encodable { let email: String }
+    private struct EmailCodeVerification: Encodable {
+        let challengeId: String
+        let code: String
     }
     private struct ErrorResponse: Decodable { let error: String }
 
-    func register(displayName: String, email: String, password: String) async throws -> AuthenticatedUser {
-        let response: AuthSessionResponse = try await send(
-            path: "api/auth/register",
+    func requestEmailCode(email: String) async throws -> EmailCodeChallenge {
+        try await send(
+            path: "api/auth/email/request",
             method: "POST",
-            body: RegisterRequest(displayName: displayName, email: email, password: password),
+            body: EmailCodeRequest(email: email),
             authorized: false
         )
-        SessionCredentialStore.save(token: response.token, user: response.user)
-        return response.user
     }
 
-    func login(email: String, password: String) async throws -> AuthenticatedUser {
+    func verifyEmailCode(challengeId: String, code: String) async throws -> AuthenticatedUser {
         let response: AuthSessionResponse = try await send(
-            path: "api/auth/login",
+            path: "api/auth/email/verify",
             method: "POST",
-            body: LoginRequest(email: email, password: password),
+            body: EmailCodeVerification(challengeId: challengeId, code: code),
             authorized: false
         )
         SessionCredentialStore.save(token: response.token, user: response.user)
@@ -69,6 +88,15 @@ struct AuthenticationAPIClient {
         let _: EmptyResponse? = try? await send(
             path: "api/auth/logout",
             method: "POST",
+            body: Optional<String>.none,
+            authorized: true
+        )
+    }
+
+    func usage() async throws -> AIUsageSummary {
+        try await send(
+            path: "api/usage",
+            method: "GET",
             body: Optional<String>.none,
             authorized: true
         )
@@ -127,14 +155,17 @@ final class AuthenticationStore: ObservableObject {
         return user
     }
 
-    func register(displayName: String, email: String, password: String) async throws {
-        let user = try await client.register(displayName: displayName, email: email, password: password)
+    func requestEmailCode(email: String) async throws -> EmailCodeChallenge {
+        try await client.requestEmailCode(email: email)
+    }
+
+    func verifyEmailCode(challengeId: String, code: String) async throws {
+        let user = try await client.verifyEmailCode(challengeId: challengeId, code: code)
         state = .signedIn(user)
     }
 
-    func login(email: String, password: String) async throws {
-        let user = try await client.login(email: email, password: password)
-        state = .signedIn(user)
+    func usage() async throws -> AIUsageSummary {
+        try await client.usage()
     }
 
     func signOut() async {

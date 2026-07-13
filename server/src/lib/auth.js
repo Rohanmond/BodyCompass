@@ -9,7 +9,7 @@ export function authenticate(request, store = persistenceStore()) {
 
   const session = store.sessionByTokenHash(hashSessionToken(token));
   return session
-    ? { ok: true, userId: session.userId, email: session.email, displayName: session.displayName, mode: "session" }
+    ? { ok: true, userId: session.userId, email: session.email, displayName: session.displayName, emailVerified: session.emailVerified, mode: "session" }
     : { ok: false, status: 401, body: { error: "Your session has expired. Please sign in again." } };
 }
 

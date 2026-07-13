@@ -1,12 +1,73 @@
-import { randomBytes, scrypt as scryptCallback, timingSafeEqual } from "node:crypto";
+import { createHmac, randomBytes, randomInt, randomUUID, scrypt as scryptCallback, timingSafeEqual } from "node:crypto";
 import { promisify } from "node:util";
 import { bearerToken, hashSessionToken } from "../lib/auth.js";
 import { readJson } from "../lib/readJson.js";
 import { persistenceStore } from "../persistence/database.js";
+import { sendEmailLoginCode } from "../services/emailDelivery.js";
 
 const scrypt = promisify(scryptCallback);
 const sessionDurationMs = 30 * 24 * 60 * 60 * 1_000;
 const attempts = new Map();
+
+export async function requestEmailCode(request) {
+  if (!allowAttempt(request)) return tooManyRequests();
+  const body = await readJson(request, 10_000);
+  const email = normalizeEmail(body.email);
+  if (!validEmail(email)) return badRequest("Enter a valid email address");
+
+  const latest = persistenceStore().latestEmailCode(email);
+  if (latest && Date.now() - Date.parse(latest.createdAt) < 60_000) {
+    return { status: 429, body: { error: "Wait one minute before requesting another code" } };
+  }
+
+  const id = randomUUID();
+  const code = String(randomInt(0, 1_000_000)).padStart(6, "0");
+  const expiresAt = new Date(Date.now() + 10 * 60_000).toISOString();
+  persistenceStore().createEmailCode({ id, email, codeHash: hashEmailCode(id, code), expiresAt });
+  const delivery = await sendEmailLoginCode({ to: email, code, challengeId: id });
+  return {
+    status: 202,
+    body: {
+      challengeId: id,
+      expiresAt,
+      message: "If the address can receive mail, a sign-in code is on its way.",
+      ...(delivery.developmentCode ? { developmentCode: delivery.developmentCode } : {})
+    }
+  };
+}
+
+export async function verifyEmailCode(request) {
+  if (!allowAttempt(request)) return tooManyRequests();
+  const body = await readJson(request, 10_000);
+  const challenge = typeof body.challengeId === "string" ? persistenceStore().emailCode(body.challengeId) : null;
+  const code = typeof body.code === "string" ? body.code.trim() : "";
+  if (!challenge || !/^\d{6}$/.test(code) || challenge.consumedAt || challenge.attempts >= 5 || Date.parse(challenge.expiresAt) <= Date.now()) {
+    return { status: 401, body: { error: "The code is incorrect or has expired" } };
+  }
+
+  const expected = Buffer.from(challenge.codeHash, "hex");
+  const supplied = Buffer.from(hashEmailCode(challenge.id, code), "hex");
+  if (expected.length !== supplied.length || !timingSafeEqual(expected, supplied)) {
+    persistenceStore().recordEmailCodeFailure(challenge.id);
+    return { status: 401, body: { error: "The code is incorrect or has expired" } };
+  }
+  if (!persistenceStore().consumeEmailCode(challenge.id)) {
+    return { status: 401, body: { error: "The code is incorrect or has expired" } };
+  }
+
+  let account = persistenceStore().accountByEmail(challenge.email);
+  const isNewAccount = !account;
+  if (!account) {
+    account = persistenceStore().createAccount({
+      email: challenge.email,
+      displayName: displayNameFromEmail(challenge.email),
+      emailVerifiedAt: new Date().toISOString()
+    });
+  } else {
+    persistenceStore().markEmailVerified(account.id);
+  }
+  return sessionResponse(account, isNewAccount ? 201 : 200);
+}
 
 export async function register(request) {
   if (!allowAttempt(request)) return tooManyRequests();
@@ -51,7 +112,8 @@ export function currentAccount(request) {
       user: {
         id: request.bodyCompassAuth.userId,
         email: request.bodyCompassAuth.email,
-        displayName: request.bodyCompassAuth.displayName
+        displayName: request.bodyCompassAuth.displayName,
+        emailVerified: request.bodyCompassAuth.emailVerified
       }
     }
   };
@@ -70,9 +132,23 @@ async function passwordCredentials(password) {
 }
 
 async function passwordMatches(password, salt, expectedHash) {
+  if (!salt || !expectedHash) return false;
   const expected = Buffer.from(expectedHash, "hex");
   const actual = Buffer.from(await scrypt(password, salt, expected.length));
   return expected.length === actual.length && timingSafeEqual(expected, actual);
+}
+
+function hashEmailCode(challengeId, code) {
+  const secret = process.env.BODYCOMPASS_AUTH_SECRET
+    ?? process.env.BODYCOMPASS_STORAGE_SECRET
+    ?? process.env.BODYCOMPASS_API_TOKEN
+    ?? "bodycompass-local-development-only";
+  return createHmac("sha256", secret).update(`email-login:${challengeId}:${code}`).digest("hex");
+}
+
+function displayNameFromEmail(email) {
+  const value = email.split("@")[0].replace(/[._-]+/g, " ").trim();
+  return value ? value.slice(0, 60).replace(/\b\w/g, (letter) => letter.toUpperCase()) : "BodyCompass User";
 }
 
 function sessionResponse(user, status = 200) {
@@ -84,7 +160,7 @@ function sessionResponse(user, status = 200) {
     body: {
       token,
       expiresAt,
-      user: { id: user.id, email: user.email, displayName: user.displayName }
+      user: { id: user.id, email: user.email, displayName: user.displayName, emailVerified: Boolean(user.emailVerifiedAt) }
     }
   };
 }

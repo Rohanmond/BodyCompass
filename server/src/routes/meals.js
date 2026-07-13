@@ -1,5 +1,6 @@
 import { readJson } from "../lib/readJson.js";
 import { analyzeMealWithProviders } from "../services/aiProviders.js";
+import { consumeAIQuota } from "../lib/aiQuota.js";
 
 export async function analyzeMeal(request) {
   const body = await readJson(request, 12_000_000);
@@ -28,6 +29,9 @@ export async function analyzeMeal(request) {
       return { status: 413, body: { error: "Meal image must be 8 MB or smaller" } };
     }
   }
+
+  const quotaResponse = consumeAIQuota(request, "meal");
+  if (quotaResponse) return quotaResponse;
 
   try {
     return {

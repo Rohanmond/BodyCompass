@@ -78,13 +78,35 @@
 
 `TrainingSetup` — experience, equipment, limitations, swim minutes/intensity; collected before detailed prescriptions are generated
 
-## Future Persistent Entities
+## Persistent And Planned Entities
 
 `users`
 
 - id
-- email or local user identifier
 - createdAt
+
+`auth_accounts`
+
+- userId
+- normalized unique email
+- display name
+- verified-at timestamp
+
+`auth_email_codes`
+
+- challenge id and normalized email
+- HMAC code hash, never the raw six-digit code
+- expiry, failed-attempt count, consumed timestamp, and created timestamp
+
+`auth_sessions`
+
+- SHA-256 token hash, never the raw bearer token
+- userId, expiry, and created timestamp
+
+`ai_usage`
+
+- userId, UTC day, and analysis kind (meal, chat, progress)
+- consumed units and updated timestamp
 
 `profiles`
 
@@ -103,11 +125,10 @@
 - imported/manual source flags
 - weight/body-fat/activity/sleep/workout fields
 
-`meals` (future server persistence; an iOS-local form is implemented)
+`meals`
 
 - userId
 - date/time
-- imageUrl
 - notes
 - openaiEstimate
 - geminiEstimate
@@ -199,13 +220,14 @@
 - userId
 - capturedAt
 - measurement conditions (morning, lighting, distance)
-- private front/side/back image references
 - OpenAI estimate range, confidence, observations, and limitations
 - Gemini estimate range, confidence, observations, and limitations
 - reconciled estimate range and visible change from prior check-in
 - linked weight and health trend context
 - user-corrected estimate or rejection
 - next-week recommendations
+
+Meal and progress image bytes are transient analysis inputs and are never part of these persisted entities.
 
 ## Design Rule
 

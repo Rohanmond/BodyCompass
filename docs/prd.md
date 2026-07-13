@@ -172,7 +172,8 @@ Manual changes do not require Coach confirmation. Confirmation is required only 
 ## 9. Privacy Requirements
 
 - API keys must never be stored in the iOS app.
-- Passwords must be salted and hashed; raw passwords and raw session tokens must never be stored in the backend database.
+- Authentication must use short-lived, single-use email OTP challenges. OTP values and raw session tokens must never be stored in the backend database.
+- Email delivery credentials must remain backend-only. Sign in with Apple is deferred while the project uses free Personal Team development.
 - Each backend record must be scoped to the authenticated user, and account switching must not expose another user's local data.
 - The iOS app stores only an opaque account session in Keychain and never asks users to enter a server credential.
 - Meal and progress photos must be transient analysis inputs and never retained in BodyCompass history or backup.
@@ -201,7 +202,8 @@ The app should treat this as an editable starting plan, not a permanent prescrip
 ## 11. MVP Acceptance Criteria
 
 - User can open the app and see the five main tabs.
-- User can register, sign in, relaunch with a validated session, sign out, and delete their account.
+- User can request an email code, verify or create an account, relaunch with a validated session, sign out, and delete their account.
+- Each user receives clearly displayed daily AI allowances; invalid requests do not consume an allowance and a dual-provider comparison counts as one app action.
 - Two accounts cannot read, overwrite, export, or delete one another's records.
 - User can calculate a 12% body-fat timeline from profile inputs.
 - Backend returns mock AI meal/chat responses without API keys.

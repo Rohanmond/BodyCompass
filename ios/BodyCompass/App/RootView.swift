@@ -55,23 +55,16 @@ struct RootView: View {
 }
 
 private struct AuthenticationView: View {
-    private enum Mode: String, CaseIterable, Identifiable {
-        case signIn = "Sign In"
-        case createAccount = "Create Account"
-        var id: Self { self }
-    }
-
     @EnvironmentObject private var authentication: AuthenticationStore
-    @State private var mode: Mode = .signIn
-    @State private var name = ""
     @State private var email = ""
-    @State private var password = ""
-    @State private var confirmation = ""
+    @State private var code = ""
+    @State private var challenge: EmailCodeChallenge?
     @State private var isWorking = false
     @State private var message: String?
+    @State private var resendSeconds = 0
     @FocusState private var focusedField: Field?
 
-    private enum Field { case name, email, password, confirmation }
+    private enum Field { case email, code }
 
     var body: some View {
         NavigationStack {
@@ -88,21 +81,49 @@ private struct AuthenticationView: View {
                             .foregroundStyle(.secondary)
                     }
 
-                    Picker("Account action", selection: $mode) {
-                        ForEach(Mode.allCases) { Text($0.rawValue).tag($0) }
-                    }
-                    .pickerStyle(.segmented)
-
-                    VStack(spacing: 16) {
-                        if mode == .createAccount {
-                            field("Name", text: $name, contentType: .name, field: .name)
+                    if challenge == nil {
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Sign in with email")
+                                .font(.title3.bold())
+                            Text("We will email you a six-digit code. The same secure flow creates your account the first time.")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                            TextField("Email", text: $email)
+                                .textContentType(.emailAddress)
+                                .focused($focusedField, equals: .email)
+                                .submitLabel(.go)
+                                .textFieldStyle(.roundedBorder)
+                                .frame(minHeight: 44)
+                                .onSubmit(requestCode)
+                                .textInputAutocapitalization(.never)
+                                .keyboardType(.emailAddress)
                         }
-                        field("Email", text: $email, contentType: .emailAddress, field: .email)
-                            .textInputAutocapitalization(.never)
-                            .keyboardType(.emailAddress)
-                        secureField("Password", text: $password, contentType: mode == .signIn ? .password : .newPassword, field: .password)
-                        if mode == .createAccount {
-                            secureField("Confirm password", text: $confirmation, contentType: .newPassword, field: .confirmation)
+                    } else {
+                        VStack(alignment: .leading, spacing: 16) {
+                            Label(email, systemImage: "envelope.fill")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                            Text("Enter your code")
+                                .font(.title3.bold())
+                            TextField("000000", text: $code)
+                                .textContentType(.oneTimeCode)
+                                .keyboardType(.numberPad)
+                                .focused($focusedField, equals: .code)
+                                .multilineTextAlignment(.center)
+                                .font(.title2.monospacedDigit().weight(.semibold))
+                                .textFieldStyle(.roundedBorder)
+                                .frame(minHeight: 52)
+                                .onChange(of: code) { _, value in
+                                    code = String(value.filter(\.isNumber).prefix(6))
+                                }
+
+                            HStack {
+                                Button("Change email") { reset() }
+                                Spacer()
+                                Button(resendSeconds > 0 ? "Resend in \(resendSeconds)s" : "Resend code") { requestCode() }
+                                    .disabled(resendSeconds > 0 || isWorking)
+                            }
+                            .font(.subheadline.weight(.semibold))
                         }
                     }
 
@@ -112,10 +133,10 @@ private struct AuthenticationView: View {
                             .foregroundStyle(Theme.coral)
                     }
 
-                    Button(action: submit) {
+                    Button(action: challenge == nil ? requestCode : verifyCode) {
                         HStack {
                             if isWorking { ProgressView().tint(.white) }
-                            Text(mode.rawValue).fontWeight(.semibold)
+                            Text(challenge == nil ? "Email me a code" : "Verify and continue").fontWeight(.semibold)
                             Image(systemName: "arrow.right")
                         }
                         .frame(maxWidth: .infinity)
@@ -134,54 +155,62 @@ private struct AuthenticationView: View {
                 .frame(maxWidth: .infinity)
             }
             .background(Theme.background)
-            .onChange(of: mode) { _, _ in
-                message = nil
-                password = ""
-                confirmation = ""
+            .task(id: resendSeconds) {
+                guard resendSeconds > 0 else { return }
+                try? await Task.sleep(for: .seconds(1))
+                guard !Task.isCancelled else { return }
+                resendSeconds -= 1
             }
         }
     }
 
     private var canSubmit: Bool {
-        !email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            && password.count >= (mode == .createAccount ? 10 : 1)
-            && (mode == .signIn || (!name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty && password == confirmation))
+        if challenge == nil {
+            return email.contains("@") && email.contains(".")
+        }
+        return code.count == 6
     }
 
-    private func field(_ title: String, text: Binding<String>, contentType: UITextContentType, field: Field) -> some View {
-        TextField(title, text: text)
-            .textContentType(contentType)
-            .focused($focusedField, equals: field)
-            .submitLabel(.next)
-            .textFieldStyle(.roundedBorder)
-            .frame(minHeight: 44)
-    }
-
-    private func secureField(_ title: String, text: Binding<String>, contentType: UITextContentType, field: Field) -> some View {
-        SecureField(title, text: text)
-            .textContentType(contentType)
-            .focused($focusedField, equals: field)
-            .submitLabel(field == .confirmation || mode == .signIn ? .go : .next)
-            .textFieldStyle(.roundedBorder)
-            .frame(minHeight: 44)
-    }
-
-    private func submit() {
-        guard canSubmit else { return }
+    private func requestCode() {
+        guard email.contains("@"), !isWorking else { return }
         focusedField = nil
         isWorking = true
         message = nil
         Task {
             do {
-                if mode == .signIn {
-                    try await authentication.login(email: email, password: password)
-                } else {
-                    try await authentication.register(displayName: name, email: email, password: password)
-                }
+                let result = try await authentication.requestEmailCode(email: email.trimmingCharacters(in: .whitespacesAndNewlines))
+                challenge = result
+                resendSeconds = 60
+                code = result.developmentCode ?? ""
+                message = result.developmentCode == nil ? "Code sent. Check your inbox and spam folder." : "Local development code filled in."
+                focusedField = .code
             } catch {
                 message = error.localizedDescription
             }
             isWorking = false
         }
+    }
+
+    private func verifyCode() {
+        guard let challenge, code.count == 6, !isWorking else { return }
+        focusedField = nil
+        isWorking = true
+        message = nil
+        Task {
+            do {
+                try await authentication.verifyEmailCode(challengeId: challenge.challengeId, code: code)
+            } catch {
+                message = error.localizedDescription
+            }
+            isWorking = false
+        }
+    }
+
+    private func reset() {
+        challenge = nil
+        code = ""
+        message = nil
+        resendSeconds = 0
+        focusedField = .email
     }
 }

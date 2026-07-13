@@ -17,9 +17,10 @@ import {
   saveSchedule
 } from "./routes/accountData.js";
 import { authenticate } from "./lib/auth.js";
-import { currentAccount, login, logout, register } from "./routes/auth.js";
+import { currentAccount, login, logout, register, requestEmailCode, verifyEmailCode } from "./routes/auth.js";
 import { assertValidConfig } from "./lib/config.js";
 import { closePersistenceStore, persistenceStore } from "./persistence/database.js";
+import { usageSummary } from "./lib/aiQuota.js";
 
 try {
   process.loadEnvFile?.(".env");
@@ -36,8 +37,11 @@ const routes = {
   "GET /health/ready": readiness,
   "POST /api/auth/register": register,
   "POST /api/auth/login": login,
+  "POST /api/auth/email/request": requestEmailCode,
+  "POST /api/auth/email/verify": verifyEmailCode,
   "GET /api/auth/me": currentAccount,
   "POST /api/auth/logout": logout,
+  "GET /api/usage": usageSummary,
   "POST /api/meals/analyze": analyzeMeal,
   "POST /api/chat": createChatAnswer,
   "POST /api/goal/projection": createGoalProjection,
@@ -82,7 +86,9 @@ const server = createServer(async (request, response) => {
 
 const publicRoutes = new Set([
   "POST /api/auth/register",
-  "POST /api/auth/login"
+  "POST /api/auth/login",
+  "POST /api/auth/email/request",
+  "POST /api/auth/email/verify"
 ]);
 
 server.listen(port, host, () => {

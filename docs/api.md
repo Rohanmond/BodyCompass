@@ -2,14 +2,18 @@
 
 Base URL: `http://localhost:8080`
 
-All API routes except registration and login require an account session using `Authorization: Bearer <session-token>`. Registration and login return an opaque 30-day token; only its SHA-256 hash is stored by the server. Passwords are hashed with `scrypt` and a unique random salt. The iOS app handles this header automatically and keeps the session in Keychain.
+All API routes except requesting and verifying an email code require an account session using `Authorization: Bearer <session-token>`. Verification returns an opaque 30-day token; only its SHA-256 hash is stored by the server. The iOS app handles this header automatically and keeps the session in Keychain.
 
 ## Authentication
 
-- `POST /api/auth/register`: `{ "displayName", "email", "password" }`. Passwords require at least 10 characters, a letter, and a number.
-- `POST /api/auth/login`: `{ "email", "password" }`.
+- `POST /api/auth/email/request`: `{ "email" }`. Creates a random six-digit, single-use challenge that expires after 10 minutes. Requests are IP-throttled and each address has a 60-second resend cooldown.
+- `POST /api/auth/email/verify`: `{ "challengeId", "code" }`. Verifies the address, creates the account when needed, consumes the challenge, and returns a 30-day session.
 - `GET /api/auth/me`: validates the stored session and returns the current user.
 - `POST /api/auth/logout`: revokes the current session.
+
+Legacy password registration/login routes remain temporarily available for already-installed builds during the passwordless migration. They are not presented in the current iOS UI.
+
+In local development without `RESEND_API_KEY`, the request response includes `developmentCode`. Production never returns the code and requires Resend delivery.
 
 ## `GET /health`
 
@@ -100,5 +104,6 @@ The request requires transient `currentPhotos` with unique `front`, `side`, and 
 - `POST /api/progress-check-ins/save` and `DELETE /api/progress-check-ins`: save/delete accepted result metadata only. Save requests containing photos are rejected.
 - `GET /api/data/export`: exports account JSON without photo contents because photos are never retained.
 - `DELETE /api/data`: deletes all database rows. The JSON body must contain `{ "confirmation": "DELETE MY BODYCOMPASS DATA" }`.
+- `GET /api/usage`: returns the signed-in user's meal, Coach, and progress AI use, limits, remaining actions, and next UTC reset.
 
 Meal and progress analysis routes process uploads in memory without persisting them. Explicit post-review save routes write accepted results and metadata only. Startup migration removes legacy local/server photo files and references from earlier builds.

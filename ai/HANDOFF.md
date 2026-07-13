@@ -8,7 +8,7 @@ Use this file as the authoritative starting point for Claude, ChatGPT, Gemini, C
 
 - Repository: `Rohanmond/BodyCompass`
 - Primary branch: `main`
-- Primary implementation state: Phases 0-8 and Phase 9C complete; multi-user accounts are deployed to Phase 9D Railway hosting; owner-account, restore, permission/Watch, beta, and TestFlight gates remain
+- Primary implementation state: Phases 0-8 and Phase 9C complete; passwordless OTP and AI quotas are implemented and simulator-build verified; Resend production configuration, deployment, restore, permission/Watch, beta, and TestFlight gates remain
 - iOS deployment target: iOS 17
 - App: native SwiftUI under `ios/BodyCompass`
 - Shared logic: Swift package target `BodyCompassCore`
@@ -127,11 +127,12 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 - `BodyCompassStore` uses Node's SQLite API with WAL, foreign keys, per-user records, and idempotent device synchronization.
 - Tables cover users, profiles, health snapshots, schedules, accepted meals, Coach exchanges, and photo-free progress check-ins.
 - Meal/progress photos are analysis-only. Save routes reject photo fields, exports contain no images, and startup migration purges legacy vault files and references.
-- `auth_accounts` stores normalized unique email, display name, and per-user salted `scrypt` password hashes. `auth_sessions` stores only SHA-256 hashes of random 30-day session tokens.
-- Register/login are public and throttled; all other `/api/*` routes require a valid account session and use its user ID for row ownership. Sign out revokes the current session.
-- The iOS root owns Sign In/Create Account and validates sessions at launch. The opaque session lives in Keychain and is automatically attached to every API client; no server credential is shown to users.
+- `auth_accounts` stores normalized unique email and display name. `auth_email_codes` stores only HMAC hashes of random six-digit challenges with ten-minute expiry, five-attempt limits, one-time consumption, and a per-address resend cooldown. `auth_sessions` stores only SHA-256 hashes of random 30-day session tokens.
+- Email-code request/verification are public and throttled; verification creates the account when needed and proves email ownership. All other `/api/*` routes require a valid account session and use its user ID for row ownership. Sign out revokes the current session.
+- The iOS root owns the two-step Email/Code flow, supports one-time-code AutoFill, and validates sessions at launch. The opaque session lives in Keychain and is automatically attached to every API client; no server credential is shown to users.
+- `ai_usage` enforces configurable per-user UTC-day limits at the server boundary (defaults: 10 meal, 30 Coach, 3 progress). Each dual-provider app action counts once, and Data & Privacy displays the remaining allowance.
 - Account switches clear prior local app/training/progress state before syncing. Goal → Data & Privacy shows account/backup state, sign out, photo-free export, and complete account deletion. Apple Health is never deleted.
-- SQLite restart, photo-free export, idempotency, account lifecycle, deletion, and iOS/Watch compilation are verified. The migration is live and a signed build is installed; owner-account use, email verification/password recovery, host restore drill, and friend-device checks remain.
+- SQLite restart, photo-free export, idempotency, OTP replay rejection, quota isolation, account lifecycle, deletion, and iOS/Watch compilation are verified. The currently installed/deployed build predates OTP; Resend configuration, OTP deployment/device use, host restore drill, and friend-device checks remain.
 
 ### Phase 9: Polish and Beta Preparation
 
@@ -147,7 +148,7 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 ## Not Implemented
 
 - Remaining Phase 4W: physical WorkoutKit/HealthKit, reconnect, and recovery-sample validation. See `docs/apple-watch-plan.md`.
-- Email verification and password recovery for external beta accounts.
+- Resend production delivery configuration and signed-device OTP verification.
 - A completed internal TestFlight upload and clean-install smoke test.
 - Partial/denied real-device HealthKit verification; the signed full-permission path and local notification delivery are verified.
 - Railway Hobby is provisioned in Southeast Asia with config-as-code, volume-safe startup, HTTPS, and durable `/data`. Authenticated iPhone verification and the host restore drill remain.
@@ -157,7 +158,7 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 Run the Phase 9 beta gates next:
 
 1. Return to partial/denied HealthKit checks and the deferred Phase 9A/9B physical Watch discovery and Apple Workout validation using `docs/apple-watch-setup.md` before release.
-2. Create the owner account in the signed iPhone app, check backup/export/live AI/deletion, and complete the host restore drill.
+2. Configure Resend in Railway, deploy OTP, verify the owner account on the signed iPhone, check backup/export/live AI/deletion, and complete the host restore drill.
 3. Complete the Phase 9E seven-day personal beta.
 4. Complete the Phase 9F internal TestFlight clean-install smoke test.
 

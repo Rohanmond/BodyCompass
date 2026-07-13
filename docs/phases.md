@@ -23,6 +23,7 @@ Implemented:
 - Phase 5 meal logging: camera/library capture, compressed transient upload, dual-provider analysis, correction, and photo-free result history.
 - Phase 6 Coach Chat: contextual dual-provider answers, safety routing, local history, and validated confirmed-only routine proposals.
 - Phase 7 weekly review: persisted health trends, native charts, weekly adherence/nutrition/training summaries, trend-aware goal projection, and standardized private progress-photo analysis.
+- Phase 8 passwordless account update: email OTP challenges, verified-address account creation, hashed sessions, per-user storage, and daily AI limits are implemented locally; Resend production setup and signed-device verification remain.
 
 Partially implemented:
 - Phase 4W implementation is simulator-build verified, including WorkoutKit handoff, completed-workout import, and recovery-aware coaching; paired-device validation remains.
@@ -35,7 +36,7 @@ Partially implemented:
 Not implemented yet:
 
 - Phase 4W real-device WorkoutKit, HealthKit, reconnect, and recovery-sample validation.
-- Production backend deployment and restore drill.
+- Production host restore drill and Resend OTP delivery configuration.
 - Signed-device, seven-day beta, and TestFlight release gates.
 
 ## Phase 0: Foundation
@@ -398,12 +399,12 @@ Phase 7 done status: all functional criteria and Phase 9C physical-camera/live-k
 
 Goal: stop relying on in-memory/mock data.
 
-Status: multi-user accounts implemented, deployed to Railway, and signed-device build verified; owner-account and friend-device testing remain.
+Status: passwordless multi-user update implemented and simulator-build verified; Railway email configuration, deployment, and signed-device testing remain.
 
 Deliverables:
 
 - Database schema for users, profiles, snapshots, meals, schedule items, and chats.
-- Email/password registration, sign in, sign out, account isolation, and revocable sessions.
+- Passwordless email-code request/verification, sign out, account isolation, and revocable sessions.
 - Analysis-only photo handling with no image persistence.
 - Delete/export data controls.
 
@@ -411,14 +412,15 @@ Implemented:
 
 - SQLite schema for private users, profiles, daily health snapshots, schedules, accepted meals, Coach exchanges, and photo-free progress check-ins.
 - WAL mode, foreign keys, per-user ownership, idempotent daily snapshot and device-record synchronization, and persistence across process restart.
-- Multi-user email accounts with normalized unique addresses, `scrypt` password hashing, login throttling, and random 30-day sessions stored hashed in SQLite.
+- Multi-user email accounts with normalized unique addresses, hashed ten-minute one-time challenges, request/attempt throttling, and random 30-day sessions stored hashed in SQLite.
 - Analysis photos are never written to iOS history, backend persistence, backup, or export; startup cleanup purges legacy files and database references.
 - Local-first iOS backup for profile, health, schedule, accepted meal results, and progress check-in results.
 - Opaque account session stored in iOS Keychain and attached automatically; no server token is shown to users.
 - JSON account export containing result metadata and no photo contents.
-- Root Sign In/Create Account flow, launch-time session validation, sign out, account-switch local-data protection, and per-user server ownership.
+- Root Email/Code flow with AutoFill, launch-time session validation, sign out, account-switch local-data protection, and per-user server ownership.
 - Exact-confirmation account deletion and a Goal → Data & Privacy screen that deletes server and local BodyCompass records while leaving Apple Health untouched.
 - Automated restart, no-photo persistence, export, idempotency, auth, and deletion tests plus authenticated HTTP smoke testing.
+- Server-enforced per-user daily AI allowances with configurable meal, Coach, and progress limits plus an in-app remaining-usage view.
 
 Done when:
 
@@ -426,7 +428,7 @@ Done when:
 - User can delete meal/check-in result records and health logs; photos never enter history.
 - API keys remain server-side only.
 
-Phase 8 done status: core multi-user identity and data isolation are implemented and deployed. Email verification, password recovery, owner-account validation, and friend-device beta testing remain release work.
+Phase 8 done status: core multi-user identity, OTP verification, data isolation, and AI quotas are implemented. Resend production setup, OTP deployment/device validation, and friend-device beta testing remain release work.
 
 ## Phase 9: Polish and Beta
 

@@ -46,5 +46,8 @@ function photos() {
 
 function requestWith(body) {
   const data = Buffer.from(JSON.stringify(body));
-  return { async *[Symbol.asyncIterator]() { yield data; } };
+  return {
+    bodyCompassAuth: { userId: "progress-test-user" },
+    async *[Symbol.asyncIterator]() { yield data; }
+  };
 }

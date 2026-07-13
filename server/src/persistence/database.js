@@ -36,6 +36,23 @@ export class BodyCompassStore {
         expires_at TEXT NOT NULL,
         created_at TEXT NOT NULL
       );
+      CREATE TABLE IF NOT EXISTS auth_email_codes (
+        id TEXT PRIMARY KEY,
+        email TEXT NOT NULL COLLATE NOCASE,
+        code_hash TEXT NOT NULL,
+        expires_at TEXT NOT NULL,
+        attempts INTEGER NOT NULL DEFAULT 0,
+        consumed_at TEXT,
+        created_at TEXT NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS ai_usage (
+        user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        day TEXT NOT NULL,
+        kind TEXT NOT NULL,
+        units INTEGER NOT NULL,
+        updated_at TEXT NOT NULL,
+        PRIMARY KEY(user_id, day, kind)
+      );
       CREATE TABLE IF NOT EXISTS profiles (
         user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
         payload TEXT NOT NULL,
@@ -87,11 +104,18 @@ export class BodyCompassStore {
       CREATE INDEX IF NOT EXISTS progress_user_created ON progress_check_ins(user_id, created_at DESC);
       CREATE INDEX IF NOT EXISTS auth_sessions_user ON auth_sessions(user_id);
       CREATE INDEX IF NOT EXISTS auth_sessions_expiry ON auth_sessions(expires_at);
+      CREATE INDEX IF NOT EXISTS auth_email_codes_email ON auth_email_codes(email, created_at DESC);
     `);
+    this.ensureColumn("auth_accounts", "email_verified_at", "TEXT");
     // Photos are analysis-only. Purge files and legacy references on every startup.
     rmSync(this.files.directory, { recursive: true, force: true });
     this.db.prepare("UPDATE meals SET image_ref = NULL WHERE image_ref IS NOT NULL").run();
     this.db.prepare("DELETE FROM progress_photos").run();
+  }
+
+  ensureColumn(table, column, definition) {
+    const exists = this.db.prepare(`PRAGMA table_info(${table})`).all().some((item) => item.name === column);
+    if (!exists) this.db.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
   }
 
   ensureUser(userId) {
@@ -100,32 +124,32 @@ export class BodyCompassStore {
       ON CONFLICT(id) DO UPDATE SET updated_at = excluded.updated_at`).run(userId, now, now);
   }
 
-  createAccount({ userId = randomUUID(), email, displayName, passwordHash, passwordSalt }) {
+  createAccount({ userId = randomUUID(), email, displayName, passwordHash = "", passwordSalt = "", emailVerifiedAt = null }) {
     const now = new Date().toISOString();
     this.db.exec("BEGIN IMMEDIATE");
     try {
       this.db.prepare("INSERT INTO users (id, created_at, updated_at) VALUES (?, ?, ?)")
         .run(userId, now, now);
       this.db.prepare(`INSERT INTO auth_accounts
-        (user_id, email, display_name, password_hash, password_salt, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?)`)
-        .run(userId, email, displayName, passwordHash, passwordSalt, now, now);
+        (user_id, email, display_name, password_hash, password_salt, email_verified_at, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`)
+        .run(userId, email, displayName, passwordHash, passwordSalt, emailVerifiedAt, now, now);
       this.db.exec("COMMIT");
     } catch (error) {
       this.db.exec("ROLLBACK");
       throw error;
     }
-    return { id: userId, email, displayName, createdAt: now };
+    return { id: userId, email, displayName, emailVerifiedAt, createdAt: now };
   }
 
   accountByEmail(email) {
-    const row = this.db.prepare(`SELECT user_id, email, display_name, password_hash, password_salt, created_at
+    const row = this.db.prepare(`SELECT user_id, email, display_name, password_hash, password_salt, email_verified_at, created_at
       FROM auth_accounts WHERE email = ? COLLATE NOCASE`).get(email);
     return row ? accountFromRow(row) : null;
   }
 
   accountByUserId(userId) {
-    const row = this.db.prepare(`SELECT user_id, email, display_name, password_hash, password_salt, created_at
+    const row = this.db.prepare(`SELECT user_id, email, display_name, password_hash, password_salt, email_verified_at, created_at
       FROM auth_accounts WHERE user_id = ?`).get(userId);
     return row ? accountFromRow(row) : null;
   }
@@ -139,19 +163,72 @@ export class BodyCompassStore {
 
   sessionByTokenHash(tokenHash) {
     const now = new Date().toISOString();
-    const row = this.db.prepare(`SELECT s.user_id, s.expires_at, a.email, a.display_name
+    const row = this.db.prepare(`SELECT s.user_id, s.expires_at, a.email, a.display_name, a.email_verified_at
       FROM auth_sessions s JOIN auth_accounts a ON a.user_id = s.user_id
       WHERE s.token_hash = ? AND s.expires_at > ?`).get(tokenHash, now);
     return row ? {
       userId: row.user_id,
       email: row.email,
       displayName: row.display_name,
+      emailVerified: Boolean(row.email_verified_at),
       expiresAt: row.expires_at
     } : null;
   }
 
   deleteSession(tokenHash) {
     return this.db.prepare("DELETE FROM auth_sessions WHERE token_hash = ?").run(tokenHash).changes > 0;
+  }
+
+  latestEmailCode(email) {
+    const row = this.db.prepare(`SELECT id, email, code_hash, expires_at, attempts, consumed_at, created_at
+      FROM auth_email_codes WHERE email = ? COLLATE NOCASE ORDER BY created_at DESC LIMIT 1`).get(email);
+    return row ? emailCodeFromRow(row) : null;
+  }
+
+  createEmailCode({ id, email, codeHash, expiresAt }) {
+    const now = new Date().toISOString();
+    this.db.prepare("DELETE FROM auth_email_codes WHERE expires_at <= ? OR consumed_at IS NOT NULL").run(now);
+    this.db.prepare("INSERT INTO auth_email_codes (id, email, code_hash, expires_at, attempts, created_at) VALUES (?, ?, ?, ?, 0, ?)")
+      .run(id, email, codeHash, expiresAt, now);
+    return { id, email, expiresAt, createdAt: now };
+  }
+
+  emailCode(id) {
+    const row = this.db.prepare(`SELECT id, email, code_hash, expires_at, attempts, consumed_at, created_at
+      FROM auth_email_codes WHERE id = ?`).get(id);
+    return row ? emailCodeFromRow(row) : null;
+  }
+
+  recordEmailCodeFailure(id) {
+    this.db.prepare("UPDATE auth_email_codes SET attempts = attempts + 1 WHERE id = ? AND consumed_at IS NULL").run(id);
+  }
+
+  consumeEmailCode(id) {
+    const now = new Date().toISOString();
+    return this.db.prepare(`UPDATE auth_email_codes SET consumed_at = ?
+      WHERE id = ? AND consumed_at IS NULL AND expires_at > ? AND attempts < 5`).run(now, id, now).changes > 0;
+  }
+
+  markEmailVerified(userId) {
+    const now = new Date().toISOString();
+    this.db.prepare("UPDATE auth_accounts SET email_verified_at = COALESCE(email_verified_at, ?), updated_at = ? WHERE user_id = ?")
+      .run(now, now, userId);
+  }
+
+  consumeAIUsage(userId, kind, limit, day = new Date().toISOString().slice(0, 10)) {
+    this.ensureUser(userId);
+    const now = new Date().toISOString();
+    this.db.prepare(`INSERT INTO ai_usage (user_id, day, kind, units, updated_at) VALUES (?, ?, ?, 0, ?)
+      ON CONFLICT(user_id, day, kind) DO NOTHING`).run(userId, day, kind, now);
+    const changed = this.db.prepare(`UPDATE ai_usage SET units = units + 1, updated_at = ?
+      WHERE user_id = ? AND day = ? AND kind = ? AND units < ?`).run(now, userId, day, kind, limit).changes;
+    const row = this.db.prepare("SELECT units FROM ai_usage WHERE user_id = ? AND day = ? AND kind = ?")
+      .get(userId, day, kind);
+    return { allowed: changed === 1, used: row?.units ?? 0, limit, remaining: Math.max(0, limit - (row?.units ?? 0)), day };
+  }
+
+  aiUsage(userId, day = new Date().toISOString().slice(0, 10)) {
+    return this.db.prepare("SELECT kind, units FROM ai_usage WHERE user_id = ? AND day = ?").all(userId, day);
   }
 
   saveProfile(userId, payload) {
@@ -300,6 +377,19 @@ function accountFromRow(row) {
     displayName: row.display_name,
     passwordHash: row.password_hash,
     passwordSalt: row.password_salt,
+    emailVerifiedAt: row.email_verified_at,
+    createdAt: row.created_at
+  };
+}
+
+function emailCodeFromRow(row) {
+  return {
+    id: row.id,
+    email: row.email,
+    codeHash: row.code_hash,
+    expiresAt: row.expires_at,
+    attempts: row.attempts,
+    consumedAt: row.consumed_at,
     createdAt: row.created_at
   };
 }

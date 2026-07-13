@@ -18,7 +18,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 | Phase 5: Meal Photo Logging | Complete; signed-device verified | Camera/library capture, transient upload, dual-provider comparison/fallback, actionable coaching, correction, photo-free history, and deletion work on the signed iPhone. |
 | Phase 6: Coach Chat | Complete; signed-device verified | Contextual dual-provider chat, safety routing, provider comparison, and confirmed-only routine proposals work; Confirm/Edit/Reject remains required. |
 | Phase 7: Weekly Review and Photos | Complete; signed-device verified | Trends, weekly summaries, transient three-angle analysis, broad non-medical ranges, correction/rejection, comparison, photo-free history, and deletion work on the signed iPhone. |
-| Phase 8: Persistence and Accounts | Multi-user core deployed; signed build installed | Registration/login, scrypt password hashes, hashed expiring sessions, per-user SQLite isolation, Keychain session handling, export, sign out, and account deletion are live. Owner-account and friend-device checks remain. |
+| Phase 8: Persistence and Accounts | Passwordless update implemented; deployment configuration pending | Six-digit email OTP, verified-address account creation, hashed challenges/sessions, per-user SQLite isolation, Keychain sessions, export, sign out, deletion, and per-user daily AI limits are implemented. Resend production variables and signed-device verification remain. |
 | Phase 9: Polish and Beta | In progress; Phase 9C complete and Phase 9D hosted | Signed launch, primary HealthKit, backup, reminders, and all Phase 9C live AI/camera flows pass. The Railway backend is online with durable storage; authenticated iPhone, restore-drill, Watch/permission, seven-day beta, and TestFlight gates remain. |
 | Phase 10: Future Ideas | Not started | Post-MVP enhancements remain intentionally deferred. |
 
@@ -40,7 +40,8 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 - Completed Phase 6 Coach Chat: bounded profile/health/meal/adherence/training context, OpenAI and Gemini responses, deterministic safety routing, local conversation history, one next action, and validated routine instructions routed into Confirm/Edit/Reject proposals.
 - Completed Phase 7 weekly review: persisted 180-day health snapshots, native weight/body-fat charts, seven-day adherence/nutrition/training summaries, trend-aware 12% projection, and a standardized front/side/back check-in flow.
 - Changed progress privacy so capture photos are discarded after analysis; history keeps editable/rejectable ranges, limitations, recommendations, and prior result comparison only.
-- Upgraded Phase 8 to multi-user accounts: email registration/login, salted scrypt password hashes, throttled auth attempts, hashed 30-day sessions, launch validation, automatic API authorization, Keychain storage, sign out, account-switch isolation, and account deletion.
+- Upgraded Phase 8 to passwordless multi-user accounts: six-digit email OTP with expiry, one-time consumption, attempt/resend throttling, verified-address account creation, hashed 30-day sessions, Keychain storage, sign out, account-switch isolation, and account deletion. Legacy password routes remain temporarily for installed-build migration only.
+- Added per-user daily AI limits (10 meal, 30 Coach, and 3 progress analyses by default), a usage API, and an in-app allowance view. Invalid requests do not consume quota and each dual-provider action counts once.
 - Implemented Phase 9 code-side polish: iPhone/Watch icons, privacy manifests, local-first backup recovery, accessible metrics and trends, a 12% chart target, automated preflight, and a physical-device/TestFlight checklist.
 - Added app-wide keyboard dismissal and refreshed the daily-use UI: priority-first Today hierarchy, varied metric colors, clearer HealthKit date windows, adherence progress, a visual goal summary, and improved Meals/Coach presentation. Simulator and signed-iPhone builds pass.
 - Verified real HealthKit snapshot backup and the Debug-only 10-second notification banner/sound delivery on the signed iPhone.
@@ -57,7 +58,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 ## Verified
 
 - `swift run BodyCompassCoreCheck` passes, including training validation, progression, proposal, log reconciliation, and W5 recovery-advisor scenarios.
-- `npm test` passes with 35 backend tests, including production configuration and a checksum/integrity-verified backup/restore drill.
+- `npm test` passes with 37 backend tests, including OTP replay rejection, quota isolation, production configuration, and a checksum/integrity-verified backup/restore drill.
 - The BodyCompass Xcode target builds successfully for the generic iOS Simulator destination with the meal services and embedded Watch app.
 - The BodyCompass Watch App scheme builds successfully for the generic watchOS Simulator SDK destination.
 - Phase 9 privacy manifests and 1024-pixel icon catalogs validate, and the polished iPhone and Watch targets build successfully.
@@ -71,7 +72,6 @@ Verification rerun: July 14, 2026.
 
 - Follow `docs/apple-watch-setup.md` to validate WorkoutKit permission, iPhone scheduling, Watch handoff, Apple Workout capture, HealthKit import, offline queueing, and exact-once manual-log merge.
 - Complete the remaining partial/denied HealthKit permission checks on the signed iPhone.
-- Create the owner account in the installed iPhone app, then verify backup, export, deletion, and live AI against production HTTPS.
-- Add email verification and password recovery before a broader external beta.
+- Configure Resend and a verified sending domain in Railway, deploy the OTP migration, then verify sign-in, backup, export, deletion, AI allowance display, and live AI on the signed iPhone.
 - Run the host-level production backup/restore drill before marking Phase 9D complete.
 - Run `./scripts/release-preflight.sh --build`, then complete the signed-device, Series 10, seven-day personal beta, and TestFlight gates in `docs/beta-checklist.md`.

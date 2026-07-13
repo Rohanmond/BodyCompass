@@ -34,11 +34,17 @@ NODE_ENV=production
 HOST=0.0.0.0
 BODYCOMPASS_DATA_DIR=/data
 BODYCOMPASS_STORAGE_SECRET=<new 64-character hex value>
+BODYCOMPASS_AUTH_SECRET=<different new 64-character hex value>
+RESEND_API_KEY=<Resend API key>
+BODYCOMPASS_EMAIL_FROM=BodyCompass <login@your-verified-domain.example>
 OPENAI_API_KEY=<new OpenAI key>
 OPENAI_MODEL=gpt-5.4
 GEMINI_API_KEY=<new Gemini key>
 GEMINI_MODEL=gemini-3.1-flash-lite
 RAILWAY_RUN_UID=0
+BODYCOMPASS_DAILY_MEAL_AI_LIMIT=10
+BODYCOMPASS_DAILY_CHAT_AI_LIMIT=30
+BODYCOMPASS_DAILY_PROGRESS_AI_LIMIT=3
 ```
 
 Do not set `PORT`; Railway injects it. Generate the server-only storage secret locally with:
@@ -48,6 +54,8 @@ openssl rand -hex 32
 ```
 
 Store this server secret in a password manager. It is never entered in BodyCompass or shared with users.
+
+Before friend testing, verify a domain in Resend and use an address on that domain for `BODYCOMPASS_EMAIL_FROM`. Add the Resend key directly in Railway Variables; never paste it into a chat or commit it. OTP requests intentionally return HTTP 503 in production until email delivery is configured.
 
 ## 4. Deploy and Enable HTTPS
 
@@ -74,7 +82,7 @@ Railway terminates HTTPS at its edge. The generated Railway domain is sufficient
 1. In Xcode, set the release value of `BODYCOMPASS_API_BASE_URL` to the generated `https://` Railway domain with no trailing slash.
 2. Build and reinstall BodyCompass on the iPhone.
 3. In BodyCompass, open **Goal**, tap the shield/lock button, then open **Data & Privacy**.
-4. Select **Create Account**, enter your name and email, and choose a password of at least 10 characters with a letter and number.
+4. Sign out if needed, enter your email, request a six-digit code, and enter the code received by email. The first successful code creates the account.
 5. Confirm the private-backup status becomes healthy after onboarding.
 
 Verify a disposable record before using real history:
@@ -99,5 +107,5 @@ Railway volume snapshots are useful, but an independent BodyCompass backup remai
 - **Configuration error at startup:** confirm every production variable is present and placeholders were replaced.
 - **Cannot write to `/data`:** confirm the volume is mounted at `/data` and `RAILWAY_RUN_UID=0` is configured.
 - **Health check fails:** do not set a fixed `PORT`; verify `HOST=0.0.0.0` and the path is `/health/ready`.
-- **Sign in fails after deployment:** confirm the latest migration is deployed and use Create Account before Sign In.
+- **Code email does not arrive:** confirm `RESEND_API_KEY`, the verified sending domain, and `BODYCOMPASS_EMAIL_FROM`; then check Resend delivery logs and the spam folder.
 - **App still calls the Mac:** update `BODYCOMPASS_API_BASE_URL`, rebuild, and reinstall the signed app.

@@ -1,6 +1,7 @@
 import { readJson } from "../lib/readJson.js";
 import { chatWithProviders, classifyCoachSafety } from "../services/aiProviders.js";
 import { persistenceStore } from "../persistence/database.js";
+import { consumeAIQuota } from "../lib/aiQuota.js";
 
 export async function createChatAnswer(request) {
   const body = await readJson(request, 500_000);
@@ -15,6 +16,9 @@ export async function createChatAnswer(request) {
   if (body.message.length > 2_000) {
     return { status: 413, body: { error: "message must be 2,000 characters or shorter" } };
   }
+
+  const quotaResponse = consumeAIQuota(request, "chat");
+  if (quotaResponse) return quotaResponse;
 
   try {
     const answer = await chatWithProviders({

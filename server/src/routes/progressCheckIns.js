@@ -1,5 +1,6 @@
 import { readJson } from "../lib/readJson.js";
 import { analyzeProgressWithProviders } from "../services/aiProviders.js";
+import { consumeAIQuota } from "../lib/aiQuota.js";
 
 const allowedTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 const requiredPoses = new Set(["front", "side", "back"]);
@@ -13,6 +14,9 @@ export async function analyzeProgressCheckIn(request) {
 
   const currentError = validatePhotos(body.currentPhotos, true);
   if (currentError) return currentError;
+
+  const quotaResponse = consumeAIQuota(request, "progress");
+  if (quotaResponse) return quotaResponse;
 
   try {
     return { status: 200, body: await analyzeProgressWithProviders(body) };

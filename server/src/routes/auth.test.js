@@ -8,7 +8,9 @@ import test from "node:test";
 test("account registration, login, session validation, and logout work together", async () => {
   const root = await mkdtemp(join(tmpdir(), "bodycompass-auth-flow-"));
   process.env.BODYCOMPASS_DATA_DIR = root;
-  const [{ register, login, logout }, { authenticate }, { closePersistenceStore }] = await Promise.all([
+  delete process.env.RESEND_API_KEY;
+  delete process.env.NODE_ENV;
+  const [{ register, login, logout, requestEmailCode, verifyEmailCode }, { authenticate }, { closePersistenceStore }] = await Promise.all([
     import("./auth.js"),
     import("../lib/auth.js"),
     import("../persistence/database.js")
@@ -32,6 +34,23 @@ test("account registration, login, session validation, and logout work together"
 
   assert.equal(logout(authorizedRequest).status, 204);
   assert.equal(authenticate(authorizedRequest).status, 401);
+
+  const requested = await requestEmailCode(request({ email: "otp@example.com" }));
+  assert.equal(requested.status, 202);
+  assert.match(requested.body.developmentCode, /^\d{6}$/);
+  const verified = await verifyEmailCode(request({
+    challengeId: requested.body.challengeId,
+    code: requested.body.developmentCode
+  }));
+  assert.equal(verified.status, 201);
+  assert.equal(verified.body.user.email, "otp@example.com");
+  assert.equal(verified.body.user.emailVerified, true);
+  assert.equal(authenticate(request({}, verified.body.token)).ok, true);
+  const replayed = await verifyEmailCode(request({
+    challengeId: requested.body.challengeId,
+    code: requested.body.developmentCode
+  }));
+  assert.equal(replayed.status, 401);
 
   closePersistenceStore();
   delete process.env.BODYCOMPASS_DATA_DIR;
