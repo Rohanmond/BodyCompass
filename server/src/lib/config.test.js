@@ -8,18 +8,16 @@ test("local configuration works without credentials", () => {
   assert.equal(config.production, false);
 });
 
-test("non-local binding requires a strong bearer token", () => {
-  const config = loadConfig({ HOST: "0.0.0.0", BODYCOMPASS_API_TOKEN: "short" });
-  assert.equal(config.valid, false);
-  assert.match(config.errors.join(" "), /32 characters/);
+test("non-local development can exercise account authentication", () => {
+  const config = loadConfig({ HOST: "0.0.0.0" });
+  assert.equal(config.valid, true);
 });
 
 test("production requires durable storage, identity, and both AI providers", () => {
   const config = loadConfig({
     NODE_ENV: "production",
     HOST: "0.0.0.0",
-    BODYCOMPASS_API_TOKEN: "x".repeat(48),
-    BODYCOMPASS_USER_ID: "rohan-production",
+    BODYCOMPASS_STORAGE_SECRET: "x".repeat(48),
     BODYCOMPASS_DATA_DIR: "/data",
     OPENAI_API_KEY: "openai-secret",
     GEMINI_API_KEY: "gemini-secret"
@@ -35,12 +33,23 @@ test("production requires durable storage, identity, and both AI providers", () 
   const placeholders = loadConfig({
     NODE_ENV: "production",
     HOST: "0.0.0.0",
-    BODYCOMPASS_API_TOKEN: "replace-with-at-least-32-random-characters",
-    BODYCOMPASS_USER_ID: "replace-with-a-stable-private-owner-id",
+    BODYCOMPASS_STORAGE_SECRET: "replace-with-at-least-32-random-characters",
     BODYCOMPASS_DATA_DIR: "/data",
     OPENAI_API_KEY: "openai-secret",
     GEMINI_API_KEY: "gemini-secret"
   });
   assert.equal(placeholders.valid, false);
-  assert.match(placeholders.errors.join(" "), /non-placeholder/);
+  assert.match(placeholders.errors.join(" "), /BODYCOMPASS_STORAGE_SECRET/);
+});
+
+test("legacy API token remains a storage-secret migration fallback", () => {
+  const config = loadConfig({
+    NODE_ENV: "production",
+    HOST: "0.0.0.0",
+    BODYCOMPASS_API_TOKEN: "x".repeat(48),
+    BODYCOMPASS_DATA_DIR: "/data",
+    OPENAI_API_KEY: "openai-secret",
+    GEMINI_API_KEY: "gemini-secret"
+  });
+  assert.equal(config.valid, true);
 });

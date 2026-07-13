@@ -1,16 +1,24 @@
-import { timingSafeEqual } from "node:crypto";
+import { createHash } from "node:crypto";
+import { persistenceStore } from "../persistence/database.js";
 
-export function authenticate(request) {
-  const configured = process.env.BODYCOMPASS_API_TOKEN;
-  const userId = process.env.BODYCOMPASS_USER_ID ?? "local-owner";
-  if (!configured) return { ok: true, userId, mode: "local_private" };
+export function authenticate(request, store = persistenceStore()) {
+  const token = bearerToken(request);
+  if (!token) {
+    return { ok: false, status: 401, body: { error: "Sign in is required" } };
+  }
 
-  const supplied = request.headers?.authorization?.replace(/^Bearer\s+/i, "") ?? "";
-  const expectedBuffer = Buffer.from(configured);
-  const suppliedBuffer = Buffer.from(supplied);
-  const matches = expectedBuffer.length === suppliedBuffer.length
-    && timingSafeEqual(expectedBuffer, suppliedBuffer);
-  return matches
-    ? { ok: true, userId, mode: "bearer" }
-    : { ok: false, status: 401, body: { error: "Valid Bearer authentication is required" } };
+  const session = store.sessionByTokenHash(hashSessionToken(token));
+  return session
+    ? { ok: true, userId: session.userId, email: session.email, displayName: session.displayName, mode: "session" }
+    : { ok: false, status: 401, body: { error: "Your session has expired. Please sign in again." } };
+}
+
+export function bearerToken(request) {
+  const value = request.headers?.authorization ?? "";
+  const match = /^Bearer\s+(.+)$/i.exec(value);
+  return match?.[1]?.trim() ?? "";
+}
+
+export function hashSessionToken(token) {
+  return createHash("sha256").update(token).digest("hex");
 }

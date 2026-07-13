@@ -37,6 +37,7 @@ final class AppStore: ObservableObject {
         static let remindersEnabled = "bodycompass.remindersEnabled"
         static let mealHistory = "bodycompass.mealHistory"
         static let healthHistory = "bodycompass.healthHistory"
+        static let boundUserID = "bodycompass.auth.boundUserID"
     }
 
     private let defaults: UserDefaults
@@ -444,6 +445,20 @@ final class AppStore: ObservableObject {
         schedule = Self.defaultSchedule
         today = DailyHealthSnapshot(date: HealthKitService.dayKey())
         serverSync = .idle
+    }
+
+    @discardableResult
+    func bindToAuthenticatedUser(_ userID: String) -> Bool {
+        let existing = defaults.string(forKey: StorageKey.boundUserID)
+        guard let existing else {
+            defaults.set(userID, forKey: StorageKey.boundUserID)
+            return false
+        }
+        guard existing != userID else { return false }
+        deleteAllLocalData()
+        defaults.removeObject(forKey: "bodycompass.progressCheckIns")
+        defaults.set(userID, forKey: StorageKey.boundUserID)
+        return true
     }
 
     func deleteAllServerData() async throws {

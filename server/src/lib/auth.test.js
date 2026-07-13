@@ -1,27 +1,31 @@
 import assert from "node:assert/strict";
+import { mkdtemp, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import test from "node:test";
-import { authenticate } from "./auth.js";
+import { authenticate, hashSessionToken } from "./auth.js";
+import { BodyCompassStore } from "../persistence/database.js";
 
-test("authentication defaults to local private mode without a configured token", () => {
-  const previous = process.env.BODYCOMPASS_API_TOKEN;
-  delete process.env.BODYCOMPASS_API_TOKEN;
-  const result = authenticate({ headers: {} });
-  restore("BODYCOMPASS_API_TOKEN", previous);
-  assert.equal(result.ok, true);
-  assert.equal(result.mode, "local_private");
-});
+test("authentication requires a valid, unexpired account session", async () => {
+  const root = await mkdtemp(join(tmpdir(), "bodycompass-auth-"));
+  const store = new BodyCompassStore({ databasePath: join(root, "db.sqlite"), imageDirectory: join(root, "images"), storageSecret: "secret" });
+  const user = store.createAccount({
+    email: "rohan@example.com",
+    displayName: "Rohan",
+    passwordHash: "hash",
+    passwordSalt: "salt"
+  });
+  store.createSession(user.id, hashSessionToken("valid-token"), new Date(Date.now() + 60_000).toISOString());
+  store.createSession(user.id, hashSessionToken("expired-token"), new Date(Date.now() - 60_000).toISOString());
 
-test("configured bearer authentication rejects an invalid token", () => {
-  const previous = process.env.BODYCOMPASS_API_TOKEN;
-  process.env.BODYCOMPASS_API_TOKEN = "correct-token";
-  const rejected = authenticate({ headers: { authorization: "Bearer wrong-token" } });
-  const accepted = authenticate({ headers: { authorization: "Bearer correct-token" } });
-  restore("BODYCOMPASS_API_TOKEN", previous);
-  assert.equal(rejected.status, 401);
+  assert.equal(authenticate({ headers: {} }, store).status, 401);
+  assert.equal(authenticate({ headers: { authorization: "Bearer wrong-token" } }, store).status, 401);
+  assert.equal(authenticate({ headers: { authorization: "Bearer expired-token" } }, store).status, 401);
+  const accepted = authenticate({ headers: { authorization: "Bearer valid-token" } }, store);
   assert.equal(accepted.ok, true);
-});
+  assert.equal(accepted.userId, user.id);
+  assert.equal(accepted.email, "rohan@example.com");
 
-function restore(key, value) {
-  if (value === undefined) delete process.env[key];
-  else process.env[key] = value;
-}
+  store.close();
+  await rm(root, { recursive: true, force: true });
+});

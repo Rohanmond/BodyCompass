@@ -21,6 +21,21 @@ export class BodyCompassStore {
         created_at TEXT NOT NULL,
         updated_at TEXT NOT NULL
       );
+      CREATE TABLE IF NOT EXISTS auth_accounts (
+        user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+        email TEXT NOT NULL UNIQUE COLLATE NOCASE,
+        display_name TEXT NOT NULL,
+        password_hash TEXT NOT NULL,
+        password_salt TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      );
+      CREATE TABLE IF NOT EXISTS auth_sessions (
+        token_hash TEXT PRIMARY KEY,
+        user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        expires_at TEXT NOT NULL,
+        created_at TEXT NOT NULL
+      );
       CREATE TABLE IF NOT EXISTS profiles (
         user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
         payload TEXT NOT NULL,
@@ -70,6 +85,8 @@ export class BodyCompassStore {
       CREATE INDEX IF NOT EXISTS meals_user_created ON meals(user_id, created_at DESC);
       CREATE INDEX IF NOT EXISTS chats_user_created ON chats(user_id, created_at DESC);
       CREATE INDEX IF NOT EXISTS progress_user_created ON progress_check_ins(user_id, created_at DESC);
+      CREATE INDEX IF NOT EXISTS auth_sessions_user ON auth_sessions(user_id);
+      CREATE INDEX IF NOT EXISTS auth_sessions_expiry ON auth_sessions(expires_at);
     `);
     // Photos are analysis-only. Purge files and legacy references on every startup.
     rmSync(this.files.directory, { recursive: true, force: true });
@@ -81,6 +98,60 @@ export class BodyCompassStore {
     const now = new Date().toISOString();
     this.db.prepare(`INSERT INTO users (id, created_at, updated_at) VALUES (?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET updated_at = excluded.updated_at`).run(userId, now, now);
+  }
+
+  createAccount({ userId = randomUUID(), email, displayName, passwordHash, passwordSalt }) {
+    const now = new Date().toISOString();
+    this.db.exec("BEGIN IMMEDIATE");
+    try {
+      this.db.prepare("INSERT INTO users (id, created_at, updated_at) VALUES (?, ?, ?)")
+        .run(userId, now, now);
+      this.db.prepare(`INSERT INTO auth_accounts
+        (user_id, email, display_name, password_hash, password_salt, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)`)
+        .run(userId, email, displayName, passwordHash, passwordSalt, now, now);
+      this.db.exec("COMMIT");
+    } catch (error) {
+      this.db.exec("ROLLBACK");
+      throw error;
+    }
+    return { id: userId, email, displayName, createdAt: now };
+  }
+
+  accountByEmail(email) {
+    const row = this.db.prepare(`SELECT user_id, email, display_name, password_hash, password_salt, created_at
+      FROM auth_accounts WHERE email = ? COLLATE NOCASE`).get(email);
+    return row ? accountFromRow(row) : null;
+  }
+
+  accountByUserId(userId) {
+    const row = this.db.prepare(`SELECT user_id, email, display_name, password_hash, password_salt, created_at
+      FROM auth_accounts WHERE user_id = ?`).get(userId);
+    return row ? accountFromRow(row) : null;
+  }
+
+  createSession(userId, tokenHash, expiresAt) {
+    const now = new Date().toISOString();
+    this.db.prepare("DELETE FROM auth_sessions WHERE expires_at <= ?").run(now);
+    this.db.prepare("INSERT INTO auth_sessions (token_hash, user_id, expires_at, created_at) VALUES (?, ?, ?, ?)")
+      .run(tokenHash, userId, expiresAt, now);
+  }
+
+  sessionByTokenHash(tokenHash) {
+    const now = new Date().toISOString();
+    const row = this.db.prepare(`SELECT s.user_id, s.expires_at, a.email, a.display_name
+      FROM auth_sessions s JOIN auth_accounts a ON a.user_id = s.user_id
+      WHERE s.token_hash = ? AND s.expires_at > ?`).get(tokenHash, now);
+    return row ? {
+      userId: row.user_id,
+      email: row.email,
+      displayName: row.display_name,
+      expiresAt: row.expires_at
+    } : null;
+  }
+
+  deleteSession(tokenHash) {
+    return this.db.prepare("DELETE FROM auth_sessions WHERE token_hash = ?").run(tokenHash).changes > 0;
   }
 
   saveProfile(userId, payload) {
@@ -220,4 +291,15 @@ export function closePersistenceStore() {
   if (!sharedStore) return;
   sharedStore.close();
   sharedStore = undefined;
+}
+
+function accountFromRow(row) {
+  return {
+    id: row.user_id,
+    email: row.email,
+    displayName: row.display_name,
+    passwordHash: row.password_hash,
+    passwordSalt: row.password_salt,
+    createdAt: row.created_at
+  };
 }

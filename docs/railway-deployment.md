@@ -33,8 +33,7 @@ Open the service's **Variables** tab and add:
 NODE_ENV=production
 HOST=0.0.0.0
 BODYCOMPASS_DATA_DIR=/data
-BODYCOMPASS_API_TOKEN=<new 64-character hex value>
-BODYCOMPASS_USER_ID=rohan-production
+BODYCOMPASS_STORAGE_SECRET=<new 64-character hex value>
 OPENAI_API_KEY=<new OpenAI key>
 OPENAI_MODEL=gpt-5.4
 GEMINI_API_KEY=<new Gemini key>
@@ -42,13 +41,13 @@ GEMINI_MODEL=gemini-3.1-flash-lite
 RAILWAY_RUN_UID=0
 ```
 
-Do not set `PORT`; Railway injects it. Generate the bearer token locally with:
+Do not set `PORT`; Railway injects it. Generate the server-only storage secret locally with:
 
 ```sh
 openssl rand -hex 32
 ```
 
-Store that token in a password manager because the same value must be entered in BodyCompass on the iPhone.
+Store this server secret in a password manager. It is never entered in BodyCompass or shared with users.
 
 ## 4. Deploy and Enable HTTPS
 
@@ -75,8 +74,8 @@ Railway terminates HTTPS at its edge. The generated Railway domain is sufficient
 1. In Xcode, set the release value of `BODYCOMPASS_API_BASE_URL` to the generated `https://` Railway domain with no trailing slash.
 2. Build and reinstall BodyCompass on the iPhone.
 3. In BodyCompass, open **Goal**, tap the shield/lock button, then open **Data & Privacy**.
-4. Enter the new `BODYCOMPASS_API_TOKEN`.
-5. Tap **Retry** and confirm the private-backup status becomes healthy.
+4. Select **Create Account**, enter your name and email, and choose a password of at least 10 characters with a letter and number.
+5. Confirm the private-backup status becomes healthy after onboarding.
 
 Verify a disposable record before using real history:
 
@@ -100,5 +99,5 @@ Railway volume snapshots are useful, but an independent BodyCompass backup remai
 - **Configuration error at startup:** confirm every production variable is present and placeholders were replaced.
 - **Cannot write to `/data`:** confirm the volume is mounted at `/data` and `RAILWAY_RUN_UID=0` is configured.
 - **Health check fails:** do not set a fixed `PORT`; verify `HOST=0.0.0.0` and the path is `/health/ready`.
-- **401 from the iPhone:** the Keychain bearer token does not match `BODYCOMPASS_API_TOKEN`.
+- **Sign in fails after deployment:** confirm the latest migration is deployed and use Create Account before Sign In.
 - **App still calls the Mac:** update `BODYCOMPASS_API_BASE_URL`, rebuild, and reinstall the signed app.

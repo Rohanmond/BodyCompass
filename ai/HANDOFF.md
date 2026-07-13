@@ -8,7 +8,7 @@ Use this file as the authoritative starting point for Claude, ChatGPT, Gemini, C
 
 - Repository: `Rohanmond/BodyCompass`
 - Primary branch: `main`
-- Primary implementation state: Phases 0-8 and Phase 9C complete; Phase 9D Railway hosting is live; authenticated production-iPhone, restore, permission/Watch, beta, and TestFlight gates remain
+- Primary implementation state: Phases 0-8 and Phase 9C complete; Phase 8 now includes multi-user accounts; Phase 9D Railway hosting is live; account-migration production, restore, permission/Watch, beta, and TestFlight gates remain
 - iOS deployment target: iOS 17
 - App: native SwiftUI under `ios/BodyCompass`
 - Shared logic: Swift package target `BodyCompassCore`
@@ -23,9 +23,9 @@ Local generated files may appear as `ios/BodyCompass/.swiftpm/` and `server/pnpm
 The following passed during the latest audit:
 
 - `swift run BodyCompassCoreCheck`
-- `npm test` with 35 passing backend tests
+- `npm test` with account lifecycle, persistence, privacy, provider, and operations coverage
 - Phase 9D production-mode health probes and graceful shutdown; the Docker image builds, runs as the unprivileged `node` user, and reports SQLite ready
-- Railway Hobby is online in Southeast Asia with HTTPS, one replica, an attached `/data` volume, SQLite readiness, and bearer protection verified
+- Railway Hobby is online in Southeast Asia with HTTPS, one replica, an attached `/data` volume, and SQLite readiness; multi-user migration deployment remains to be verified
 - Xcode iOS and watchOS Simulator builds with `CODE_SIGNING_ALLOWED=NO`
 - Phase 9 release metadata/icon validation and the updated iPhone and standalone Watch simulator builds
 - W5 ready/recover/caution core scenarios and the updated iPhone plus standalone Watch builds
@@ -122,15 +122,16 @@ Remaining Phase 4 niceties (deferred): date-range pauses, one-tap move/copy betw
 
 Photo body-fat output must be a non-clinical range with confidence and limitations, never an exact measurement.
 
-### Phase 8: Persistence and Private Account
+### Phase 8: Persistence and Multi-User Accounts
 
 - `BodyCompassStore` uses Node's SQLite API with WAL, foreign keys, per-user records, and idempotent device synchronization.
 - Tables cover users, profiles, health snapshots, schedules, accepted meals, Coach exchanges, and photo-free progress check-ins.
 - Meal/progress photos are analysis-only. Save routes reject photo fields, exports contain no images, and startup migration purges legacy vault files and references.
-- Local development permits one private owner without a token. Configuring `BODYCOMPASS_API_TOKEN` requires constant-time bearer authentication.
-- `AccountAPIClient` keeps device saves local-first and backs up profile, schedule, health, meals, and progress check-ins. Its bearer token lives in Keychain.
-- Goal → Data & Privacy shows backup state, configures the token, exports photo-free JSON, and deletes server plus local app data. Apple Health is never deleted.
-- SQLite restart, photo-free export, idempotency, auth, deletion, iOS/Watch compilation, and authenticated HTTP routes are verified. Production HTTPS is live; the host restore drill and authenticated iPhone production checks remain operational work.
+- `auth_accounts` stores normalized unique email, display name, and per-user salted `scrypt` password hashes. `auth_sessions` stores only SHA-256 hashes of random 30-day session tokens.
+- Register/login are public and throttled; all other `/api/*` routes require a valid account session and use its user ID for row ownership. Sign out revokes the current session.
+- The iOS root owns Sign In/Create Account and validates sessions at launch. The opaque session lives in Keychain and is automatically attached to every API client; no server credential is shown to users.
+- Account switches clear prior local app/training/progress state before syncing. Goal → Data & Privacy shows account/backup state, sign out, photo-free export, and complete account deletion. Apple Health is never deleted.
+- SQLite restart, photo-free export, idempotency, account lifecycle, deletion, and iOS/Watch compilation are verified locally. Production migration, email verification/password recovery, host restore drill, and friend-device checks remain.
 
 ### Phase 9: Polish and Beta Preparation
 
@@ -146,7 +147,7 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 ## Not Implemented
 
 - Remaining Phase 4W: physical WorkoutKit/HealthKit, reconnect, and recovery-sample validation. See `docs/apple-watch-plan.md`.
-- Additional typed iOS clients beyond meals, Coach, progress analysis, and account backup.
+- Email verification and password recovery for external beta accounts.
 - A completed internal TestFlight upload and clean-install smoke test.
 - Partial/denied real-device HealthKit verification; the signed full-permission path and local notification delivery are verified.
 - Railway Hobby is provisioned in Southeast Asia with config-as-code, volume-safe startup, HTTPS, and durable `/data`. Authenticated iPhone verification and the host restore drill remain.
@@ -156,7 +157,7 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 Run the Phase 9 beta gates next:
 
 1. Return to partial/denied HealthKit checks and the deferred Phase 9A/9B physical Watch discovery and Apple Workout validation using `docs/apple-watch-setup.md` before release.
-2. Finish Phase 9D by saving the Railway token in the signed iPhone app, checking backup/export/live AI/deletion, and completing the host restore drill.
+2. Deploy the multi-user migration, create the owner account in the signed iPhone app, check backup/export/live AI/deletion, and complete the host restore drill.
 3. Complete the Phase 9E seven-day personal beta.
 4. Complete the Phase 9F internal TestFlight clean-install smoke test.
 

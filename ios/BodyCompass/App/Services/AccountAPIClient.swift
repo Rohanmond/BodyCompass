@@ -4,6 +4,179 @@ import Security
 import BodyCompassCore
 #endif
 
+struct AuthenticatedUser: Codable, Equatable, Identifiable {
+    let id: String
+    let email: String
+    let displayName: String
+}
+
+private struct AuthSessionResponse: Decodable {
+    let token: String
+    let expiresAt: String
+    let user: AuthenticatedUser
+}
+
+private struct CurrentAccountResponse: Decodable {
+    let user: AuthenticatedUser
+}
+
+struct AuthenticationAPIClient {
+    private struct RegisterRequest: Encodable {
+        let displayName: String
+        let email: String
+        let password: String
+    }
+    private struct LoginRequest: Encodable {
+        let email: String
+        let password: String
+    }
+    private struct ErrorResponse: Decodable { let error: String }
+
+    func register(displayName: String, email: String, password: String) async throws -> AuthenticatedUser {
+        let response: AuthSessionResponse = try await send(
+            path: "api/auth/register",
+            method: "POST",
+            body: RegisterRequest(displayName: displayName, email: email, password: password),
+            authorized: false
+        )
+        SessionCredentialStore.save(token: response.token, user: response.user)
+        return response.user
+    }
+
+    func login(email: String, password: String) async throws -> AuthenticatedUser {
+        let response: AuthSessionResponse = try await send(
+            path: "api/auth/login",
+            method: "POST",
+            body: LoginRequest(email: email, password: password),
+            authorized: false
+        )
+        SessionCredentialStore.save(token: response.token, user: response.user)
+        return response.user
+    }
+
+    func currentUser() async throws -> AuthenticatedUser {
+        let response: CurrentAccountResponse = try await send(
+            path: "api/auth/me",
+            method: "GET",
+            body: Optional<String>.none,
+            authorized: true
+        )
+        SessionCredentialStore.user = response.user
+        return response.user
+    }
+
+    func logout() async {
+        let _: EmptyResponse? = try? await send(
+            path: "api/auth/logout",
+            method: "POST",
+            body: Optional<String>.none,
+            authorized: true
+        )
+    }
+
+    private struct EmptyResponse: Decodable {}
+
+    private func send<Response: Decodable, Body: Encodable>(
+        path: String,
+        method: String,
+        body: Body?,
+        authorized: Bool
+    ) async throws -> Response {
+        guard let url = URL(string: path, relativeTo: BodyCompassAPI.baseURL)?.absoluteURL else {
+            throw AccountAPIClient.ClientError.invalidURL
+        }
+        var request = URLRequest(url: url)
+        request.httpMethod = method
+        request.timeoutInterval = 30
+        if let body {
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONEncoder().encode(body)
+        }
+        if authorized { BodyCompassAPI.authorize(&request) }
+        let (data, response) = try await URLSession.shared.data(for: request)
+        guard let http = response as? HTTPURLResponse else { throw AccountAPIClient.ClientError.invalidResponse }
+        guard (200..<300).contains(http.statusCode) else {
+            let message = (try? JSONDecoder().decode(ErrorResponse.self, from: data))?.error
+            throw AccountAPIClient.ClientError.server(message ?? "Account request failed (HTTP \(http.statusCode)).")
+        }
+        if Response.self == EmptyResponse.self, data.isEmpty {
+            return EmptyResponse() as! Response
+        }
+        return try JSONDecoder().decode(Response.self, from: data)
+    }
+}
+
+@MainActor
+final class AuthenticationStore: ObservableObject {
+    enum State: Equatable {
+        case checking
+        case signedOut
+        case signedIn(AuthenticatedUser)
+    }
+
+    @Published private(set) var state: State = .checking
+    private let client = AuthenticationAPIClient()
+
+    init() {
+        SessionCredentialStore.removeLegacyServerToken()
+        Task { await restoreSession() }
+    }
+
+    var user: AuthenticatedUser? {
+        guard case let .signedIn(user) = state else { return nil }
+        return user
+    }
+
+    func register(displayName: String, email: String, password: String) async throws {
+        let user = try await client.register(displayName: displayName, email: email, password: password)
+        state = .signedIn(user)
+    }
+
+    func login(email: String, password: String) async throws {
+        let user = try await client.login(email: email, password: password)
+        state = .signedIn(user)
+    }
+
+    func signOut() async {
+        await client.logout()
+        SessionCredentialStore.clear()
+        state = .signedOut
+    }
+
+    func accountWasDeleted() {
+        SessionCredentialStore.clear()
+        state = .signedOut
+    }
+
+    private func restoreSession() async {
+        guard SessionCredentialStore.token != nil else {
+            state = .signedOut
+            return
+        }
+        do {
+            state = .signedIn(try await client.currentUser())
+        } catch {
+            SessionCredentialStore.clear()
+            state = .signedOut
+        }
+    }
+}
+
+enum BodyCompassAPI {
+    static var baseURL: URL? {
+        if let configured = Bundle.main.object(forInfoDictionaryKey: "BODYCOMPASS_API_BASE_URL") as? String,
+           !configured.isEmpty {
+            return URL(string: configured)
+        }
+        return URL(string: "http://127.0.0.1:8080")
+    }
+
+    static func authorize(_ request: inout URLRequest) {
+        guard let token = SessionCredentialStore.token, !token.isEmpty else { return }
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+    }
+}
+
 struct AccountAPIClient {
     enum ClientError: LocalizedError {
         case invalidURL
@@ -37,13 +210,6 @@ struct AccountAPIClient {
     private struct IdentifierRequest: Encodable { let id: String }
     private struct DeleteRequest: Encodable { let confirmation = "DELETE MY BODYCOMPASS DATA" }
     private struct ErrorResponse: Decodable { let error: String; let detail: String? }
-
-    private var baseURL: URL? {
-        if let configured = Bundle.main.object(forInfoDictionaryKey: "BODYCOMPASS_API_BASE_URL") as? String, !configured.isEmpty {
-            return URL(string: configured)
-        }
-        return URL(string: "http://127.0.0.1:8080")
-    }
 
     func saveProfile(_ profile: BodyProfile) async throws {
         _ = try await send(path: "api/profile", method: "PUT", body: profile)
@@ -94,7 +260,7 @@ struct AccountAPIClient {
     }
 
     private func send<Body: Encodable>(path: String, method: String, body: Body?) async throws -> Data {
-        guard let url = URL(string: path, relativeTo: baseURL)?.absoluteURL else { throw ClientError.invalidURL }
+        guard let url = URL(string: path, relativeTo: BodyCompassAPI.baseURL)?.absoluteURL else { throw ClientError.invalidURL }
         var request = URLRequest(url: url)
         request.httpMethod = method
         request.timeoutInterval = 120
@@ -104,9 +270,7 @@ struct AccountAPIClient {
             encoder.dateEncodingStrategy = .iso8601
             request.httpBody = try encoder.encode(body)
         }
-        if let token = ServerCredentialStore.token, !token.isEmpty {
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        }
+        BodyCompassAPI.authorize(&request)
         let (data, response) = try await URLSession.shared.data(for: request)
         guard let http = response as? HTTPURLResponse else { throw ClientError.invalidResponse }
         guard (200..<300).contains(http.statusCode) else {
@@ -117,36 +281,62 @@ struct AccountAPIClient {
     }
 }
 
-enum ServerCredentialStore {
+enum SessionCredentialStore {
     private static let service = "com.rohanmondal.bodycompass.server"
-    private static let account = "api-token"
+    private static let tokenAccount = "account-session"
+    private static let userAccount = "account-user"
 
     static var token: String? {
-        get {
-            let query: [String: Any] = [
-                kSecClass as String: kSecClassGenericPassword,
-                kSecAttrService as String: service,
-                kSecAttrAccount as String: account,
-                kSecReturnData as String: true,
-                kSecMatchLimit as String: kSecMatchLimitOne
-            ]
-            var result: AnyObject?
-            guard SecItemCopyMatching(query as CFDictionary, &result) == errSecSuccess,
-                  let data = result as? Data else { return nil }
-            return String(data: data, encoding: .utf8)
-        }
-        set {
-            let query: [String: Any] = [
-                kSecClass as String: kSecClassGenericPassword,
-                kSecAttrService as String: service,
-                kSecAttrAccount as String: account
-            ]
-            SecItemDelete(query as CFDictionary)
-            guard let newValue, !newValue.isEmpty, let data = newValue.data(using: .utf8) else { return }
-            var item = query
-            item[kSecValueData as String] = data
-            item[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
-            SecItemAdd(item as CFDictionary, nil)
-        }
+        get { read(account: tokenAccount).flatMap { String(data: $0, encoding: .utf8) } }
+        set { write(newValue?.data(using: .utf8), account: tokenAccount) }
+    }
+
+    static var user: AuthenticatedUser? {
+        get { read(account: userAccount).flatMap { try? JSONDecoder().decode(AuthenticatedUser.self, from: $0) } }
+        set { write(newValue.flatMap { try? JSONEncoder().encode($0) }, account: userAccount) }
+    }
+
+    static func save(token: String, user: AuthenticatedUser) {
+        self.token = token
+        self.user = user
+    }
+
+    static func clear() {
+        token = nil
+        user = nil
+    }
+
+    static func removeLegacyServerToken() {
+        delete(account: "api-token")
+    }
+
+    private static func read(account: String) -> Data? {
+        var query = baseQuery(account: account)
+        query[kSecReturnData as String] = true
+        query[kSecMatchLimit as String] = kSecMatchLimitOne
+        var result: AnyObject?
+        guard SecItemCopyMatching(query as CFDictionary, &result) == errSecSuccess else { return nil }
+        return result as? Data
+    }
+
+    private static func write(_ data: Data?, account: String) {
+        delete(account: account)
+        guard let data else { return }
+        var item = baseQuery(account: account)
+        item[kSecValueData as String] = data
+        item[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+        SecItemAdd(item as CFDictionary, nil)
+    }
+
+    private static func delete(account: String) {
+        SecItemDelete(baseQuery(account: account) as CFDictionary)
+    }
+
+    private static func baseQuery(account: String) -> [String: Any] {
+        [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account
+        ]
     }
 }

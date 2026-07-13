@@ -398,12 +398,12 @@ Phase 7 done status: all functional criteria and Phase 9C physical-camera/live-k
 
 Goal: stop relying on in-memory/mock data.
 
-Status: implemented and simulator-build verified; production deployment and restore testing remain.
+Status: multi-user accounts implemented and simulator-build verified; deployed migration and friend-device testing remain.
 
 Deliverables:
 
 - Database schema for users, profiles, snapshots, meals, schedule items, and chats.
-- Basic auth or private single-user mode.
+- Email/password registration, sign in, sign out, account isolation, and revocable sessions.
 - Analysis-only photo handling with no image persistence.
 - Delete/export data controls.
 
@@ -411,12 +411,13 @@ Implemented:
 
 - SQLite schema for private users, profiles, daily health snapshots, schedules, accepted meals, Coach exchanges, and photo-free progress check-ins.
 - WAL mode, foreign keys, per-user ownership, idempotent daily snapshot and device-record synchronization, and persistence across process restart.
-- Private single-user mode for local development plus constant-time bearer-token authentication when configured.
+- Multi-user email accounts with normalized unique addresses, `scrypt` password hashing, login throttling, and random 30-day sessions stored hashed in SQLite.
 - Analysis photos are never written to iOS history, backend persistence, backup, or export; startup cleanup purges legacy files and database references.
 - Local-first iOS backup for profile, health, schedule, accepted meal results, and progress check-in results.
-- Bearer token stored in iOS Keychain, never in `UserDefaults` or source code.
+- Opaque account session stored in iOS Keychain and attached automatically; no server token is shown to users.
 - JSON account export containing result metadata and no photo contents.
-- Exact-confirmation server deletion and a Goal → Data & Privacy screen that deletes server and local BodyCompass records while leaving Apple Health untouched.
+- Root Sign In/Create Account flow, launch-time session validation, sign out, account-switch local-data protection, and per-user server ownership.
+- Exact-confirmation account deletion and a Goal → Data & Privacy screen that deletes server and local BodyCompass records while leaving Apple Health untouched.
 - Automated restart, no-photo persistence, export, idempotency, auth, and deletion tests plus authenticated HTTP smoke testing.
 
 Done when:
@@ -425,7 +426,7 @@ Done when:
 - User can delete meal/check-in result records and health logs; photos never enter history.
 - API keys remain server-side only.
 
-Phase 8 done status: functional completion criteria are implemented. Cloud hosting, backup/restore operations, multi-user identity, and production HTTPS are deployment work, not claims made by this local MVP.
+Phase 8 done status: core multi-user identity and data isolation are implemented. Email verification, password recovery, deployed migration validation, and friend-device beta testing remain release work.
 
 ## Phase 9: Polish and Beta
 

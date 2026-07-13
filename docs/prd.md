@@ -39,6 +39,7 @@ The initial target user is a focused adult fitness user who:
 ### Must Have
 
 - Native iOS SwiftUI app.
+- Multi-user account creation, sign in, sign out, secure sessions, and per-user data isolation.
 - Apple HealthKit read access for weight, body fat, steps, active energy, workouts, sleep, and resting heart rate.
 - Manual fallback entries for missing HealthKit data.
 - 12% body-fat projection engine.
@@ -77,10 +78,11 @@ The initial target user is a focused adult fitness user who:
 
 ### Onboarding
 
-1. User enters age, height, weight, current body-fat estimate, and target body fat.
-2. App explains that 12% timeline is an estimate.
-3. User grants HealthKit permission or chooses manual mode.
-4. App calculates starting projection.
+1. User creates an account or signs in.
+2. User enters age, height, weight, current body-fat estimate, and target body fat.
+3. App explains that 12% timeline is an estimate.
+4. User grants HealthKit permission or chooses manual mode.
+5. App calculates starting projection and privately syncs it to that account.
 
 ### Daily Check-In
 
@@ -170,6 +172,9 @@ Manual changes do not require Coach confirmation. Confirmation is required only 
 ## 9. Privacy Requirements
 
 - API keys must never be stored in the iOS app.
+- Passwords must be salted and hashed; raw passwords and raw session tokens must never be stored in the backend database.
+- Each backend record must be scoped to the authenticated user, and account switching must not expose another user's local data.
+- The iOS app stores only an opaque account session in Keychain and never asks users to enter a server credential.
 - Meal and progress photos must be transient analysis inputs and never retained in BodyCompass history or backup.
 - Progress-photo upload is optional and requires explicit consent.
 - Remove image metadata before upload and allow face-free framing.
@@ -196,6 +201,8 @@ The app should treat this as an editable starting plan, not a permanent prescrip
 ## 11. MVP Acceptance Criteria
 
 - User can open the app and see the five main tabs.
+- User can register, sign in, relaunch with a validated session, sign out, and delete their account.
+- Two accounts cannot read, overwrite, export, or delete one another's records.
 - User can calculate a 12% body-fat timeline from profile inputs.
 - Backend returns mock AI meal/chat responses without API keys.
 - Backend can later use real OpenAI/Gemini keys without changing iOS code.

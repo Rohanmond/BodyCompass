@@ -2,7 +2,14 @@
 
 Base URL: `http://localhost:8080`
 
-All `/api/*` routes require `Authorization: Bearer <BODYCOMPASS_API_TOKEN>` when that environment variable is configured. Local development without a token uses the private `local-owner` account. Production requires a strong API token, stable owner ID, absolute durable data path, and both AI provider keys; photos are not stored, so no image-storage secret is required.
+All API routes except registration and login require an account session using `Authorization: Bearer <session-token>`. Registration and login return an opaque 30-day token; only its SHA-256 hash is stored by the server. Passwords are hashed with `scrypt` and a unique random salt. The iOS app handles this header automatically and keeps the session in Keychain.
+
+## Authentication
+
+- `POST /api/auth/register`: `{ "displayName", "email", "password" }`. Passwords require at least 10 characters, a letter, and a number.
+- `POST /api/auth/login`: `{ "email", "password" }`.
+- `GET /api/auth/me`: validates the stored session and returns the current user.
+- `POST /api/auth/logout`: revokes the current session.
 
 ## `GET /health`
 

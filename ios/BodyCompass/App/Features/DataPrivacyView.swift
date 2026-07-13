@@ -3,8 +3,8 @@ import SwiftUI
 struct DataPrivacyView: View {
     @EnvironmentObject private var app: AppStore
     @EnvironmentObject private var training: TrainingStore
+    @EnvironmentObject private var authentication: AuthenticationStore
     @StateObject private var checkIns = ProgressCheckInStore()
-    @State private var token = ""
     @State private var exportURL: URL?
     @State private var isWorking = false
     @State private var showDeleteConfirmation = false
@@ -12,23 +12,20 @@ struct DataPrivacyView: View {
 
     var body: some View {
         List {
-            Section("Private server") {
+            Section("Account") {
+                if let user = authentication.user {
+                    LabeledContent("Name", value: user.displayName)
+                    LabeledContent("Email", value: user.email)
+                }
+                Button(role: .destructive) {
+                    Task { await authentication.signOut() }
+                } label: {
+                    Label("Sign out", systemImage: "rectangle.portrait.and.arrow.right")
+                }
+            }
+
+            Section("Private backup") {
                 LabeledContent("Backup status") { syncLabel }
-                HStack(spacing: 12) {
-                    SecureField("Bearer token", text: $token)
-                        .textContentType(.password)
-                        .textInputAutocapitalization(.never)
-                        .autocorrectionDisabled()
-                    PasteButton(payloadType: String.self) { values in
-                        token = values.first?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
-                    }
-                    .labelStyle(.iconOnly)
-                    .accessibilityLabel("Paste server token")
-                }
-                Button("Save server token") {
-                    ServerCredentialStore.token = token.trimmingCharacters(in: .whitespacesAndNewlines)
-                    retryBackup()
-                }
                 Button { retryBackup() } label: { Label("Retry backup", systemImage: "arrow.clockwise") }
                     .disabled(isWorking)
             }
@@ -51,7 +48,7 @@ struct DataPrivacyView: View {
             }
 
             Section("Delete") {
-                Button("Delete all BodyCompass data", role: .destructive) {
+                Button("Delete account and all data", role: .destructive) {
                     showDeleteConfirmation = true
                 }
                 .disabled(isWorking)
@@ -65,9 +62,8 @@ struct DataPrivacyView: View {
             }
         }
         .navigationTitle("Data & Privacy")
-        .onAppear { token = ServerCredentialStore.token ?? "" }
-        .confirmationDialog("Delete all BodyCompass data?", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
-            Button("Delete server and device data", role: .destructive) { deleteEverything() }
+        .confirmationDialog("Delete your BodyCompass account?", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
+            Button("Delete account and data", role: .destructive) { deleteEverything() }
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This cannot be undone. It does not remove data stored by Apple Health.")
@@ -122,8 +118,8 @@ struct DataPrivacyView: View {
                 try await app.deleteAllServerData()
                 checkIns.deleteAllLocalData()
                 training.deleteAllTrainingData()
-                ServerCredentialStore.token = nil
                 app.deleteAllLocalData()
+                authentication.accountWasDeleted()
             } catch {
                 message = "Could not delete server data: \(error.localizedDescription). Device data was kept so you can retry."
             }

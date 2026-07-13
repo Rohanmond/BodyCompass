@@ -20,7 +20,7 @@ Native iOS fat-loss coach for reaching 12% body fat with HealthKit history, dail
 - Coach-proposed routine updates that require user confirmation.
 - Weekly review and history trends.
 - Coach chat with combined answer and provider comparison.
-- Local-first private backup with bearer authentication, export, and complete deletion controls.
+- Multi-user accounts with Keychain sessions, isolated private backup, export, and complete deletion controls.
 
 ## Planning Docs
 

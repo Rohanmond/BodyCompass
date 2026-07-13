@@ -17,6 +17,7 @@ import {
   saveSchedule
 } from "./routes/accountData.js";
 import { authenticate } from "./lib/auth.js";
+import { currentAccount, login, logout, register } from "./routes/auth.js";
 import { assertValidConfig } from "./lib/config.js";
 import { closePersistenceStore, persistenceStore } from "./persistence/database.js";
 
@@ -33,6 +34,10 @@ const routes = {
   "GET /health": liveness,
   "GET /health/live": liveness,
   "GET /health/ready": readiness,
+  "POST /api/auth/register": register,
+  "POST /api/auth/login": login,
+  "GET /api/auth/me": currentAccount,
+  "POST /api/auth/logout": logout,
   "POST /api/meals/analyze": analyzeMeal,
   "POST /api/chat": createChatAnswer,
   "POST /api/goal/projection": createGoalProjection,
@@ -59,7 +64,7 @@ const server = createServer(async (request, response) => {
       return send(response, 404, { error: "Route not found" });
     }
 
-    if (url.pathname.startsWith("/api/")) {
+    if (url.pathname.startsWith("/api/") && !publicRoutes.has(routeKey)) {
       const auth = authenticate(request);
       if (!auth.ok) return send(response, auth.status, auth.body);
       request.bodyCompassAuth = auth;
@@ -74,6 +79,11 @@ const server = createServer(async (request, response) => {
       : { error: error instanceof Error ? error.message : "Request failed" });
   }
 });
+
+const publicRoutes = new Set([
+  "POST /api/auth/register",
+  "POST /api/auth/login"
+]);
 
 server.listen(port, host, () => {
   console.log(`BodyCompass API listening on http://${host}:${port}`);

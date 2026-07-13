@@ -4,7 +4,7 @@ Read `ai/HANDOFF.md` before starting. This brief intentionally covers only the n
 
 ## Completed Software Phase
 
-Phase 8 SQLite persistence, photo-free single-user authentication, local-first backup, export, and deletion are implemented. The Railway production service is live with HTTPS and durable `/data`.
+Phase 8 SQLite persistence, photo-free multi-user accounts, local-first backup, export, and deletion are implemented. The Railway production service is live with HTTPS and durable `/data`; the account migration still needs deployment validation.
 
 ## Best Next Phase
 
@@ -48,4 +48,4 @@ cd server
 npm test
 ```
 
-Phase 9C camera/live-provider flows are user-confirmed on the signed iPhone. Production HTTPS is live and the app is configured for its Railway URL. Bearer-token iPhone checks, the host restore drill, physical Watch, and partial/denied HealthKit validation remain pending.
+Phase 9C camera/live-provider flows are user-confirmed on the signed iPhone. Production HTTPS is live and the app is configured for its Railway URL. Multi-user production checks, email verification/password recovery, the host restore drill, physical Watch, and partial/denied HealthKit validation remain pending.

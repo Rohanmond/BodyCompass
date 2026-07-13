@@ -18,7 +18,7 @@ Last audited: July 14, 2026.
 - Phase 5 meal logging: camera/library capture, transient compressed JPEG upload, typed iOS API client, live-or-mock OpenAI and Gemini meal adapters, resilient reconciliation, editable nutrition confirmation, and photo-free result history.
 - Phase 6 Coach Chat: typed transport, bounded app context, live-or-mock OpenAI and Gemini adapters, safety classification, local conversation history, one next action, and validated confirmed-only routine proposals.
 - Phase 7 weekly review and photos: persisted health history, native trends, weekly summaries, recalculated goal projection, standardized transient three-angle analysis, photo-free result history, dual-provider visual ranges, correction/rejection, and deletion.
-- Phase 8 persistence/accounts: SQLite metadata durability, private single-user bearer auth, no-photo persistence enforcement, legacy-photo cleanup, local-first iOS backup, Keychain token, and photo-free JSON export.
+- Phase 8 persistence/accounts: multi-user email registration/login, scrypt password hashes, hashed expiring sessions, per-user SQLite isolation, no-photo persistence enforcement, local-first iOS backup, Keychain session, and photo-free JSON export.
 - Phase 9C live AI and signed-iPhone meal/progress camera plus Coach confirmation validation.
 - Phase 9D production configuration, health probes, non-root container, checksum-verified backup/restore tooling, and a live Railway Southeast Asia service with durable SQLite storage.
 - SwiftUI app shell with five tabs.
@@ -31,7 +31,7 @@ Last audited: July 14, 2026.
 
 - Phase 4 extras: date-range pauses, one-tap move/copy of sessions between days, and non-rest one-day exception UI (the core model supports arbitrary replacement sessions).
 - Phase 4W Apple Workout migration is simulator-build verified: WorkoutKit strength/swim mapping, iPhone scheduling, Watch handoff, runtime strength fallback, Pool/Open Water selection, completed-workout UUID matching, duration/energy/distance import, and durable manual strength details. Paired-device verification remains.
-- Phase 8/9D production HTTPS hosting is live; the host restore drill and authenticated deployed-service iPhone verification remain.
+- Phase 8/9D production HTTPS hosting is live; multi-user migration deployment, host restore drill, and authenticated friend-device verification remain.
 
 ## Not Implemented
 

@@ -98,7 +98,7 @@ Deployment-ready operations:
 - Backup creates a consistent SQLite snapshot plus photo-free checksum manifest; restore verifies checksum and integrity and preserves the previous database.
 - Actual HTTPS hosting, production secret setup, and a host-level restore drill remain Phase 9D execution work.
 - Managed relational storage is considered only when deployment scale justifies replacing the single-instance SQLite adapter.
-- Multi-user identity only if BodyCompass becomes more than a private single-user app.
+- SQLite now stores multi-user accounts and hashed expiring sessions. Move to managed Postgres before horizontal API scaling.
 
 ## Important Boundary
 

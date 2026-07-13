@@ -5,7 +5,7 @@ BodyCompass is local-first, but AI requests and private metadata backup need the
 ## What Is Ready
 
 - A non-root Node 22 container in `server/Dockerfile`.
-- Fail-fast production checks for bearer auth, stable owner identity, durable storage, and both AI provider keys.
+- Fail-fast production checks for a server-only storage secret, durable storage, and both AI provider keys.
 - `/health/live` for process liveness and `/health/ready` for SQLite readiness.
 - Graceful shutdown on `SIGTERM` and `SIGINT`.
 - A durable `/data` volume in `server/compose.yaml`.
@@ -25,7 +25,7 @@ cp .env.production.example .env.production
 openssl rand -hex 32
 ```
 
-Put the generated value in `BODYCOMPASS_API_TOKEN`. Use a stable private value for `BODYCOMPASS_USER_ID`, then add fresh OpenAI and Gemini keys. Keys previously pasted into chat or exposed elsewhere should be revoked and replaced before deployment.
+Put the generated value in `BODYCOMPASS_STORAGE_SECRET`, then add fresh OpenAI and Gemini keys. Keys previously pasted into chat or exposed elsewhere should be revoked and replaced before deployment.
 
 Production startup stops with a clear error when required settings are missing. `BODYCOMPASS_STORAGE_SECRET` is not required because current builds do not retain photos; it exists only for local cleanup compatibility with older data.
 
@@ -61,9 +61,9 @@ Choose a host that supports a persistent disk/volume and HTTPS, then deploy `ser
 - All values from `.env.production` stored in the host's secret manager.
 - A stable HTTPS hostname, for example `https://api.example.com`.
 
-Do not deploy SQLite to an ephemeral filesystem or to multiple simultaneously-writing replicas. This MVP is a private single-user service and should run as one instance.
+Do not deploy SQLite to an ephemeral filesystem or to multiple simultaneously-writing replicas. The current multi-user MVP uses one SQLite-writing service instance.
 
-In Xcode, set `BODYCOMPASS_API_BASE_URL` to the HTTPS hostname for the release configuration. On the iPhone, open **Goal**, tap the shield/lock button for **Data & Privacy**, and enter the same `BODYCOMPASS_API_TOKEN`.
+In Xcode, set `BODYCOMPASS_API_BASE_URL` to the HTTPS hostname for the release configuration. On the iPhone, create or sign in to an account; the app stores its opaque session in Keychain automatically.
 
 ## 4. Back Up Metadata
 
