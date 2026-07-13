@@ -57,7 +57,12 @@ final class ReminderService {
     /// Schedules a one-off reminder so signed-device builds can verify that
     /// permission, sounds, banners, and lock-screen delivery all work.
     func scheduleTest(after delay: TimeInterval = 10) async -> Bool {
-        guard await authorizationStatus() == .authorized else { return false }
+        var status = await authorizationStatus()
+        if status == .notDetermined {
+            guard await requestAuthorization() else { return false }
+            status = await authorizationStatus()
+        }
+        guard status == .authorized || status == .provisional || status == .ephemeral else { return false }
 
         center.removePendingNotificationRequests(withIdentifiers: [Self.testIdentifier])
 

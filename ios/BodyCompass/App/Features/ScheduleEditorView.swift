@@ -8,6 +8,7 @@ struct ScheduleEditorView: View {
     @State private var editingItem: ScheduleItem?
     @State private var isAdding = false
     @State private var testReminderMessage: String?
+    @State private var isSchedulingTestReminder = false
 
     var body: some View {
         List {
@@ -16,23 +17,6 @@ struct ScheduleEditorView: View {
                     get: { store.remindersEnabled },
                     set: { newValue in Task { await store.setRemindersEnabled(newValue) } }
                 ))
-#if DEBUG
-                Button {
-                    Task {
-                        let scheduled = await store.scheduleTestReminder()
-                        testReminderMessage = scheduled
-                            ? "Test scheduled. Lock the iPhone and wait 10 seconds."
-                            : "Enable Daily reminders and allow notifications first."
-                    }
-                } label: {
-                    Label("Send test reminder in 10 seconds", systemImage: "bell.badge")
-                }
-                if let testReminderMessage {
-                    Text(testReminderMessage)
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-#endif
             } footer: {
                 Text("Get a local notification at the time set on each task. Tasks without a time are silent.")
             }
@@ -72,12 +56,53 @@ struct ScheduleEditorView: View {
         }
         .navigationTitle("Daily schedule")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar { EditButton() }
+        .toolbar {
+#if DEBUG
+            ToolbarItem(placement: .topBarTrailing) {
+                Button(action: scheduleTestReminder) {
+                    if isSchedulingTestReminder {
+                        ProgressView()
+                    } else {
+                        Image(systemName: "bell.badge")
+                    }
+                }
+                .disabled(isSchedulingTestReminder)
+                .accessibilityLabel("Send test reminder in 10 seconds")
+            }
+#endif
+            ToolbarItem(placement: .topBarTrailing) {
+                EditButton()
+            }
+        }
         .sheet(isPresented: $isAdding) {
             ScheduleItemForm(mode: .add)
         }
         .sheet(item: $editingItem) { item in
             ScheduleItemForm(mode: .edit(item))
+        }
+        .alert("Reminder test", isPresented: testReminderAlertBinding) {
+            Button("OK", role: .cancel) { testReminderMessage = nil }
+        } message: {
+            Text(testReminderMessage ?? "")
+        }
+    }
+
+    private var testReminderAlertBinding: Binding<Bool> {
+        Binding(
+            get: { testReminderMessage != nil },
+            set: { if !$0 { testReminderMessage = nil } }
+        )
+    }
+
+    private func scheduleTestReminder() {
+        guard !isSchedulingTestReminder else { return }
+        isSchedulingTestReminder = true
+        Task {
+            let scheduled = await store.scheduleTestReminder()
+            testReminderMessage = scheduled
+                ? "Scheduled. Lock the iPhone and wait 10 seconds."
+                : "Notifications are unavailable. Allow BodyCompass notifications in iPhone Settings and try again."
+            isSchedulingTestReminder = false
         }
     }
 
