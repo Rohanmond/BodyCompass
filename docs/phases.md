@@ -21,11 +21,12 @@ Implemented:
 - Phase 4 structured training: seeded weekly split, setup questionnaire, exercise prescriptions, set/swim logging, deterministic progression, versioned manual editing with rollback, one-day rest exceptions, and a mock coach proposal Confirm/Edit/Reject flow.
 - Phase 4W W1: watchOS target, HealthKit capability, routine cache, Watch Connectivity routine sync, and durable queued log sync.
 - Phase 5 meal logging: camera/library capture, compressed upload, dual-provider analysis, correction, protected local history, and deletion.
+- Phase 6 Coach Chat: contextual dual-provider answers, safety routing, local history, and validated confirmed-only routine proposals.
 
 Partially implemented:
 - Phase 4W WorkoutKit scheduling/opening and basic completed-workout import are simulator-build verified; paired-device validation and recovery-aware coaching remain.
-- Phase 4 extras still open: date-range session pauses, one-tap move/copy of a session to another day, richer one-day exceptions in the UI (core model already supports arbitrary replacement sessions), and real Coach-generated proposals (Phase 6).
-- Phase 5 needs live-key and physical-camera validation; Phase 6 still has mock provider calls and no contextual chat persistence.
+- Phase 4 extras still open: date-range session pauses, one-tap move/copy of a session to another day, and richer one-day exceptions in the UI (core model already supports arbitrary replacement sessions).
+- Phase 5 needs live-key and physical-camera validation; Phase 6 needs live-key validation.
 - Phase 7 has a History tab placeholder, but not real weekly analytics or progress-photo analysis yet.
 - Phase 1 still needs you to open Xcode locally and choose signing for real-device runs.
 
@@ -34,7 +35,7 @@ Not implemented yet:
 - Phase 4W real-device WorkoutKit/HealthKit validation and recovery-aware Watch suggestions.
 - Weekly progress-photo capture, comparison, and AI body-fat range estimation.
 - Database-backed storage.
-- Real OpenAI/Gemini HTTP integrations for chat and progress photos.
+- Real OpenAI/Gemini HTTP integrations for progress photos.
 - App Store/TestFlight readiness.
 
 ## Phase 0: Foundation
@@ -175,7 +176,7 @@ Phase 3 done status: implementation complete and simulator target builds; confir
 
 Goal: make the app a daily accountability system.
 
-Status: implemented and simulator-build verified. Daily schedule, adherence, and the structured weekly training program (seeded split, prescriptions, logging, progression, versions, rollback, one-day exceptions, and mock coach proposals) are all built. Real Coach-generated proposals arrive with Phase 6.
+Status: implemented and simulator-build verified. Daily schedule, adherence, and the structured weekly training program (seeded split, prescriptions, logging, progression, versions, rollback, one-day exceptions, and confirmed-only Coach proposals) are all built.
 
 Implemented in this phase:
 
@@ -200,13 +201,13 @@ Structured training implemented in this phase:
 - Set-by-set strength logging (load, reps, RIR, pain notes) and swim logging (duration, distance, intensity).
 - Deterministic conservative double progression: establish baseline → add reps → add load (2.5%, min 1 kg), with pain notes forcing a caution state.
 - Routine versions with history and rollback (restores copy forward as a new version).
-- Mock Coach proposal flow with reasons, recovery impact, exact before/after diff, staleness detection, and Confirm/Edit/Reject. Nothing activates without explicit confirmation, and proposals are refused when setup context is missing.
+- Coach proposal flow with reasons, recovery impact, exact before/after diff, staleness detection, and Confirm/Edit/Reject. Nothing activates without explicit confirmation, and proposals are refused when setup context is missing.
 
 Still open (deferred, not blockers):
 
 - Date-range session pauses and one-tap move/copy of a session to another day.
 - UI for one-day exceptions beyond "rest today" (the core model already supports arbitrary replacement sessions).
-- Real Coach-generated proposals via providers (Phase 6 wiring; the confirmation contract is already in place).
+- Live-key validation of Coach-generated proposals.
 
 Deliverables:
 
@@ -317,26 +318,33 @@ All functional completion criteria are implemented. Device and live-provider che
 
 Goal: connect AI answers to the user’s real goal data.
 
-Status: partially implemented.
+Status: implemented and simulator-build verified; live-provider validation pending.
 
 Implemented so far:
 
 - Coach tab exists.
 - Combined, ChatGPT, and Gemini UI tabs exist.
 - Backend chat endpoint exists.
-- Backend calls mock OpenAI and Gemini provider functions.
+- Typed iOS chat client with persisted local conversation history.
+- Bounded profile, health, accepted-meal, schedule, adherence, goal, and training context.
+- Real OpenAI and Gemini structured provider calls when keys are configured, with complete mock fallback.
+- Combined answer with one next action and one-provider fallback.
+- Deterministic safety classification for urgent medical, injury, extreme deficit, eating-disorder, and drug-advice requests.
+- Structured routine instructions matched against the active routine and validated before becoming a pending proposal.
 
 Deliverables:
 
 - Chat UI with combined, ChatGPT, and Gemini tabs.
 - Backend chat endpoint with user profile, latest health snapshot, meals, and schedule context.
 - Safety rules for medical, injury, extreme deficit, and eating-disorder topics.
+- Live OpenAI and Gemini key/model validation.
 
 Done when:
 
 - User can ask coaching questions.
 - Both providers respond.
 - Combined answer gives one practical recommendation.
+- Any routine change remains pending until Confirm; invalid or unknown changes are rejected.
 
 ## Phase 7: Weekly Review and History
 

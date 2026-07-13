@@ -93,11 +93,19 @@ Response:
 
 ```json
 {
-  "combined": "Combined coaching answer...",
-  "openai": {},
-  "gemini": {}
+  "combined": {
+    "answer": "Use the weekly trend rather than one weigh-in.",
+    "nextAction": "Complete today's planned strength session.",
+    "safetyNotice": "",
+    "routineProposal": null,
+    "confidence": "dual_provider"
+  },
+  "openai": { "provider": "openai", "mode": "live" },
+  "gemini": { "provider": "gemini", "mode": "live" }
 }
 ```
+
+The actual request also carries bounded goal, schedule/adherence, active routine/setup, and recent workout context. Provider answers may include a routine instruction with up to four `make_rest_day`, `update_swim`, or `update_exercise` operations. This is never an active routine: iOS must resolve known targets, validate the complete week, and create a pending `RoutineChangeProposal` for Confirm/Edit/Reject.
 
 ## `POST /api/health-snapshots`
 

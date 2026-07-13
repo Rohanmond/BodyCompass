@@ -48,6 +48,19 @@
 - original provider bundle
 - separately accepted/corrected nutrition
 
+`CoachExchange` / `CoachAnswerBundle`
+
+- local question and timestamp
+- combined, OpenAI, and Gemini answers
+- one next action, safety notice, provider mode/error
+- optional bounded `CoachRoutineInstruction`
+
+`CoachRoutineInstruction`
+
+- summary, reasons, expected benefit, and recovery impact
+- up to four changes targeting a known weekday/session/exercise
+- converted into `RoutineChangeProposal` only after local matching and validation
+
 `TrainingRoutine` (implemented in `BodyCompassCore`, persisted as versions in `UserDefaults`)
 
 - id, version, source (seed, user, coach), changeSummary, createdAt

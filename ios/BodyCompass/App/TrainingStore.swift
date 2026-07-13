@@ -250,49 +250,111 @@ final class TrainingStore: ObservableObject {
         trimAndPersistLogs()
     }
 
-    // MARK: - Coach proposals (mock until Phase 6)
+    // MARK: - Coach proposals
 
-    enum ProposalRequestResult: Equatable {
+    enum CoachInstructionResult: Equatable {
         case created
         case needsSetup
         case alreadyPending
+        case invalid(String)
     }
 
-    /// Builds a deterministic mock proposal so the Confirm/Edit/Reject flow
-    /// can be exercised end to end. Real provider-backed proposals arrive in
-    /// Phase 6; the confirmation contract stays identical.
+    /// Converts bounded AI change instructions into the existing proposal
+    /// contract. Unknown targets and invalid routines are rejected; this
+    /// method never activates the resulting routine.
     @discardableResult
-    func requestMockProposal() -> ProposalRequestResult {
-        // Refusing without setup context is the "unsafe proposal" guard:
-        // Coach never programs without experience/equipment/limitation info.
+    func createProposal(from instruction: CoachRoutineInstruction) -> CoachInstructionResult {
         guard !needsSetup else { return .needsSetup }
         if proposal?.status == .pending { return .alreadyPending }
 
-        var proposedDays = activeRoutine.days
-        // Mock adjustment: make Sunday's swim an easy recovery swim and trim
-        // ten minutes, respecting accumulated weekly fatigue.
-        if let index = proposedDays.firstIndex(where: { $0.weekday == .sunday }),
-           let sessionIndex = proposedDays[index].sessions.firstIndex(where: { $0.kind == .swimming }),
-           let plan = proposedDays[index].sessions[sessionIndex].swimPlan {
-            proposedDays[index].sessions[sessionIndex].swimPlan = SwimPlan(
-                targetMinutes: max(15, plan.targetMinutes - 10),
-                intensity: .easy
-            )
-            proposedDays[index].sessions[sessionIndex].notes =
-                "Recovery swim: long easy strokes, finish feeling fresher than you started."
+        var days = activeRoutine.days
+        var appliedChanges = 0
+
+        for change in instruction.changes {
+            guard let weekday = Weekday.allCases.first(where: {
+                $0.displayName.lowercased() == change.weekday.lowercased()
+            }), let dayIndex = days.firstIndex(where: { $0.weekday == weekday }) else {
+                return .invalid("Coach referenced an unknown training day.")
+            }
+
+            switch change.action {
+            case "make_rest_day":
+                days[dayIndex].sessions = []
+                appliedChanges += 1
+
+            case "update_swim":
+                guard (15...180).contains(change.targetMinutes),
+                      let intensity = SwimIntensity(rawValue: change.intensity),
+                      let sessionIndex = matchingSessionIndex(
+                        in: days[dayIndex],
+                        title: change.sessionTitle,
+                        kind: .swimming
+                      ) else {
+                    return .invalid("Coach returned an invalid swimming change.")
+                }
+                days[dayIndex].sessions[sessionIndex].swimPlan = SwimPlan(
+                    targetMinutes: change.targetMinutes,
+                    intensity: intensity
+                )
+                appliedChanges += 1
+
+            case "update_exercise":
+                guard (1...10).contains(change.workingSets),
+                      change.repRangeLower > 0,
+                      change.repRangeUpper >= change.repRangeLower,
+                      (0...5).contains(change.targetRIR),
+                      (30...600).contains(change.restSeconds),
+                      let sessionIndex = matchingSessionIndex(
+                        in: days[dayIndex],
+                        title: change.sessionTitle,
+                        kind: .strength
+                      ),
+                      let exerciseIndex = days[dayIndex].sessions[sessionIndex].exercises.firstIndex(where: {
+                        $0.name.caseInsensitiveCompare(change.exerciseName) == .orderedSame
+                      }) else {
+                    return .invalid("Coach referenced an unknown exercise or invalid prescription.")
+                }
+                days[dayIndex].sessions[sessionIndex].exercises[exerciseIndex].workingSets = change.workingSets
+                days[dayIndex].sessions[sessionIndex].exercises[exerciseIndex].repRangeLower = change.repRangeLower
+                days[dayIndex].sessions[sessionIndex].exercises[exerciseIndex].repRangeUpper = change.repRangeUpper
+                days[dayIndex].sessions[sessionIndex].exercises[exerciseIndex].targetRIR = change.targetRIR
+                days[dayIndex].sessions[sessionIndex].exercises[exerciseIndex].restSeconds = change.restSeconds
+                appliedChanges += 1
+
+            default:
+                return .invalid("Coach returned an unsupported routine change.")
+            }
+        }
+
+        guard appliedChanges > 0, !RoutineDiff.changes(from: activeRoutine.days, to: days).isEmpty else {
+            return .invalid("Coach did not produce a change to the current routine.")
+        }
+        let errors = RoutineValidator.validate(days: days, requireDetail: true)
+        guard errors.isEmpty else {
+            return .invalid("Coach's routine change did not pass BodyCompass validation.")
         }
 
         setProposal(RoutineChangeProposal(
             baseVersion: activeRoutine.version,
-            proposedDays: proposedDays,
-            reasons: [
-                "Nine weekly exposures with no full rest day",
-                "Sunday follows your two hardest back-to-back days (Arms + swim)"
-            ],
-            expectedBenefit: "Better recovery going into Monday's chest session without losing swim consistency.",
-            recoveryImpact: "Slightly lower Sunday load; weekly volume otherwise unchanged."
+            proposedDays: days,
+            reasons: instruction.reasons.isEmpty ? [instruction.summary] : instruction.reasons,
+            expectedBenefit: instruction.expectedBenefit,
+            recoveryImpact: instruction.recoveryImpact
         ))
         return .created
+    }
+
+    private func matchingSessionIndex(
+        in day: TrainingDay,
+        title: String,
+        kind: TrainingSessionKind
+    ) -> Int? {
+        if !title.isEmpty, let exact = day.sessions.firstIndex(where: {
+            $0.kind == kind && $0.title.caseInsensitiveCompare(title) == .orderedSame
+        }) {
+            return exact
+        }
+        return day.sessions.firstIndex { $0.kind == kind }
     }
 
     func confirmProposal() {

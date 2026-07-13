@@ -12,6 +12,7 @@
 		B1B2C3D4E5F60718293A4B5D /* ReminderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B2C3D4E5F60718293A4B5C /* ReminderService.swift */; };
 		B1B2C3D4E5F60718293A4B6D /* MealAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B2C3D4E5F60718293A4B6C /* MealAPIClient.swift */; };
 		B1B2C3D4E5F60718293A4B7D /* MealImageStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B2C3D4E5F60718293A4B7C /* MealImageStore.swift */; };
+		B1B2C3D4E5F60718293A4B8D /* CoachAPIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B2C3D4E5F60718293A4B8C /* CoachAPIClient.swift */; };
 		C1B2C3D4E5F60718293A4B5D /* ScheduleEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B2C3D4E5F60718293A4B5C /* ScheduleEditorView.swift */; };
 		53E2DEE75137405D909E13DA /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 104976314DCC4BE696608BB6 /* AppStore.swift */; };
 		3968E992129E47B2B174A87D /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB9A8FF6D38440A087540C82 /* RootView.swift */; };
@@ -93,6 +94,7 @@
 		B1B2C3D4E5F60718293A4B5C /* ReminderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderService.swift; sourceTree = "<group>"; };
 		B1B2C3D4E5F60718293A4B6C /* MealAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealAPIClient.swift; sourceTree = "<group>"; };
 		B1B2C3D4E5F60718293A4B7C /* MealImageStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealImageStore.swift; sourceTree = "<group>"; };
+		B1B2C3D4E5F60718293A4B8C /* CoachAPIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CoachAPIClient.swift; sourceTree = "<group>"; };
 		C1B2C3D4E5F60718293A4B5C /* ScheduleEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleEditorView.swift; sourceTree = "<group>"; };
 		C97F2A19AD344594B96EF1B4 /* MealAnalysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealAnalysis.swift; sourceTree = "<group>"; };
 		08B7464CBFA64999BF9A4C0A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -195,6 +197,7 @@
 		C24BF8EBFF7E46FF85C51782 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				B1B2C3D4E5F60718293A4B8C /* CoachAPIClient.swift */,
 				211A805EEE4449608136F410 /* HealthKitService.swift */,
 				B1B2C3D4E5F60718293A4B6C /* MealAPIClient.swift */,
 				B1B2C3D4E5F60718293A4B7C /* MealImageStore.swift */,
@@ -371,6 +374,7 @@
 				B1B2C3D4E5F60718293A4B5D /* ReminderService.swift in Sources */,
 				B1B2C3D4E5F60718293A4B6D /* MealAPIClient.swift in Sources */,
 				B1B2C3D4E5F60718293A4B7D /* MealImageStore.swift in Sources */,
+				B1B2C3D4E5F60718293A4B8D /* CoachAPIClient.swift in Sources */,
 				C1B2C3D4E5F60718293A4B5D /* ScheduleEditorView.swift in Sources */,
 				7B0000000000000000000001 /* TrainingRoutine.swift in Sources */,
 				7B0000000000000000000002 /* TrainingSeed.swift in Sources */,

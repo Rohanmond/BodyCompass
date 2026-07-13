@@ -4,31 +4,29 @@ Read `ai/HANDOFF.md` before starting. This brief intentionally covers only the n
 
 ## Best Next Phase
 
-Implement Phase 6 contextual Coach Chat. Paired-device Watch validation remains a separate hardware task.
+Implement Phase 7 weekly review, history trends, and standardized progress-photo check-ins.
 
 ## Recommended Scope
 
-- Add a typed iOS chat client and conversation states.
-- Send profile, latest health snapshot, accepted meals, adherence, goal projection, and active training version as bounded context.
-- Replace mock chat calls with real OpenAI and Gemini adapters while retaining no-key mocks and one-provider fallback.
-- Add medical/injury/extreme-deficit/eating-disorder safety routing.
-- Preserve combined and raw provider answers.
-- Convert routine-change suggestions into the existing `RoutineChangeProposal`; never activate a change directly from chat.
+- Add useful weight, body-fat, adherence, calories/protein, and workout trend views from existing local data.
+- Add a once-weekly morning check-in flow with front, side, and back capture guidance and comparability checks.
+- Re-render images before upload to strip metadata and keep originals in protected private local storage.
+- Add a bounded progress-analysis endpoint that calls OpenAI and Gemini and returns broad body-fat ranges, visible trend, limitations, and one next-week action.
+- Preserve raw provider outputs and a reconciled result. Allow the user to reject or correct an estimate.
+- Compare only sufficiently standardized current/prior check-ins and prefer direction over false precision.
 
-## Suggested Implementation
+## Safety And Privacy
 
-- Reuse meal-provider transport and error patterns where they fit.
-- Bound context size and exclude meal image bytes from chat payloads.
-- Keep API keys backend-only and model names environment-configurable.
-- Return one concrete next action in the reconciled answer.
-- Reuse proposal validation, staleness, diff, and Confirm/Edit/Reject behavior already owned by `TrainingStore`.
+- Never return an exact body-fat measurement from photos; use a broad non-clinical range and confidence.
+- Never identify the person, judge attractiveness, infer unrelated sensitive traits, or diagnose conditions.
+- Avoid the face where practical, never use public URLs, and make every local photo/check-in deletable.
+- API keys remain backend-only and model names remain environment-configurable.
 
-## Do Not Expand This Slice Into
+## Keep Separate
 
-- database/auth work,
-- progress-photo analysis,
-- changes to Apple Workout ownership,
-- silent Coach changes to the active routine.
+- Phase 8 database/auth/object-storage work.
+- Apple Workout ownership or Watch connectivity changes.
+- Silent routine changes from Coach.
 
 ## Verification
 
@@ -36,7 +34,7 @@ Run:
 
 ```sh
 cd ios/BodyCompass
-swift run BodyCompassCoreCheck
+swift run --disable-sandbox BodyCompassCoreCheck
 ```
 
 ```sh
@@ -45,9 +43,8 @@ xcodebuild \
   -project ios/BodyCompass/BodyCompass.xcodeproj \
   -scheme BodyCompass \
   -configuration Debug \
-  -sdk iphonesimulator \
   -destination 'generic/platform=iOS Simulator' \
-  -derivedDataPath ios/BodyCompass/DerivedData \
+  -derivedDataPath /tmp/BodyCompassDerivedData \
   CODE_SIGNING_ALLOWED=NO \
   build
 ```
@@ -57,4 +54,4 @@ cd server
 npm test
 ```
 
-Physical Watch, camera, and live-key validation cannot be replaced by simulator compilation; keep those items accurately marked as pending.
+Physical Watch, camera, HealthKit, and live-provider validation cannot be replaced by simulator compilation; keep those items accurately marked as pending.

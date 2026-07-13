@@ -30,6 +30,7 @@ Responsibilities:
 - Versioned weekly routine, session logging, and pending coach-change proposals.
 - Sync routine/session data with a future offline-capable watchOS companion.
 - Display AI comparison and reconciled recommendations.
+- Persist Coach exchanges locally and validate AI routine instructions before creating pending proposals.
 
 Current app tabs:
 
@@ -72,7 +73,7 @@ Responsibilities:
 - Keep OpenAI and Gemini API keys server-side.
 - Analyze meals through both providers.
 - Compare weekly progress photos through both providers using health trends as context.
-- Create combined coach chat answers.
+- Create combined Coach answers with bounded user context and deterministic safety routing.
 - Validate and reconcile structured training-plan proposals without activating them.
 - Accept health snapshots and future persisted logs.
 - Calculate or mirror goal projections for API clients.

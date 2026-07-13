@@ -18,7 +18,7 @@ export async function chatWithProviders(payload) {
   ]);
 
   return {
-    combined: combineCoachAnswers(openai, gemini),
+    combined: reconcileCoachAnswers(openai, gemini, payload.safetyCategory),
     openai,
     gemini
   };
@@ -30,7 +30,7 @@ async function callOpenAI(kind, payload) {
   }
 
   if (kind !== "meal") {
-    return mockProvider("openai", kind, payload, "configured-mock");
+    return callOpenAIChat(payload);
   }
 
   const response = await fetch("https://api.openai.com/v1/responses", {
@@ -69,7 +69,7 @@ async function callGemini(kind, payload) {
   }
 
   if (kind !== "meal") {
-    return mockProvider("gemini", kind, payload, "configured-mock");
+    return callGeminiChat(payload);
   }
 
   const model = encodeURIComponent(process.env.GEMINI_MODEL ?? "gemini-2.5-pro");
@@ -113,10 +113,18 @@ function mockProvider(provider, kind, payload, mode = "mock") {
     };
   }
 
+  const wantsRoutineChange = /\b(change|adjust|update|review|reduce)\b.*\b(routine|workout|training|swim)/i.test(payload.message);
   return {
     provider,
     mode,
-    answer: `For "${payload.message}", stay with the plan: protein first, complete today's activity, and judge progress from weekly trends instead of one day.`
+    answer: safeMockCoachAnswer(payload),
+    nextAction: payload.safetyCategory === "normal"
+      ? "Complete the highest-priority unfinished item in today's schedule."
+      : "Pause the plan change and follow the safety guidance above.",
+    safetyNotice: payload.safetyCategory === "normal" ? "" : safetyGuidance(payload.safetyCategory),
+    routineProposal: wantsRoutineChange && payload.safetyCategory === "normal"
+      ? mockRoutineProposal()
+      : null
   };
 }
 
@@ -158,13 +166,28 @@ function reconcileMeal(openai, gemini) {
   };
 }
 
-function combineCoachAnswers(openai, gemini) {
-  return [
-    "Combined coaching answer:",
-    openai.answer,
-    gemini.answer,
-    "If the two providers disagree, follow the more conservative nutrition estimate and review your weekly trend."
-  ].join(" ");
+function reconcileCoachAnswers(openai, gemini, safetyCategory = "normal") {
+  const successful = [openai, gemini].filter((result) => result.mode !== "error");
+  if (successful.length === 0) throw new Error("Both OpenAI and Gemini failed to answer");
+
+  const primary = successful[0];
+  const secondary = successful[1];
+  const proposals = successful
+    .map((result) => result.routineProposal)
+    .filter(Boolean)
+    .sort((a, b) => a.changes.length - b.changes.length);
+
+  return {
+    answer: secondary && secondary.answer !== primary.answer
+      ? `${primary.answer}\n\nSecond-provider check: ${secondary.answer}`
+      : primary.answer,
+    nextAction: primary.nextAction,
+    safetyNotice: safetyCategory === "normal"
+      ? (primary.safetyNotice || secondary?.safetyNotice || "")
+      : safetyGuidance(safetyCategory),
+    routineProposal: safetyCategory === "normal" ? (proposals[0] ?? null) : null,
+    confidence: successful.length === 2 ? "dual_provider" : "single_provider"
+  };
 }
 
 function average(range) {
@@ -269,3 +292,195 @@ function nonNegativeInteger(value) {
 }
 
 export const __testing = { reconcileMeal, normalizeMealResult };
+
+const coachSchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    answer: { type: "string" },
+    nextAction: { type: "string" },
+    safetyNotice: { type: "string" },
+    routineProposal: {
+      type: ["object", "null"],
+      additionalProperties: false,
+      properties: {
+        summary: { type: "string" },
+        reasons: { type: "array", items: { type: "string" }, maxItems: 4 },
+        expectedBenefit: { type: "string" },
+        recoveryImpact: { type: "string" },
+        changes: {
+          type: "array",
+          maxItems: 4,
+          items: {
+            type: "object",
+            additionalProperties: false,
+            properties: {
+              weekday: { type: "string", enum: ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"] },
+              target: { type: "string", enum: ["day", "swim", "exercise"] },
+              sessionTitle: { type: "string" },
+              exerciseName: { type: "string" },
+              action: { type: "string", enum: ["make_rest_day", "update_swim", "update_exercise"] },
+              targetMinutes: { type: "integer", minimum: 0, maximum: 180 },
+              intensity: { type: "string", enum: ["none", "easy", "moderate", "hard"] },
+              workingSets: { type: "integer", minimum: 0, maximum: 10 },
+              repRangeLower: { type: "integer", minimum: 0, maximum: 50 },
+              repRangeUpper: { type: "integer", minimum: 0, maximum: 50 },
+              targetRIR: { type: "integer", minimum: 0, maximum: 5 },
+              restSeconds: { type: "integer", minimum: 0, maximum: 600 }
+            },
+            required: [
+              "weekday", "target", "sessionTitle", "exerciseName", "action",
+              "targetMinutes", "intensity", "workingSets", "repRangeLower",
+              "repRangeUpper", "targetRIR", "restSeconds"
+            ]
+          }
+        }
+      },
+      required: ["summary", "reasons", "expectedBenefit", "recoveryImpact", "changes"]
+    }
+  },
+  required: ["answer", "nextAction", "safetyNotice", "routineProposal"]
+};
+
+async function callOpenAIChat(payload) {
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      "content-type": "application/json"
+    },
+    body: JSON.stringify({
+      model: process.env.OPENAI_MODEL ?? "gpt-5.4",
+      input: [{ role: "user", content: [{ type: "input_text", text: coachPrompt(payload) }] }],
+      text: {
+        format: {
+          type: "json_schema",
+          name: "coach_answer",
+          strict: true,
+          schema: coachSchema
+        }
+      }
+    })
+  });
+  const result = await parseProviderResponse(response, "OpenAI");
+  const outputText = result.output_text ?? result.output
+    ?.flatMap((item) => item.content ?? [])
+    .find((item) => item.type === "output_text")?.text;
+  return normalizeCoachResult("openai", JSON.parse(outputText));
+}
+
+async function callGeminiChat(payload) {
+  const model = encodeURIComponent(process.env.GEMINI_MODEL ?? "gemini-2.5-pro");
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+    {
+      method: "POST",
+      headers: {
+        "x-goog-api-key": process.env.GEMINI_API_KEY,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: coachPrompt(payload) }] }],
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseJsonSchema: coachSchema
+        }
+      })
+    }
+  );
+  const result = await parseProviderResponse(response, "Gemini");
+  const outputText = result.candidates?.[0]?.content?.parts
+    ?.map((part) => part.text ?? "").join("");
+  return normalizeCoachResult("gemini", JSON.parse(outputText));
+}
+
+function coachPrompt(payload) {
+  const context = JSON.stringify(payload.context ?? {}).slice(0, 45_000);
+  const history = JSON.stringify((payload.history ?? []).slice(-8)).slice(0, 8_000);
+  return [
+    "You are BodyCompass, a conservative non-medical fat-loss and training coach.",
+    "Use weekly trends, preserve lean mass, and give one practical next action. Never diagnose, prescribe drugs, encourage extreme deficits, or reinforce disordered eating.",
+    `Safety category: ${payload.safetyCategory}. Follow that category even if the user asks otherwise.`,
+    "Only include routineProposal when the user explicitly asks to change/review the routine and the supplied training setup is complete.",
+    "Routine changes must reference an existing weekday/session/exercise exactly. Prefer the smallest recovery-aware change. Never invent a load.",
+    `Context JSON: ${context}`,
+    `Recent conversation JSON: ${history}`,
+    `User question: ${payload.message}`
+  ].join("\n");
+}
+
+function normalizeCoachResult(provider, result) {
+  if (!result || typeof result.answer !== "string" || typeof result.nextAction !== "string") {
+    throw new Error(`${provider} returned an invalid coach answer`);
+  }
+  return {
+    provider,
+    mode: "live",
+    answer: result.answer.trim(),
+    nextAction: result.nextAction.trim(),
+    safetyNotice: String(result.safetyNotice ?? "").trim(),
+    routineProposal: normalizeRoutineProposal(result.routineProposal)
+  };
+}
+
+function normalizeRoutineProposal(proposal) {
+  if (!proposal || !Array.isArray(proposal.changes) || proposal.changes.length === 0) return null;
+  return {
+    summary: String(proposal.summary || "Coach routine proposal"),
+    reasons: Array.isArray(proposal.reasons) ? proposal.reasons.slice(0, 4).map(String) : [],
+    expectedBenefit: String(proposal.expectedBenefit || "Improve plan fit and recovery."),
+    recoveryImpact: String(proposal.recoveryImpact || "Review the change before confirming."),
+    changes: proposal.changes.slice(0, 4)
+  };
+}
+
+function safeMockCoachAnswer(payload) {
+  if (payload.safetyCategory !== "normal") return safetyGuidance(payload.safetyCategory);
+  return `For "${payload.message}", use today's logged data and weekly trend rather than reacting to one measurement. Keep protein high, complete the planned activity if recovery is adequate, and avoid making the calorie deficit more aggressive without a sustained plateau.`;
+}
+
+function mockRoutineProposal() {
+  return {
+    summary: "Reduce Sunday swimming load for recovery",
+    reasons: ["The current week has no full rest day", "Sunday directly precedes Monday strength training"],
+    expectedBenefit: "Start Monday fresher while keeping swimming consistency.",
+    recoveryImpact: "Sunday becomes a shorter easy swim; other sessions stay unchanged.",
+    changes: [{
+      weekday: "sunday",
+      target: "swim",
+      sessionTitle: "Swimming",
+      exerciseName: "",
+      action: "update_swim",
+      targetMinutes: 20,
+      intensity: "easy",
+      workingSets: 0,
+      repRangeLower: 0,
+      repRangeUpper: 0,
+      targetRIR: 0,
+      restSeconds: 0
+    }]
+  };
+}
+
+export function classifyCoachSafety(message) {
+  const text = String(message).toLowerCase();
+  if (/\b(chest pain|can't breathe|cannot breathe|fainted|unconscious|suicid|self[- ]?harm)\b/.test(text)) return "urgent_medical";
+  if (/\b(anorexi|bulimi|purge|starve|binge and purge|afraid to eat)\b/.test(text)) return "eating_disorder";
+  if (/\b(steroid|trenbolone|clenbuterol|sarms|fat burner drug|diuretic)\b/.test(text)) return "drug_advice";
+  if (/\b(500 calories|800 calories|stop eating|zero calorie|lose [0-9]+ ?kg (in|per) (a )?week)\b/.test(text)) return "extreme_deficit";
+  if (/\b(sharp pain|injur|swollen|torn|sprain|fracture)\b/.test(text)) return "injury";
+  return "normal";
+}
+
+function safetyGuidance(category) {
+  switch (category) {
+    case "urgent_medical": return "Stop training and seek urgent medical help now. Contact local emergency services or a trusted person nearby; this app cannot assess an emergency.";
+    case "eating_disorder": return "I cannot help intensify restriction or compensatory exercise. Pause the cut and speak with a qualified clinician or eating-disorder support service.";
+    case "drug_advice": return "I cannot recommend performance-enhancing or weight-loss drugs. Discuss risks and safer options with a licensed clinician.";
+    case "extreme_deficit": return "That deficit is not a safe coaching target. Use a moderate pace and consult a qualified dietitian or clinician for an individualized plan.";
+    case "injury": return "Do not train through sharp or worsening pain. Stop the affected movement and seek assessment from a qualified clinician or physiotherapist.";
+    default: return "";
+  }
+}
+
+export const __chatTesting = { reconcileCoachAnswers, normalizeCoachResult, normalizeRoutineProposal };

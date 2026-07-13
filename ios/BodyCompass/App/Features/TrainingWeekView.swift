@@ -14,7 +14,6 @@ struct TrainingWeekView: View {
     @State private var pendingEditedDay: TrainingDay?
     @State private var editWarnings: [String] = []
     @State private var validationMessages: [String] = []
-    @State private var proposalNotice: String?
 
     var body: some View {
         List {
@@ -40,15 +39,6 @@ struct TrainingWeekView: View {
                 Text("Tap a day to edit it. Edits are saved as a new version, and you can restore any earlier version from History.")
             }
 
-            Section {
-                Button {
-                    handleProposalRequest()
-                } label: {
-                    Label("Ask Coach to review my week (mock)", systemImage: "sparkles")
-                }
-            } footer: {
-                Text("Coach suggestions are previews until you confirm them. Nothing changes your plan silently.")
-            }
         }
         .navigationTitle("Training week")
         .navigationBarTitleDisplayMode(.inline)
@@ -85,11 +75,6 @@ struct TrainingWeekView: View {
             Button("OK", role: .cancel) { validationMessages = [] }
         } message: {
             Text(validationMessages.joined(separator: "\n"))
-        }
-        .alert("Coach", isPresented: proposalNoticeBinding) {
-            Button("OK", role: .cancel) { proposalNotice = nil }
-        } message: {
-            Text(proposalNotice ?? "")
         }
     }
 
@@ -201,17 +186,6 @@ struct TrainingWeekView: View {
         }
     }
 
-    private func handleProposalRequest() {
-        switch training.requestMockProposal() {
-        case .created:
-            showingProposal = true
-        case .needsSetup:
-            proposalNotice = "Coach won't program changes without knowing your experience, equipment, limitations, and swim load. Finish the training setup first."
-        case .alreadyPending:
-            showingProposal = true
-        }
-    }
-
     // MARK: - Alert bindings
 
     private var warningAlertBinding: Binding<Bool> {
@@ -222,9 +196,6 @@ struct TrainingWeekView: View {
         Binding(get: { !validationMessages.isEmpty }, set: { if !$0 { validationMessages = [] } })
     }
 
-    private var proposalNoticeBinding: Binding<Bool> {
-        Binding(get: { proposalNotice != nil }, set: { if !$0 { proposalNotice = nil } })
-    }
 }
 
 /// Every saved version of the routine, newest first, with one-tap restore.

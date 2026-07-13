@@ -50,7 +50,29 @@ Each successful estimate contains a title, calorie range, macros, confidence, li
 
 ## `POST /api/chat`
 
-Sends a coaching question to both providers and returns a combined answer with provider details.
+Sends a coaching question plus bounded app context to both providers:
+
+```json
+{
+  "message": "Should I adjust my Sunday swim for recovery?",
+  "context": {
+    "profile": {},
+    "today": {},
+    "recentMeals": [],
+    "schedule": [],
+    "goal": {},
+    "dailyAdherence": 0.8,
+    "weeklyAdherence": 0.76,
+    "training": {
+      "setupComplete": true,
+      "activeRoutine": {}
+    }
+  },
+  "history": []
+}
+```
+
+The message is limited to 2,000 characters and the JSON body to 500 KB. The response contains `combined`, `openai`, and `gemini`. Each successful answer includes text, one next action, a safety notice, and an optional bounded routine instruction. A routine instruction is only a proposal input; the iOS app matches it to known routine entities, validates the resulting week, and still requires Confirm/Edit/Reject.
 
 ## `POST /api/progress-check-ins/analyze` (Planned)
 

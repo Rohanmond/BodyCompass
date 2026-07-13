@@ -22,8 +22,8 @@ This folder makes the repo AI-native. Future agents should start here before edi
 - Core logic: Swift package `BodyCompassCore`.
 - Backend: dependency-light Node API under `server`.
 - AI mode: call both OpenAI and Gemini for meal analysis and coach chat.
-- Current phase: Phases 0-5 plus Phase 4W WorkoutKit handoff/basic result import are implemented and simulator-build verified. Real-device WorkoutKit/HealthKit, live meal-provider, and physical-camera checks remain.
-- Recommended next software phase: Phase 6 contextual Coach Chat with real providers and confirmed-only routine proposals. Paired-device Watch validation remains an independent hardware track.
+- Current phase: Phases 0-6 plus Phase 4W WorkoutKit handoff/basic result import are implemented and simulator-build verified. Real-device WorkoutKit/HealthKit, live provider, and physical-camera checks remain.
+- Recommended next software phase: Phase 7 weekly review, history trends, and standardized private progress-photo analysis. Paired-device Watch validation remains an independent hardware track.
 
 ## Prime Directive
 
