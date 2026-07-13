@@ -15,7 +15,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 | Phase 3: HealthKit Daily Sync | Implemented; device check pending | Permission flow, daily metric queries, and manual fallback entries compile; actual Apple Health permissions and data require a signed iPhone run. |
 | Phase 4: Schedule and Training Plan | Complete (simulator-verified) | Daily schedule, adherence, next action, and reminders plus the full structured training program: seeded weekly split, setup questionnaire, exercise prescriptions, set/swim logging, deterministic progression, versioned editing with rollback, one-day rest exceptions, and a mock coach proposal Confirm/Edit/Reject flow. |
 | Phase 4W: Apple Watch Companion | In progress | Apple Workout now owns strength/swimming. WorkoutKit scheduling/opening, durable manual logs, and basic HealthKit result import compile. Physical-device validation and recovery coaching remain. |
-| Phase 5: Meal Photo Logging | Partial | UI and mock dual-provider response exist; photo upload and real AI calls are missing. |
+| Phase 5: Meal Photo Logging | Complete (simulator-verified) | Camera/library capture, compressed upload, real dual-provider adapters, comparison, correction, encrypted local photo history, and deletion are implemented. Live-key and physical-camera checks remain. |
 | Phase 6: Coach Chat | Partial | Chat UI and mock endpoint exist; real contextual provider calls are missing. |
 | Phase 7: Weekly Review and Photos | Partial | History placeholder exists. Weekly progress-photo capture, comparison, and AI body-fat range analysis are planned but not built. |
 | Phase 8: Persistence and Accounts | Not started | Database, private image storage, auth, export, and deletion are missing. |
@@ -35,12 +35,13 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 - Retained the useful W2 manual layer: recent-history sync, stable acknowledged set history, previous-performance prefilling, substitutions, pain severity, rest timers, and optional haptics. The former custom HealthKit lifecycle/metrics UI was superseded and removed.
 - Replaced the custom BodyCompass HealthKit workout lifecycle with WorkoutKit plans for strength and swimming. iPhone schedules; Watch opens Apple Workout; structured strength falls back safely when unsupported.
 - Added Pool/Open Water selection at handoff time and completed-workout matching by session UUID with duration, energy, and swimming distance display.
+- Completed Phase 5 meal logging: camera and Photos picker, metadata-stripping JPEG preparation, typed iOS API transport, OpenAI and Gemini vision adapters, provider fallback/reconciliation, correction before save, private local photo history, and deletion.
 
 ## Verified
 
 - `swift run BodyCompassCoreCheck` passes, including the new training model, validation, exception, diff, progression, and proposal assertions.
-- `npm test` passes with three backend tests.
-- The BodyCompass Xcode target builds successfully for the iOS Simulator with the eight new Swift files attached.
+- `npm test` passes with nine backend tests.
+- The BodyCompass Xcode target builds successfully for the generic iOS Simulator destination with the meal services and embedded Watch app.
 - The BodyCompass Watch App scheme builds successfully for the generic watchOS Simulator SDK destination.
 - HealthKit data access and reminder delivery are not verifiable in a build-only check and remain real-device items.
 
@@ -50,5 +51,5 @@ Verification rerun: July 13, 2026.
 
 - On a signed iPhone run, confirm the notification-permission prompt, reminder delivery, and real HealthKit reads.
 - Follow `docs/apple-watch-setup.md` to validate WorkoutKit permission, iPhone scheduling, Watch handoff, Apple Workout capture, HealthKit import, offline queueing, and exact-once manual-log merge.
-- Phase 5: camera/photo picker, meal upload, typed API client, and correction persistence.
+- Validate Phase 5 on a physical iPhone camera and with both provider API keys; mock mode remains available without keys.
 - Phase 6: real provider chat with profile/health/meal/training context, reusing the existing proposal confirmation contract.

@@ -9,7 +9,7 @@ npm install
 npm run dev
 ```
 
-Without API keys, the backend returns deterministic mock responses. Add real keys when ready:
+Without API keys, the backend returns deterministic mock responses. Add real keys to `server/.env` when ready:
 
 - `OPENAI_API_KEY`
 - `OPENAI_MODEL`
@@ -24,7 +24,9 @@ Open the Xcode project:
 ios/BodyCompass/BodyCompass.xcodeproj
 ```
 
-The SwiftUI app currently uses mock data and a local HealthKit service wrapper.
+The meal client connects to `http://127.0.0.1:8080` by default, which works from the iOS Simulator when the backend is running on the Mac. On a physical iPhone, set `HOST=0.0.0.0` in `server/.env`, change `BODYCOMPASS_API_BASE_URL` in the app Info plist to the Mac's LAN URL, such as `http://192.168.1.20:8080`, and keep both devices on the same trusted network. Production must use HTTPS.
+
+The camera is unavailable in most simulator configurations; use Photo Library there and validate Camera on a signed iPhone.
 
 HealthKit requires:
 

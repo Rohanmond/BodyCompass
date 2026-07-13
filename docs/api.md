@@ -27,11 +27,26 @@ Returns the target-weight and timeline estimate.
 
 ## `POST /api/meals/analyze`
 
-Accepts meal context and an optional image payload. The backend sends the request to both providers and returns:
+Accepts meal context and an optional image payload:
+
+```json
+{
+  "notes": "Chicken rice bowl, home cooked, about one tablespoon oil",
+  "imageBase64": "base64-encoded-image-bytes",
+  "imageMimeType": "image/jpeg",
+  "context": {
+    "targetProteinGrams": 130
+  }
+}
+```
+
+JPEG, PNG, and WebP are accepted. Decoded images are limited to 8 MB and the JSON request is limited to 12 MB. The image is processed in memory and is not stored by this endpoint. The backend sends the request to both providers and returns:
 
 - `openai`
 - `gemini`
 - `reconciled`
+
+Each successful estimate contains a title, calorie range, macros, confidence, likely mistakes, recommendation, and provider mode (`live` or `mock`). A failed provider returns `mode: "error"`; the reconciled result remains available when the other provider succeeds.
 
 ## `POST /api/chat`
 

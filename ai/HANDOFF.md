@@ -8,13 +8,13 @@ Use this file as the authoritative starting point for Claude, ChatGPT, Gemini, C
 
 - Repository: `Rohanmond/BodyCompass`
 - Primary branch: `main`
-- Primary implementation state: Phases 0-4 complete; Phase 4W Apple Workout handoff and basic result import simulator-build verified
+- Primary implementation state: Phases 0-5 complete; Phase 4W Apple Workout handoff and basic result import simulator-build verified
 - iOS deployment target: iOS 17
 - App: native SwiftUI under `ios/BodyCompass`
 - Shared logic: Swift package target `BodyCompassCore`
 - Backend: dependency-light Node 20 API under `server`
-- Persistence today: `UserDefaults` on iOS and in-memory backend state only
-- AI today: mock OpenAI and Gemini provider functions; no real provider HTTP calls
+- Persistence today: `UserDefaults` plus protected local meal images on iOS, and in-memory backend state only
+- AI today: real OpenAI and Gemini meal-photo adapters with no-key mock fallback; coach calls remain mocked
 
 Local generated files may appear as `ios/BodyCompass/.swiftpm/` and `server/pnpm-lock.yaml`. Do not stage, delete, or redesign package management around them unless the user explicitly requests it. The documented backend workflow uses npm.
 
@@ -23,7 +23,7 @@ Local generated files may appear as `ios/BodyCompass/.swiftpm/` and `server/pnpm
 The following passed during the July 13, 2026 audit:
 
 - `swift run BodyCompassCoreCheck`
-- `npm test` with 3 passing backend tests
+- `npm test` with 9 passing backend tests
 - Xcode iOS Simulator build with `CODE_SIGNING_ALLOWED=NO`
 
 This verifies compilation and existing automated checks. It does not verify real Apple Health data, notification delivery, camera behavior, or device signing.
@@ -53,7 +53,7 @@ This verifies compilation and existing automated checks. It does not verify real
 
 - Routes for health, goal projection, meal analysis, chat, and health snapshots.
 - Goal projection tests.
-- Mock dual-provider meal and chat responses.
+- Real dual-provider meal vision adapters with mock fallback; chat responses remain mocked.
 
 ### Phase 4: Structured Training
 
@@ -81,12 +81,15 @@ Remaining Phase 4 niceties (deferred): date-range pauses, one-tap move/copy betw
 - Recent iPhone strength history is included in application context. Watch keeps acknowledged history separate from pending delivery, preserving stable set numbers and prior values through reconnects.
 - The Apple Workout migration compiles for iOS and generic watchOS Simulator SDKs. No claim of physical WorkoutKit scheduling/opening, HealthKit result matching, connectivity, or signing verification has been made.
 
-## Partially Implemented
-
 ### Phase 5: Meals
 
-- Meal UI, notes field, analysis model, endpoint, and mock providers exist.
-- Camera/photo picker, upload, typed API client, real providers, correction persistence, and history do not exist.
+- Camera and Photos picker inputs re-render selected images at a bounded size, which normalizes orientation and strips original metadata before JPEG upload.
+- `MealAPIClient` sends the image, notes, and protein target to the backend. The server caps JSON at 12 MB and decoded images at 8 MB.
+- OpenAI Responses and Gemini generateContent adapters request structured estimates. Missing keys produce deterministic mock estimates; one-provider failure still yields a lower-confidence reconciliation.
+- The app shows Combined, ChatGPT, and Gemini results, supports calorie/macro correction, and stores accepted meals in `UserDefaults` with protected photos in private Application Support storage.
+- Deleting a meal deletes both its metadata and local image. Physical-camera and live-provider-key checks remain unverified.
+
+## Partially Implemented
 
 ### Phase 6: Coach
 
@@ -103,8 +106,8 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 ## Not Implemented
 
 - Remaining Phase 4W: physical WorkoutKit/HealthKit validation and recovery-aware suggestions. See `docs/apple-watch-plan.md`.
-- Real OpenAI and Gemini API calls.
-- Typed iOS backend client.
+- Real OpenAI and Gemini calls for chat and progress photos.
+- Additional typed iOS clients beyond meals.
 - Database, authentication, or private object storage.
 - Export and complete deletion controls.
 - TestFlight/App Store preparation.
@@ -122,7 +125,7 @@ The user explicitly chose Apple Workout ownership for both strength and swimming
 
 Phase 6 (Coach) should reuse the existing `RoutineChangeProposal` confirmation contract when providers start generating routine changes — the Confirm/Edit/Reject flow and staleness handling are already built.
 
-After the Watch slice, Phase 5 meal capture remains the next non-Watch milestone. The detailed Watch plan is `docs/apple-watch-plan.md`.
+Phase 6 Coach Chat is the next software phase. It should add real contextual provider calls and reuse the existing routine-proposal confirmation contract. The detailed Watch plan remains `docs/apple-watch-plan.md` for paired-device validation.
 
 Keep the generic daily task schedule and structured training routine separate. The former tracks habits (`AppStore`); the latter owns programming, performance, and progression (`TrainingStore`).
 

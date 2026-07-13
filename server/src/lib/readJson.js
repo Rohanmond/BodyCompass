@@ -1,7 +1,14 @@
-export async function readJson(request) {
+export async function readJson(request, maxBytes = 1_000_000) {
   let raw = "";
+  let bytes = 0;
 
   for await (const chunk of request) {
+    bytes += chunk.length;
+    if (bytes > maxBytes) {
+      const error = new Error(`Request body exceeds ${maxBytes} bytes`);
+      error.status = 413;
+      throw error;
+    }
     raw += chunk;
   }
 

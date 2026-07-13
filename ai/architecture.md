@@ -58,6 +58,7 @@ Responsibilities:
 - Body profile model.
 - Daily health snapshot model.
 - Meal analysis model.
+- Provider estimate bundle and corrected meal-history model.
 - 12% body-fat goal projection logic.
 
 This code should stay pure and testable. Do not add HealthKit, network calls, or UI dependencies here.
@@ -83,7 +84,8 @@ Current backend is dependency-light Node using `node:http`. Add dependencies onl
 Current state:
 
 - Backend health snapshots are in-memory only.
-- iOS app uses mock in-memory state.
+- iOS profile, schedule, training, and meal metadata persist in `UserDefaults`.
+- Re-encoded meal JPEGs persist under private Application Support with complete file protection and are deleted with their meal record.
 
 Future state:
 

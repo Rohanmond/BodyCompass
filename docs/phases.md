@@ -20,21 +20,21 @@ Implemented:
 
 - Phase 4 structured training: seeded weekly split, setup questionnaire, exercise prescriptions, set/swim logging, deterministic progression, versioned manual editing with rollback, one-day rest exceptions, and a mock coach proposal Confirm/Edit/Reject flow.
 - Phase 4W W1: watchOS target, HealthKit capability, routine cache, Watch Connectivity routine sync, and durable queued log sync.
+- Phase 5 meal logging: camera/library capture, compressed upload, dual-provider analysis, correction, protected local history, and deletion.
 
 Partially implemented:
 - Phase 4W WorkoutKit scheduling/opening and basic completed-workout import are simulator-build verified; paired-device validation and recovery-aware coaching remain.
 - Phase 4 extras still open: date-range session pauses, one-tap move/copy of a session to another day, richer one-day exceptions in the UI (core model already supports arbitrary replacement sessions), and real Coach-generated proposals (Phase 6).
-- Phase 5 and Phase 6 have backend mock provider flows and UI placeholders, but not real photo upload, real provider API calls, or persistence.
+- Phase 5 needs live-key and physical-camera validation; Phase 6 still has mock provider calls and no contextual chat persistence.
 - Phase 7 has a History tab placeholder, but not real weekly analytics or progress-photo analysis yet.
 - Phase 1 still needs you to open Xcode locally and choose signing for real-device runs.
 
 Not implemented yet:
 
 - Phase 4W real-device WorkoutKit/HealthKit validation and recovery-aware Watch suggestions.
-- Camera/photo picker.
 - Weekly progress-photo capture, comparison, and AI body-fat range estimation.
 - Database-backed storage.
-- Real OpenAI/Gemini HTTP integrations.
+- Real OpenAI/Gemini HTTP integrations for chat and progress photos.
 - App Store/TestFlight readiness.
 
 ## Phase 0: Foundation
@@ -284,24 +284,25 @@ Beginner device setup: `docs/apple-watch-setup.md`.
 
 Goal: make meal logging fast and useful.
 
-Status: partially implemented.
+Status: implemented and simulator-build verified; live-provider and physical-camera validation pending.
 
 Implemented so far:
 
 - Meal Log screen exists.
 - Portion notes field exists.
 - Backend meal analysis endpoint exists.
-- Backend calls mock OpenAI and Gemini provider functions.
-- Reconciled estimate shape exists.
+- Camera and Photos picker capture with downscaled, re-encoded JPEG upload.
+- Typed iOS meal API client with loading and error states.
+- Backend uses real OpenAI Responses and Gemini generateContent vision calls when keys are configured, with deterministic mocks otherwise.
+- Independent provider estimates, reconciliation, and one-provider fallback.
+- Editable calories/macros before save.
+- Local meal history with protected image files and deletion.
 
 Deliverables:
 
-- Camera/photo picker.
-- Portion notes field.
-- Meal upload to backend.
-- OpenAI + Gemini analysis.
-- Reconciled calorie/macro range.
-- User correction flow.
+- Physical-iPhone camera validation.
+- Live OpenAI and Gemini key/model validation.
+- Database-backed history moves to Phase 8; Phase 5 history is local to the device.
 
 Done when:
 
@@ -309,6 +310,8 @@ Done when:
 - App shows OpenAI, Gemini, and combined estimates.
 - User can correct the final calories/macros.
 - Corrected meal is saved to history.
+
+All functional completion criteria are implemented. Device and live-provider checks remain release verification rather than missing product flow.
 
 ## Phase 6: Coach Chat
 

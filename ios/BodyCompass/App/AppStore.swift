@@ -28,11 +28,13 @@ final class AppStore: ObservableObject {
         static let scheduleDate = "bodycompass.scheduleDate"
         static let adherenceRecords = "bodycompass.adherenceRecords"
         static let remindersEnabled = "bodycompass.remindersEnabled"
+        static let mealHistory = "bodycompass.mealHistory"
     }
 
     private let defaults: UserDefaults
     private let healthKit = HealthKitService()
     private let reminders = ReminderService()
+    private let mealImages = MealImageStore()
 
     @Published private(set) var profile: BodyProfile
     @Published private(set) var hasCompletedOnboarding: Bool
@@ -40,6 +42,7 @@ final class AppStore: ObservableObject {
     @Published private(set) var manualEntry: ManualHealthEntry?
     @Published private(set) var adherenceRecords: [DayAdherenceRecord] = []
     @Published private(set) var remindersEnabled: Bool = false
+    @Published private(set) var mealHistory: [LoggedMeal] = []
 
     static let defaultProfile = BodyProfile(
         name: "Rohan",
@@ -58,6 +61,7 @@ final class AppStore: ObservableObject {
         manualEntry = Self.loadManualEntry(from: defaults)
         adherenceRecords = Self.loadAdherenceRecords(from: defaults)
         remindersEnabled = defaults.bool(forKey: StorageKey.remindersEnabled)
+        mealHistory = Self.loadMealHistory(from: defaults)
         schedule = Self.loadSchedule(from: defaults) ?? Self.defaultSchedule
         applyManualEntry()
         rollScheduleIfNeeded()
@@ -76,18 +80,9 @@ final class AppStore: ObservableObject {
         ScheduleItem(title: "Sleep before 11:30 PM", category: .sleep)
     ]
 
-    @Published var meals: [MealAnalysis] = [
-        MealAnalysis(
-            title: "Chicken rice bowl",
-            caloriesRange: 620...760,
-            proteinGrams: 48,
-            carbsGrams: 82,
-            fatGrams: 18,
-            confidence: 0.74,
-            likelyMistakes: ["Oil quantity may be underestimated", "Rice portion needs confirmation"],
-            recommendation: "Keep it. Add vegetables and confirm rice weight next time."
-        )
-    ]
+    var meals: [MealAnalysis] {
+        mealHistory.map(\.accepted)
+    }
 
     var projection: GoalProjection {
         (try? GoalProjectionCalculator().project(profile: profile)) ?? GoalProjection(
@@ -123,6 +118,46 @@ final class AppStore: ObservableObject {
 
     private var proteinConsumedGrams: Int {
         meals.reduce(0) { $0 + $1.proteinGrams }
+    }
+
+    // MARK: - Meal history
+
+    func saveMeal(
+        estimates: MealAnalysisBundle,
+        accepted: MealAnalysis,
+        notes: String,
+        imageData: Data
+    ) {
+        let id = UUID()
+        let filename = try? mealImages.save(imageData, id: id)
+        mealHistory.insert(
+            LoggedMeal(
+                id: id,
+                notes: notes.trimmingCharacters(in: .whitespacesAndNewlines),
+                imageFilename: filename,
+                estimates: estimates,
+                accepted: accepted
+            ),
+            at: 0
+        )
+        mealHistory = Array(mealHistory.prefix(200))
+        persistMealHistory()
+    }
+
+    func deleteMeal(_ meal: LoggedMeal) {
+        mealImages.delete(meal.imageFilename)
+        mealHistory.removeAll { $0.id == meal.id }
+        persistMealHistory()
+    }
+
+    func mealImageData(for meal: LoggedMeal) -> Data? {
+        mealImages.data(for: meal.imageFilename)
+    }
+
+    private func persistMealHistory() {
+        if let data = try? JSONEncoder().encode(mealHistory) {
+            defaults.set(data, forKey: StorageKey.mealHistory)
+        }
     }
 
     var nextBestAction: ActionSuggestion {
@@ -317,5 +352,11 @@ final class AppStore: ObservableObject {
         guard let data = defaults.data(forKey: StorageKey.adherenceRecords),
               let records = try? JSONDecoder().decode([DayAdherenceRecord].self, from: data) else { return [] }
         return records
+    }
+
+    private static func loadMealHistory(from defaults: UserDefaults) -> [LoggedMeal] {
+        guard let data = defaults.data(forKey: StorageKey.mealHistory),
+              let meals = try? JSONDecoder().decode([LoggedMeal].self, from: data) else { return [] }
+        return meals
     }
 }

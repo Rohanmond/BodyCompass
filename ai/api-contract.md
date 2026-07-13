@@ -47,7 +47,11 @@ Request:
 ```json
 {
   "notes": "Chicken rice bowl, home cooked, 1 serving, maybe 1 tbsp oil",
-  "imageBase64": "optional-base64-image"
+  "imageBase64": "base64-image-bytes",
+  "imageMimeType": "image/jpeg",
+  "context": {
+    "targetProteinGrams": 130
+  }
 }
 ```
 
@@ -55,11 +59,22 @@ Response:
 
 ```json
 {
-  "openai": {},
-  "gemini": {},
-  "reconciled": {}
+  "openai": { "provider": "openai", "mode": "live" },
+  "gemini": { "provider": "gemini", "mode": "live" },
+  "reconciled": {
+    "title": "Chicken rice bowl",
+    "caloriesRange": [620, 780],
+    "proteinGrams": 42,
+    "carbsGrams": 86,
+    "fatGrams": 22,
+    "confidence": 0.68,
+    "likelyMistakes": ["Confirm cooking oil"],
+    "recommendation": "Confirm the rice and oil portions before saving."
+  }
 }
 ```
+
+The endpoint accepts JPEG, PNG, and WebP, caps decoded images at 8 MB, and does not persist the upload. Missing keys select deterministic mock mode. One provider may return `{ "mode": "error" }`; reconciliation uses the successful provider with reduced confidence. Both failures return HTTP 502.
 
 ## `POST /api/chat`
 

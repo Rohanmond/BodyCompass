@@ -36,6 +36,18 @@
 - likelyMistakes
 - recommendation
 
+`MealProviderEstimate` / `MealAnalysisBundle`
+
+- raw OpenAI and Gemini mode, estimate, or provider error
+- reconciled estimate kept separately from each provider output
+
+`LoggedMeal`
+
+- createdAt and notes
+- private local image filename
+- original provider bundle
+- separately accepted/corrected nutrition
+
 `TrainingRoutine` (implemented in `BodyCompassCore`, persisted as versions in `UserDefaults`)
 
 - id, version, source (seed, user, coach), changeSummary, createdAt
@@ -76,7 +88,7 @@
 - imported/manual source flags
 - weight/body-fat/activity/sleep/workout fields
 
-`meals`
+`meals` (future server persistence; an iOS-local form is implemented)
 
 - userId
 - date/time

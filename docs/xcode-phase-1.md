@@ -71,5 +71,5 @@ xcodebuild \
 - The Xcode project builds the app UI.
 - The Swift package still exists for command-line verification of core logic.
 - HealthKit works best on a real iPhone.
-- Camera/photo permissions are included now, but the actual photo picker is Phase 5.
+- Camera/photo permissions and the Phase 5 meal picker are included. The simulator normally uses Photo Library; validate Camera on a signed iPhone.
 - API keys still belong only in the backend, never in Xcode.

@@ -20,14 +20,23 @@
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
 	<string>1</string>
+	<key>BODYCOMPASS_API_BASE_URL</key>
+	<string>http://127.0.0.1:8080</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>BodyCompass uses the camera so you can log meal photos for calorie and macro estimates.</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>BodyCompass reads Health data to calculate daily activity, sleep, body weight, and body-fat progress toward your goal.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>BodyCompass connects to your local development server to analyze meal photos.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>BodyCompass lets you choose meal photos from your library for calorie and macro estimates.</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

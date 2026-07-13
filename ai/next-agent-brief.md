@@ -4,30 +4,30 @@ Read `ai/HANDOFF.md` before starting. This brief intentionally covers only the n
 
 ## Best Next Phase
 
-Validate the Apple Workout-only Phase 4W path on the paired devices.
+Implement Phase 6 contextual Coach Chat. Paired-device Watch validation remains a separate hardware task.
 
 ## Recommended Scope
 
-On the user's paired Apple Watch Series 10 (watchOS 26.1) and iPhone (iOS 26.5):
-
-- follow `docs/apple-watch-setup.md` and resolve signing/device-only issues,
-- verify routine sync, WorkoutKit authorization, iPhone scheduling, Watch handoff, Apple Workout capture, HealthKit result import, and exact-once queued-log merge,
-- add focused pure-model checks for any new sync reconciliation logic.
+- Add a typed iOS chat client and conversation states.
+- Send profile, latest health snapshot, accepted meals, adherence, goal projection, and active training version as bounded context.
+- Replace mock chat calls with real OpenAI and Gemini adapters while retaining no-key mocks and one-provider fallback.
+- Add medical/injury/extreme-deficit/eating-disorder safety routing.
+- Preserve combined and raw provider answers.
+- Convert routine-change suggestions into the existing `RoutineChangeProposal`; never activate a change directly from chat.
 
 ## Suggested Implementation
 
-- Keep Apple Workout as the exclusive active-session owner.
-- Keep Watch logs locally until an iPhone acknowledgement arrives.
-- Merge by stable UUID; retransmission must never duplicate a set or swim.
-- Do not infer reps or prescribe load changes from heart rate.
-- Ask Pool/Open Water at handoff time; do not add a BodyCompass pool-length preference.
-- Keep simulator-build success separate from physical-device validation in status docs.
+- Reuse meal-provider transport and error patterns where they fit.
+- Bound context size and exclude meal image bytes from chat payloads.
+- Keep API keys backend-only and model names environment-configurable.
+- Return one concrete next action in the reconciled answer.
+- Reuse proposal validation, staleness, diff, and Confirm/Edit/Reject behavior already owned by `TrainingStore`.
 
 ## Do Not Expand This Slice Into
 
-- custom BodyCompass `HKWorkoutSession` ownership or workout mirroring,
-- AI recovery coaching,
-- meal/photo or database work,
+- database/auth work,
+- progress-photo analysis,
+- changes to Apple Workout ownership,
 - silent Coach changes to the active routine.
 
 ## Verification
@@ -57,4 +57,4 @@ cd server
 npm test
 ```
 
-Also build the `BodyCompass Watch App` scheme for `generic/platform=watchOS Simulator`. Physical Watch validation cannot be replaced by simulator compilation.
+Physical Watch, camera, and live-key validation cannot be replaced by simulator compilation; keep those items accurately marked as pending.
