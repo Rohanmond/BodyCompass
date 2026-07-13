@@ -29,6 +29,7 @@ final class AppStore: ObservableObject {
         static let adherenceRecords = "bodycompass.adherenceRecords"
         static let remindersEnabled = "bodycompass.remindersEnabled"
         static let mealHistory = "bodycompass.mealHistory"
+        static let healthHistory = "bodycompass.healthHistory"
     }
 
     private let defaults: UserDefaults
@@ -43,6 +44,7 @@ final class AppStore: ObservableObject {
     @Published private(set) var adherenceRecords: [DayAdherenceRecord] = []
     @Published private(set) var remindersEnabled: Bool = false
     @Published private(set) var mealHistory: [LoggedMeal] = []
+    @Published private(set) var healthHistory: [DailyHealthSnapshot] = []
 
     static let defaultProfile = BodyProfile(
         name: "Rohan",
@@ -62,10 +64,12 @@ final class AppStore: ObservableObject {
         adherenceRecords = Self.loadAdherenceRecords(from: defaults)
         remindersEnabled = defaults.bool(forKey: StorageKey.remindersEnabled)
         mealHistory = Self.loadMealHistory(from: defaults)
+        healthHistory = Self.loadHealthHistory(from: defaults)
         schedule = Self.loadSchedule(from: defaults) ?? Self.defaultSchedule
         applyManualEntry()
         rollScheduleIfNeeded()
         recordTodayAdherence()
+        recordTodaySnapshot()
     }
 
     @Published var today = DailyHealthSnapshot(date: HealthKitService.dayKey())
@@ -98,6 +102,25 @@ final class AppStore: ObservableObject {
             status: .alreadyAtGoal,
             explanation: "Add a valid profile to calculate your target timeline."
         )
+    }
+
+    var weeklyProjection: GoalProjection {
+        var current = profile
+        let weighted = Array(healthHistory
+            .filter { $0.weightKg != nil }
+            .sorted { $0.date < $1.date }
+            .suffix(14))
+        if let latest = weighted.last {
+            current.weightKg = latest.weightKg ?? current.weightKg
+            current.bodyFatPercentage = latest.bodyFatPercentage ?? current.bodyFatPercentage
+        }
+        if let first = weighted.first, let last = weighted.last,
+           let firstWeight = first.weightKg, let lastWeight = last.weightKg,
+           first.date != last.date {
+            let days = max(1, Self.daysBetween(first.date, last.date))
+            current.weeklyWeightTrendKg = (lastWeight - firstWeight) / Double(days) * 7
+        }
+        return (try? GoalProjectionCalculator().project(profile: current)) ?? projection
     }
 
     // MARK: - Schedule & adherence
@@ -305,6 +328,7 @@ final class AppStore: ObservableObject {
         healthSync = .syncing
         today = await healthKit.dailySnapshot()
         applyManualEntry()
+        recordTodaySnapshot()
         healthSync = .synced(Date())
     }
 
@@ -322,6 +346,7 @@ final class AppStore: ObservableObject {
             defaults.set(data, forKey: StorageKey.manualEntry)
         }
         applyManualEntry()
+        recordTodaySnapshot()
     }
 
     // Manual values win over imported ones so the user can correct bad scale
@@ -331,6 +356,17 @@ final class AppStore: ObservableObject {
         if let weight = entry.weightKg { today.weightKg = weight }
         if let bodyFat = entry.bodyFatPercentage { today.bodyFatPercentage = bodyFat }
         if let sleep = entry.sleepHours { today.sleepHours = sleep }
+    }
+
+    private func recordTodaySnapshot() {
+        guard today.weightKg != nil || today.bodyFatPercentage != nil || today.steps > 0
+                || today.activeEnergyKcal > 0 || today.sleepHours != nil || today.workoutMinutes > 0 else { return }
+        healthHistory.removeAll { $0.date == today.date }
+        healthHistory.append(today)
+        healthHistory = Array(healthHistory.sorted { $0.date > $1.date }.prefix(180))
+        if let data = try? JSONEncoder().encode(healthHistory) {
+            defaults.set(data, forKey: StorageKey.healthHistory)
+        }
     }
 
     private static func loadProfile(from defaults: UserDefaults) -> BodyProfile? {
@@ -358,5 +394,20 @@ final class AppStore: ObservableObject {
         guard let data = defaults.data(forKey: StorageKey.mealHistory),
               let meals = try? JSONDecoder().decode([LoggedMeal].self, from: data) else { return [] }
         return meals
+    }
+
+    private static func loadHealthHistory(from defaults: UserDefaults) -> [DailyHealthSnapshot] {
+        guard let data = defaults.data(forKey: StorageKey.healthHistory),
+              let snapshots = try? JSONDecoder().decode([DailyHealthSnapshot].self, from: data) else { return [] }
+        return snapshots
+    }
+
+    private static func daysBetween(_ start: String, _ end: String) -> Int {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .gregorian)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "yyyy-MM-dd"
+        guard let startDate = formatter.date(from: start), let endDate = formatter.date(from: end) else { return 1 }
+        return Calendar(identifier: .gregorian).dateComponents([.day], from: startDate, to: endDate).day ?? 1
     }
 }

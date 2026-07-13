@@ -23,7 +23,7 @@ This folder makes the repo AI-native. Future agents should start here before edi
 - Backend: dependency-light Node API under `server`.
 - AI mode: call both OpenAI and Gemini for meal analysis and coach chat.
 - Current phase: Phases 0-6 plus Phase 4W WorkoutKit handoff/basic result import are implemented and simulator-build verified. Real-device WorkoutKit/HealthKit, live provider, and physical-camera checks remain.
-- Recommended next software phase: Phase 7 weekly review, history trends, and standardized private progress-photo analysis. Paired-device Watch validation remains an independent hardware track.
+- Recommended next software phase: Phase 8 database persistence, private object storage, accounts/private-user mode, export, and complete deletion. Paired-device Watch and physical-camera/live-provider validation remain independent verification tracks.
 
 ## Prime Directive
 

@@ -74,8 +74,10 @@ Sends a coaching question plus bounded app context to both providers:
 
 The message is limited to 2,000 characters and the JSON body to 500 KB. The response contains `combined`, `openai`, and `gemini`. Each successful answer includes text, one next action, a safety notice, and an optional bounded routine instruction. A routine instruction is only a proposal input; the iOS app matches it to known routine entities, validates the resulting week, and still requires Confirm/Edit/Reject.
 
-## `POST /api/progress-check-ins/analyze` (Planned)
+## `POST /api/progress-check-ins/analyze`
 
 Accepts standardized weekly front, side, and back progress photos plus recent weight and health trends. Both AI providers return a non-clinical body-fat range, confidence, visible changes, limitations, and suggestions. The reconciled result emphasizes week-over-week direction instead of claiming an exact measurement.
 
 Progress photos must remain private, have metadata removed, and be deletable by the user.
+
+The request requires `currentPhotos` with unique `front`, `side`, and `back` poses plus confirmations for morning capture, consistent lighting/distance, and full-body framing. `previousPhotos` and recent health context are optional. JPEG, PNG, and WebP are accepted; each decoded image is capped at 6 MB and all photos at 18 MB.

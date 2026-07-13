@@ -17,6 +17,7 @@ Last audited: July 13, 2026.
 - Phase 4W W1: embedded watchOS target/shared scheme, HealthKit capability, latest-routine application-context sync, persistent Watch cache, durable strength/swim queues, UUID-idempotent iPhone merge, and acknowledgement cleanup.
 - Phase 5 meal logging: camera/library capture, compressed JPEG upload, typed iOS API client, live-or-mock OpenAI and Gemini meal adapters, resilient reconciliation, editable nutrition confirmation, protected local photo history, and deletion.
 - Phase 6 Coach Chat: typed transport, bounded app context, live-or-mock OpenAI and Gemini adapters, safety classification, local conversation history, one next action, and validated confirmed-only routine proposals.
+- Phase 7 weekly review and photos: persisted health history, native trends, weekly summaries, recalculated goal projection, standardized three-angle capture, protected local storage, comparison, dual-provider visual ranges, correction/rejection, and deletion.
 - SwiftUI app shell with five tabs.
 - Swift core goal projection logic.
 - Xcode simulator build verification.
@@ -29,14 +30,11 @@ Last audited: July 13, 2026.
 - Phase 4W Apple Workout migration is simulator-build verified: WorkoutKit strength/swim mapping, iPhone scheduling, Watch handoff, runtime strength fallback, Pool/Open Water selection, completed-workout UUID matching, duration/energy/distance import, and durable manual strength details. Paired-device verification remains.
 - Phase 5 still needs physical-camera and live-key verification; its product flow is implemented.
 - Phase 6 needs live-key verification; its contextual chat and proposal flow are implemented.
-- History UI is placeholder only.
-- Weekly progress-photo workflow and AI analysis are planned but not implemented.
+- Phase 7 needs physical-camera and live-key verification; its product flow is implemented.
 
 ## Not Implemented
 
 - Phase 4W recovery-aware suggestions and physical-device WorkoutKit/HealthKit validation.
-- Progress-photo capture, private storage, comparison, and body-fat range analysis.
-- Real OpenAI and Gemini progress-photo calls.
 - Database and object storage.
 - Auth/private user mode.
 - TestFlight/App Store readiness.
@@ -44,7 +42,7 @@ Last audited: July 13, 2026.
 ## Latest Verified Commands
 
 - `swift run BodyCompassCoreCheck`
-- `npm test` (16 tests)
+- `npm test` (22 tests)
 - Xcode simulator build with full Xcode selected and `CODE_SIGNING_ALLOWED=NO`
 - Watch app build for the generic watchOS Simulator SDK destination with `CODE_SIGNING_ALLOWED=NO`
 

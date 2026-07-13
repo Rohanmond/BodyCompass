@@ -126,35 +126,44 @@ Request:
 
 Current storage is in-memory only.
 
-## `POST /api/progress-check-ins/analyze` (Planned)
+## `POST /api/progress-check-ins/analyze`
 
-Multipart request:
+JSON request:
 
-- optional front, side, and back images,
-- capture time and standardization confirmations,
+- required front, side, and back base64 images with MIME types,
+- morning, consistent-lighting/distance, and full-body confirmations,
 - recent weight and health trend,
-- optional previous check-in identifier.
+- optional previous front, side, and back images and accepted range.
 
 Response:
 
 ```json
 {
   "openai": {
-    "bodyFatRange": { "minimum": 16, "maximum": 20 },
+    "provider": "openai",
+    "mode": "live",
+    "bodyFatRange": [16, 20],
     "confidence": 0.62,
+    "imageQuality": "good",
     "visibleChanges": [],
-    "limitations": []
+    "limitations": [],
+    "suggestions": [],
+    "nextWeekAction": "Keep capture conditions consistent."
   },
   "gemini": {},
   "reconciled": {
-    "bodyFatRange": { "minimum": 17, "maximum": 20 },
-    "trend": "likely_decreasing",
+    "bodyFatRange": [16, 21],
+    "confidence": 0.6,
+    "imageQuality": "good",
+    "visibleChanges": [],
+    "limitations": [],
+    "suggestions": [],
     "nextWeekAction": "Keep the current deficit and improve sleep consistency."
   }
 }
 ```
 
-The endpoint must reject unsuitable images, remove metadata, avoid public image URLs, and return ranges rather than a single body-fat measurement.
+The endpoint validates poses, MIME types, base64, standardized-capture confirmations, 6 MB per-image size, and 18 MB total decoded size. The iOS client re-renders selected images before upload to strip source metadata. The server does not persist images or create public URLs. Missing provider keys use deterministic mocks; one provider may fail without losing the reconciled response.
 
 ## `GET /api/training/routine` (Planned)
 

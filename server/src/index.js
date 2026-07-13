@@ -4,6 +4,7 @@ import { analyzeMeal } from "./routes/meals.js";
 import { createChatAnswer } from "./routes/chat.js";
 import { createGoalProjection } from "./routes/goal.js";
 import { saveHealthSnapshot } from "./routes/healthSnapshots.js";
+import { analyzeProgressCheckIn } from "./routes/progressCheckIns.js";
 
 try {
   process.loadEnvFile?.(".env");
@@ -19,7 +20,8 @@ const routes = {
   "POST /api/meals/analyze": analyzeMeal,
   "POST /api/chat": createChatAnswer,
   "POST /api/goal/projection": createGoalProjection,
-  "POST /api/health-snapshots": saveHealthSnapshot
+  "POST /api/health-snapshots": saveHealthSnapshot,
+  "POST /api/progress-check-ins/analyze": analyzeProgressCheckIn
 };
 
 const server = createServer(async (request, response) => {

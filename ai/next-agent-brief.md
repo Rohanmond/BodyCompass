@@ -2,18 +2,13 @@
 
 Read `ai/HANDOFF.md` before starting. This brief intentionally covers only the next implementation slice.
 
+## Completed Software Phase
+
+Phase 7 weekly review, history trends, and standardized progress-photo check-ins are implemented and simulator-build verified.
+
 ## Best Next Phase
 
-Implement Phase 7 weekly review, history trends, and standardized progress-photo check-ins.
-
-## Recommended Scope
-
-- Add useful weight, body-fat, adherence, calories/protein, and workout trend views from existing local data.
-- Add a once-weekly morning check-in flow with front, side, and back capture guidance and comparability checks.
-- Re-render images before upload to strip metadata and keep originals in protected private local storage.
-- Add a bounded progress-analysis endpoint that calls OpenAI and Gemini and returns broad body-fat ranges, visible trend, limitations, and one next-week action.
-- Preserve raw provider outputs and a reconciled result. Allow the user to reject or correct an estimate.
-- Compare only sufficiently standardized current/prior check-ins and prefer direction over false precision.
+Implement Phase 8 database-backed persistence, private object storage, authentication/private-user mode, export, and complete deletion. First preserve the current local-first behavior and existing typed contracts.
 
 ## Safety And Privacy
 
@@ -24,7 +19,6 @@ Implement Phase 7 weekly review, history trends, and standardized progress-photo
 
 ## Keep Separate
 
-- Phase 8 database/auth/object-storage work.
 - Apple Workout ownership or Watch connectivity changes.
 - Silent routine changes from Coach.
 

@@ -24,14 +24,24 @@ export async function chatWithProviders(payload) {
   };
 }
 
+export async function analyzeProgressWithProviders(payload) {
+  const [openai, gemini] = await Promise.all([
+    callOpenAI("progress", payload).catch(providerError("openai")),
+    callGemini("progress", payload).catch(providerError("gemini"))
+  ]);
+  return { openai, gemini, reconciled: reconcileProgress(openai, gemini) };
+}
+
 async function callOpenAI(kind, payload) {
   if (!process.env.OPENAI_API_KEY) {
     return mockProvider("openai", kind, payload);
   }
 
-  if (kind !== "meal") {
+  if (kind === "chat") {
     return callOpenAIChat(payload);
   }
+
+  if (kind === "progress") return callOpenAIProgress(payload);
 
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",
@@ -68,9 +78,11 @@ async function callGemini(kind, payload) {
     return mockProvider("gemini", kind, payload);
   }
 
-  if (kind !== "meal") {
+  if (kind === "chat") {
     return callGeminiChat(payload);
   }
+
+  if (kind === "progress") return callGeminiProgress(payload);
 
   const model = encodeURIComponent(process.env.GEMINI_MODEL ?? "gemini-2.5-pro");
   const response = await fetch(
@@ -110,6 +122,23 @@ function mockProvider(provider, kind, payload, mode = "mock") {
       confidence: 0.68,
       likelyMistakes: ["Confirm cooking oil", "Confirm portion size"],
       recommendation: `Based on ${provider}, this meal can fit the cut if protein stays high and oil is controlled.`
+    };
+  }
+
+  if (kind === "progress") {
+    const currentBodyFat = Number(payload.context?.currentBodyFatPercentage) || 20;
+    return {
+      provider,
+      mode,
+      bodyFatRange: [Math.max(5, currentBodyFat - 2), Math.min(45, currentBodyFat + 2)],
+      confidence: 0.55,
+      imageQuality: "limited",
+      visibleChanges: payload.previousPhotos?.length
+        ? ["Standardized photos are available for week-over-week comparison"]
+        : ["This is the first visual baseline"],
+      limitations: ["Photo estimates vary with lighting, posture, hydration, and camera distance"],
+      suggestions: ["Keep capture conditions consistent next week", "Use weight trend alongside the visual range"],
+      nextWeekAction: "Hold the current plan for one week and compare the trend under the same conditions."
     };
   }
 
@@ -190,8 +219,44 @@ function reconcileCoachAnswers(openai, gemini, safetyCategory = "normal") {
   };
 }
 
+function reconcileProgress(openai, gemini) {
+  const successful = [openai, gemini].filter((result) => result.mode !== "error");
+  if (successful.length === 0) throw new Error("Both OpenAI and Gemini failed to analyze progress");
+  if (successful.length === 1) {
+    const estimate = successful[0];
+    const { provider: _provider, mode: _mode, ...result } = estimate;
+    return {
+      ...result,
+      confidence: Math.min(estimate.confidence, 0.5),
+      limitations: [...estimate.limitations, "Only one provider returned an estimate"]
+    };
+  }
+
+  const lower = Math.max(3, Math.floor((openai.bodyFatRange[0] + gemini.bodyFatRange[0]) / 2 - 1));
+  const upper = Math.min(60, Math.ceil((openai.bodyFatRange[1] + gemini.bodyFatRange[1]) / 2 + 1));
+  const qualityOrder = { good: 0, limited: 1, unsuitable: 2 };
+  const quality = qualityOrder[openai.imageQuality] >= qualityOrder[gemini.imageQuality]
+    ? openai.imageQuality
+    : gemini.imageQuality;
+  return {
+    bodyFatRange: [lower, upper],
+    confidence: Math.min(openai.confidence, gemini.confidence),
+    imageQuality: quality,
+    visibleChanges: uniqueLimited([...openai.visibleChanges, ...gemini.visibleChanges], 6),
+    limitations: uniqueLimited([...openai.limitations, ...gemini.limitations], 6),
+    suggestions: uniqueLimited([...openai.suggestions, ...gemini.suggestions], 5),
+    nextWeekAction: openai.nextWeekAction === gemini.nextWeekAction
+      ? openai.nextWeekAction
+      : `${openai.nextWeekAction} Cross-check: ${gemini.nextWeekAction}`
+  };
+}
+
 function average(range) {
   return (range[0] + range[1]) / 2;
+}
+
+function uniqueLimited(values, maximum) {
+  return [...new Set(values.map((value) => String(value).trim()).filter(Boolean))].slice(0, maximum);
 }
 
 function providerError(provider) {
@@ -227,6 +292,30 @@ const mealSchema = {
   ]
 };
 
+const progressSchema = {
+  type: "object",
+  additionalProperties: false,
+  properties: {
+    bodyFatRange: {
+      type: "array",
+      items: { type: "number", minimum: 3, maximum: 60 },
+      minItems: 2,
+      maxItems: 2,
+      description: "A broad, non-clinical visual body-fat percentage range"
+    },
+    confidence: { type: "number", minimum: 0, maximum: 1 },
+    imageQuality: { type: "string", enum: ["good", "limited", "unsuitable"] },
+    visibleChanges: { type: "array", items: { type: "string" }, maxItems: 6 },
+    limitations: { type: "array", items: { type: "string" }, maxItems: 6 },
+    suggestions: { type: "array", items: { type: "string" }, maxItems: 5 },
+    nextWeekAction: { type: "string" }
+  },
+  required: [
+    "bodyFatRange", "confidence", "imageQuality", "visibleChanges",
+    "limitations", "suggestions", "nextWeekAction"
+  ]
+};
+
 function mealInputParts(payload, provider) {
   const context = payload.context ?? {};
   const prompt = [
@@ -255,6 +344,108 @@ function mealInputParts(payload, provider) {
         }
       };
   return [textPart, imagePart];
+}
+
+async function callOpenAIProgress(payload) {
+  const response = await fetch("https://api.openai.com/v1/responses", {
+    method: "POST",
+    headers: {
+      authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      "content-type": "application/json"
+    },
+    body: JSON.stringify({
+      model: process.env.OPENAI_MODEL ?? "gpt-5.4",
+      input: [{ role: "user", content: progressInputParts(payload, "openai") }],
+      text: {
+        format: {
+          type: "json_schema",
+          name: "progress_analysis",
+          strict: true,
+          schema: progressSchema
+        }
+      }
+    })
+  });
+  const result = await parseProviderResponse(response, "OpenAI");
+  const outputText = result.output_text ?? result.output
+    ?.flatMap((item) => item.content ?? [])
+    .find((item) => item.type === "output_text")?.text;
+  return normalizeProgressResult("openai", JSON.parse(outputText));
+}
+
+async function callGeminiProgress(payload) {
+  const model = encodeURIComponent(process.env.GEMINI_MODEL ?? "gemini-2.5-pro");
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+    {
+      method: "POST",
+      headers: {
+        "x-goog-api-key": process.env.GEMINI_API_KEY,
+        "content-type": "application/json"
+      },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: progressInputParts(payload, "gemini") }],
+        generationConfig: {
+          responseMimeType: "application/json",
+          responseJsonSchema: progressSchema
+        }
+      })
+    }
+  );
+  const result = await parseProviderResponse(response, "Gemini");
+  const outputText = result.candidates?.[0]?.content?.parts
+    ?.map((part) => part.text ?? "").join("");
+  return normalizeProgressResult("gemini", JSON.parse(outputText));
+}
+
+function progressInputParts(payload, provider) {
+  const context = JSON.stringify(payload.context ?? {}).slice(0, 25_000);
+  const prompt = [
+    "Review standardized weekly physique photos for a non-medical fat-loss progress log.",
+    "Return a broad visual body-fat percentage range, never an exact measurement or diagnosis.",
+    "Do not identify the person, judge attractiveness, or infer unrelated sensitive traits.",
+    "Treat lighting, pose, hydration, camera angle, and distance as meaningful limitations.",
+    "Only describe week-over-week direction when current and previous photos are genuinely comparable.",
+    "If framing or quality is inadequate, mark imageQuality unsuitable, lower confidence, and explain why.",
+    `User trend context JSON: ${context}`,
+    "Current photos follow in front, side, back order. Previous photos, when supplied, follow afterward."
+  ].join("\n");
+  const parts = [provider === "openai" ? { type: "input_text", text: prompt } : { text: prompt }];
+
+  for (const photo of [...payload.currentPhotos, ...(payload.previousPhotos ?? [])]) {
+    parts.push(provider === "openai"
+      ? {
+          type: "input_image",
+          image_url: `data:${photo.imageMimeType};base64,${photo.imageBase64}`,
+          detail: "high"
+        }
+      : {
+          inline_data: {
+            mime_type: photo.imageMimeType,
+            data: photo.imageBase64
+          }
+        });
+  }
+  return parts;
+}
+
+function normalizeProgressResult(provider, result) {
+  if (!result || !Array.isArray(result.bodyFatRange) || result.bodyFatRange.length !== 2) {
+    throw new Error(`${provider} returned an invalid progress analysis`);
+  }
+  const range = result.bodyFatRange.map((value) => Math.max(3, Math.min(60, Number(value) || 0)));
+  const allowedQualities = new Set(["good", "limited", "unsuitable"]);
+  return {
+    provider,
+    mode: "live",
+    bodyFatRange: [Math.min(...range), Math.max(...range)],
+    confidence: Math.max(0, Math.min(1, Number(result.confidence) || 0)),
+    imageQuality: allowedQualities.has(result.imageQuality) ? result.imageQuality : "limited",
+    visibleChanges: uniqueLimited(Array.isArray(result.visibleChanges) ? result.visibleChanges : [], 6),
+    limitations: uniqueLimited(Array.isArray(result.limitations) ? result.limitations : [], 6),
+    suggestions: uniqueLimited(Array.isArray(result.suggestions) ? result.suggestions : [], 5),
+    nextWeekAction: String(result.nextWeekAction || "Repeat the check-in under the same conditions next week.")
+  };
 }
 
 async function parseProviderResponse(response, provider) {
@@ -484,3 +675,4 @@ function safetyGuidance(category) {
 }
 
 export const __chatTesting = { reconcileCoachAnswers, normalizeCoachResult, normalizeRoutineProposal };
+export const __progressTesting = { reconcileProgress, normalizeProgressResult };

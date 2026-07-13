@@ -102,16 +102,21 @@ Remaining Phase 4 niceties (deferred): date-range pauses, one-tap move/copy betw
 
 ### Phase 7: History and Weekly Photos
 
-- History placeholder exists.
-- Charts, weekly review, standardized front/side/back capture, private upload, visual comparison, and dual-AI body-fat range analysis do not exist.
+- `AppStore` persists up to 180 daily HealthKit/manual snapshots and derives a trend-aware weekly goal projection.
+- History uses native Charts for weight and body fat plus seven-day adherence, protein, strength, and swimming summaries.
+- The weekly check-in requires front/side/back images and explicit morning, lighting/distance, and full-body confirmations.
+- Images are resized and re-rendered before upload; accepted JPEGs use complete file protection in private Application Support storage.
+- The backend validates bounded images and calls OpenAI and Gemini vision adapters, with deterministic mocks and one-provider fallback.
+- Results remain broad non-clinical ranges with quality, visible changes, limitations, suggestions, and one next-week action.
+- The user can correct or reject an estimate, compare with the prior check-in, and delete the saved photos and record.
+- Physical-camera and live-provider verification remain pending.
 
 Photo body-fat output must be a non-clinical range with confidence and limitations, never an exact measurement.
 
 ## Not Implemented
 
 - Remaining Phase 4W: physical WorkoutKit/HealthKit validation and recovery-aware suggestions. See `docs/apple-watch-plan.md`.
-- Real OpenAI and Gemini calls for progress photos.
-- Additional typed iOS clients beyond meals and Coach.
+- Additional typed iOS clients beyond meals, Coach, and progress analysis.
 - Database, authentication, or private object storage.
 - Export and complete deletion controls.
 - TestFlight/App Store preparation.
@@ -129,7 +134,7 @@ The user explicitly chose Apple Workout ownership for both strength and swimming
 
 Phase 6 Coach instructions now reuse the existing `RoutineChangeProposal` confirmation contract; preserve Confirm/Edit/Reject and staleness handling in future changes.
 
-Phase 7 weekly review and standardized progress-photo analysis is the next software phase. The detailed Watch plan remains `docs/apple-watch-plan.md` for paired-device validation.
+Phase 8 persistence/accounts is the next software phase. The detailed Watch plan remains `docs/apple-watch-plan.md` for paired-device validation.
 
 Keep the generic daily task schedule and structured training routine separate. The former tracks habits (`AppStore`); the latter owns programming, performance, and progression (`TrainingStore`).
 

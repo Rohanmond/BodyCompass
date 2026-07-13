@@ -22,20 +22,19 @@ Implemented:
 - Phase 4W W1: watchOS target, HealthKit capability, routine cache, Watch Connectivity routine sync, and durable queued log sync.
 - Phase 5 meal logging: camera/library capture, compressed upload, dual-provider analysis, correction, protected local history, and deletion.
 - Phase 6 Coach Chat: contextual dual-provider answers, safety routing, local history, and validated confirmed-only routine proposals.
+- Phase 7 weekly review: persisted health trends, native charts, weekly adherence/nutrition/training summaries, trend-aware goal projection, and standardized private progress-photo analysis.
 
 Partially implemented:
 - Phase 4W WorkoutKit scheduling/opening and basic completed-workout import are simulator-build verified; paired-device validation and recovery-aware coaching remain.
 - Phase 4 extras still open: date-range session pauses, one-tap move/copy of a session to another day, and richer one-day exceptions in the UI (core model already supports arbitrary replacement sessions).
 - Phase 5 needs live-key and physical-camera validation; Phase 6 needs live-key validation.
-- Phase 7 has a History tab placeholder, but not real weekly analytics or progress-photo analysis yet.
+- Phase 7 needs physical-camera and live-provider validation; its complete product flow is implemented.
 - Phase 1 still needs you to open Xcode locally and choose signing for real-device runs.
 
 Not implemented yet:
 
 - Phase 4W real-device WorkoutKit/HealthKit validation and recovery-aware Watch suggestions.
-- Weekly progress-photo capture, comparison, and AI body-fat range estimation.
 - Database-backed storage.
-- Real OpenAI/Gemini HTTP integrations for progress photos.
 - App Store/TestFlight readiness.
 
 ## Phase 0: Foundation
@@ -350,13 +349,22 @@ Done when:
 
 Goal: turn logs and standardized progress photos into progress decisions.
 
-Status: partially implemented.
+Status: implemented and simulator-build verified; live-provider and physical-camera validation pending.
 
 Implemented so far:
 
-- History tab placeholder exists.
-- Planned history sections are visible.
-- Progress-photo capture and AI analysis are not implemented yet.
+- Daily HealthKit/manual snapshots persist locally for up to 180 days.
+- Native Charts show weight and body-fat trends with useful empty states.
+- Seven-day adherence, logged protein, strength-day, and swimming-day summaries use existing stores.
+- The 12% projection recalculates from the latest body metrics and recent weight trend.
+- Front, side, and back photos can be selected or captured after morning, lighting/distance, and full-body confirmations.
+- Photos are resized and re-rendered as JPEG before upload, which strips source metadata.
+- Accepted photos use complete file protection in private Application Support storage and are deletable with their check-in.
+- The progress endpoint validates pose, type, base64, per-image size, total size, and capture confirmations.
+- OpenAI Responses and Gemini generateContent vision adapters return broad structured ranges, quality, changes, limitations, suggestions, and one next-week action; mock fallback works without keys.
+- Combined, ChatGPT, and Gemini tabs preserve independent failures. One provider can fail without losing the check-in.
+- The user can edit the accepted range or reject the estimate before saving.
+- Check-in detail compares the current three angles with the immediately previous check-in.
 
 Deliverables:
 
@@ -378,6 +386,8 @@ Done when:
 - User can see why the timeline changed.
 - User can compare weekly photos and see a non-clinical estimate range without false precision.
 - Weekly review produces a next-week action plan.
+
+Phase 7 done status: all functional completion criteria are implemented. Physical-camera and live-key checks remain release verification; server-backed photo persistence belongs to Phase 8.
 
 ## Phase 8: Backend Persistence and Accounts
 
