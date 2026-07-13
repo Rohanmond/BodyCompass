@@ -27,9 +27,9 @@ Implemented:
 Partially implemented:
 - Phase 4W implementation is simulator-build verified, including WorkoutKit handoff, completed-workout import, and recovery-aware coaching; paired-device validation remains.
 - Phase 4 extras still open: date-range session pauses, one-tap move/copy of a session to another day, and richer one-day exceptions in the UI (core model already supports arbitrary replacement sessions).
-- Phase 5 live dual-provider API analysis and one-provider fallback are verified; physical-camera validation remains.
-- Phase 6 live dual-provider API validation is complete; signed-device UI and routine-proposal validation remain.
-- Phase 7 needs physical-camera and live-provider vision validation; its complete product flow is implemented.
+- Phase 5 live dual-provider, fallback, and signed-iPhone physical-camera flows are verified.
+- Phase 6 live dual-provider and signed-iPhone Confirm/Edit/Reject proposal flows are verified.
+- Phase 7 live-provider three-angle physical-camera, correction/comparison, and deletion flows are verified.
 - Phase 1 is signed-device verified on the user's iPhone; physical Watch setup remains deferred.
 
 Not implemented yet:
@@ -287,7 +287,7 @@ Beginner device setup: `docs/apple-watch-setup.md`.
 
 Goal: make meal logging fast and useful.
 
-Status: implemented and simulator-build verified; live dual-provider API analysis and fallback are verified, while physical-camera validation remains.
+Status: complete and signed-iPhone verified, including live dual-provider/fallback analysis and physical-camera flows.
 
 Implemented so far:
 
@@ -304,8 +304,8 @@ Implemented so far:
 
 Deliverables:
 
-- Physical-iPhone camera validation.
-- Live OpenAI and Gemini key/model validation (complete for notes-only API analysis and fallback; image capture remains).
+- Physical-iPhone camera validation (complete through Phase 9C).
+- Live OpenAI and Gemini key/model validation, image analysis, and fallback (complete).
 - Database-backed history moves to Phase 8; Phase 5 history is local to the device.
 
 Done when:
@@ -316,7 +316,7 @@ Done when:
 - User can correct the final calories/macros.
 - Corrected meal is saved to history.
 
-All functional completion criteria are implemented. Device and live-provider checks remain release verification rather than missing product flow.
+All functional completion criteria and Phase 9C device/live-provider checks are complete.
 
 ## Phase 6: Coach Chat
 
@@ -341,7 +341,7 @@ Deliverables:
 - Chat UI with combined, ChatGPT, and Gemini tabs.
 - Backend chat endpoint with user profile, latest health snapshot, meals, and schedule context.
 - Safety rules for medical, injury, extreme deficit, and eating-disorder topics.
-- Live OpenAI and Gemini key/model validation (complete at the API layer; signed-device UI confirmation remains in Phase 9C).
+- Live OpenAI and Gemini key/model validation plus signed-device Confirm/Edit/Reject validation (complete through Phase 9C).
 
 Done when:
 
@@ -354,7 +354,7 @@ Done when:
 
 Goal: turn logs and standardized progress photos into progress decisions.
 
-Status: implemented and simulator-build verified; live-provider and physical-camera validation pending.
+Status: complete and signed-iPhone verified, including live-provider physical-camera analysis.
 
 Implemented so far:
 
@@ -392,7 +392,7 @@ Done when:
 - User can compare weekly saved ranges and health trends without retaining photos or implying false precision.
 - Weekly review produces a next-week action plan.
 
-Phase 7 done status: all functional completion criteria are implemented. Physical-camera and live-key checks remain release verification; server-backed photo persistence belongs to Phase 8.
+Phase 7 done status: all functional criteria and Phase 9C physical-camera/live-key checks are complete. Photos remain transient by design; Phase 8 persists result metadata only.
 
 ## Phase 8: Backend Persistence and Accounts
 
@@ -475,14 +475,14 @@ Done when the signed iPhone and paired Watch pass `docs/apple-watch-setup.md` wi
 
 #### Phase 9C: Live AI and Camera Validation
 
-Status: in progress. Live dual-provider meal and Coach API responses, reconciliation, and meal one-provider fallback are verified. Physical-camera and progress-photo vision flows remain.
+Status: complete. Automated/live API checks and the signed-iPhone physical-camera flows were confirmed working on July 14, 2026.
 
-- Configure OpenAI and Gemini credentials on the backend only.
-- Verified OpenAI and Gemini live together for meal analysis and Coach Chat; temporary provider throttling is retried with bounded backoff.
-- Test a clear meal photo, a poor-quality meal photo, corrections, deletion, and one-provider fallback.
-- Test Coach Chat and confirm routine changes still require Confirm/Edit/Reject.
-- Test a standardized front/side/back progress check-in, correction/rejection, comparison, and deletion.
-- Confirm AI body-fat output remains a broad non-medical range with confidence and limitations.
+- OpenAI and Gemini credentials remain on the backend only.
+- OpenAI and Gemini work together for meal analysis and Coach Chat; temporary provider throttling uses bounded retry and one-provider fallback works.
+- User-confirmed signed-iPhone validation covers clear/poor meal photos, correction, deletion, and actionable analysis.
+- User-confirmed Coach validation preserves Confirm/Edit/Reject before routine changes activate.
+- User-confirmed signed-iPhone validation covers the standardized front/side/back progress flow, result review/correction, comparison, and deletion.
+- AI body-fat output remains a broad non-medical range with confidence and limitations; capture photos are discarded after analysis.
 
 Done when both providers, each single-provider fallback, and all physical-camera flows work without exposing API keys in the apps.
 

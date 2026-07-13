@@ -43,6 +43,8 @@ Follow `docs/apple-watch-setup.md`, then verify:
 
 ## 5. Validate live AI providers
 
+Status: complete on the signed iPhone, user-confirmed July 14, 2026.
+
 Use server-side environment variables only. Never add API keys to Xcode, Swift source, or Git.
 
 - Analyze one clear meal and one intentionally poor image.
@@ -70,7 +72,7 @@ Record every release-blocking problem as a GitHub issue. Phase 9 is complete onl
 - [ ] Automated preflight passes.
 - [ ] Signed iPhone checks pass.
 - [ ] Series 10 checks pass.
-- [ ] Live OpenAI and Gemini checks pass.
+- [x] Live OpenAI and Gemini checks pass, including Phase 9C physical camera flows.
 - [ ] Seven-day personal beta passes without a critical issue.
 - [ ] Privacy answers and support contact are complete in App Store Connect.
 - [ ] Internal TestFlight build passes a clean-install smoke test.

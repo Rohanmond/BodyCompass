@@ -8,7 +8,7 @@ Use this file as the authoritative starting point for Claude, ChatGPT, Gemini, C
 
 - Repository: `Rohanmond/BodyCompass`
 - Primary branch: `main`
-- Primary implementation state: Phases 0-8 complete; Phase 9 code polish, signed iPhone/live AI checks, and Phase 9D deployment tooling verified; production hosting plus physical camera and Watch gates remain
+- Primary implementation state: Phases 0-8 and Phase 9C complete; Phase 9D deployment tooling verified; production hosting, permission/Watch gates, beta, and TestFlight remain
 - iOS deployment target: iOS 17
 - App: native SwiftUI under `ios/BodyCompass`
 - Shared logic: Swift package target `BodyCompassCore`
@@ -31,7 +31,7 @@ The following passed during the latest audit:
 
 On July 14, 2026, Xcode automatic signing created a valid Personal Team development certificate and iPhone/Watch provisioning profiles. A fresh signed build completed, and BodyCompass installed and launched successfully on the user's physical iPhone 17 Pro running iOS 26.5. The paired Series 10 remained undiscoverable as an Xcode watchOS destination, and the user chose to continue iPhone validation while deferring that release gate.
 
-This verifies compilation and existing automated checks. A later July 14 signed-iPhone run also verified device signing, full-permission Apple Health reads, authenticated private backup, and local notification delivery. Live OpenAI and Gemini meal/Coach API calls and reconciliation also pass. Physical camera, progress-photo vision, partial/denied Health access, and Watch behavior remain unverified.
+This verifies compilation and existing automated checks. A later July 14 signed-iPhone run also verified device signing, full-permission Apple Health reads, authenticated private backup, and local notification delivery. Live OpenAI and Gemini meal/Coach API calls and reconciliation also pass. The user subsequently confirmed Phase 9C physical meal/progress camera and Coach-confirmation flows work. Partial/denied Health access and Watch behavior remain unverified.
 
 A subsequent July 14 signed-iPhone deployment added prominent no-photo-storage notices and actionable meal/progress result sections. Live OpenAI and Gemini meal responses both satisfy the expanded green signs, red flags, improvements, and next-action schema.
 
@@ -96,7 +96,7 @@ Remaining Phase 4 niceties (deferred): date-range pauses, one-tap move/copy betw
 - OpenAI Responses and Gemini generateContent adapters request structured estimates. The defaults are `gpt-5.4` and `gemini-3.1-flash-lite`; provider transport retries temporary 429/503 responses with bounded backoff. Missing keys produce deterministic mock estimates; one-provider failure still yields a lower-confidence reconciliation.
 - Meal results must include green signs, red flags, practical reduce/add/swap/measure improvements, and one next action; calorie/macros alone are not considered a complete analysis.
 - The app shows Combined, ChatGPT, and Gemini results, supports calorie/macro correction, and stores accepted result metadata in `UserDefaults`. Meal photos are discarded and never enter history or backup.
-- Deleting a meal deletes its result metadata. Live notes-only dual-provider analysis and one-provider fallback are verified; physical-camera checks remain unverified.
+- Deleting a meal deletes its result metadata. Live dual-provider analysis, one-provider fallback, and signed-iPhone physical-camera flows are user-confirmed through Phase 9C.
 
 ### Phase 6: Coach
 
@@ -105,7 +105,7 @@ Remaining Phase 4 niceties (deferred): date-range pauses, one-tap move/copy betw
 - OpenAI and Gemini return structured answers, one next action, safety notices, and optional bounded routine instructions. Missing keys use complete deterministic mocks; one provider may fail without losing the combined answer.
 - Deterministic server classification covers urgent medical symptoms, injury, extreme deficits, eating-disorder reinforcement, and drug advice. Unsafe answers cannot carry routine changes.
 - `TrainingStore.createProposal(from:)` only accepts known day/session/exercise targets and a small operation set, validates the resulting week, and creates a pending `RoutineChangeProposal`. Confirm/Edit/Reject, staleness, versioning, and rollback remain unchanged.
-- The old Training-screen mock proposal button is removed. Live dual-provider Coach API output and the reconciled next action are verified; signed-device Confirm/Edit/Reject validation remains pending.
+- The old Training-screen mock proposal button is removed. Live dual-provider Coach output and signed-device Confirm/Edit/Reject behavior are user-confirmed through Phase 9C.
 
 ### Phase 7: History and Weekly Photos
 
@@ -117,7 +117,7 @@ Remaining Phase 4 niceties (deferred): date-range pauses, one-tap move/copy betw
 - Results remain broad non-clinical ranges with quality, visible changes, limitations, suggestions, and one next-week action.
 - Progress results also expose cautious green and red signals; they must never judge appearance or imply diagnosis.
 - The user can correct or reject an estimate, compare with the prior saved result and health trend, and delete the result record. No progress photos are retained.
-- Physical-camera and live-provider verification remain pending.
+- Signed-iPhone live-provider three-angle capture, analysis, correction/comparison, and deletion are user-confirmed through Phase 9C.
 
 Photo body-fat output must be a non-clinical range with confidence and limitations, never an exact measurement.
 
@@ -154,11 +154,10 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 
 Run the Phase 9 beta gates next:
 
-1. Complete the remaining Phase 9C signed-device camera checks: clear/poor meals, Coach proposal confirmation, and standardized progress-photo vision/correction/deletion.
-2. Return to partial/denied HealthKit checks and the deferred Phase 9A/9B physical Watch discovery and Apple Workout validation using `docs/apple-watch-setup.md` before release.
-3. Finish Phase 9D by deploying `server/Dockerfile` behind HTTPS with durable `/data`, then complete the host restore drill and authenticated iPhone checks from `docs/deployment.md`.
-4. Complete the Phase 9E seven-day personal beta.
-5. Complete the Phase 9F internal TestFlight clean-install smoke test.
+1. Return to partial/denied HealthKit checks and the deferred Phase 9A/9B physical Watch discovery and Apple Workout validation using `docs/apple-watch-setup.md` before release.
+2. Finish Phase 9D by deploying `server/Dockerfile` behind HTTPS with durable `/data`, then complete the host restore drill and authenticated iPhone checks from `docs/deployment.md`.
+3. Complete the Phase 9E seven-day personal beta.
+4. Complete the Phase 9F internal TestFlight clean-install smoke test.
 
 The detailed status, requirements, and completion criteria for Phase 9A-9F are in `docs/phases.md`. Run `./scripts/release-preflight.sh --build` before device testing and again before archiving.
 

@@ -48,4 +48,4 @@ cd server
 npm test
 ```
 
-Physical Watch, camera, HealthKit, and live-provider validation cannot be replaced by simulator compilation; keep those items accurately marked as pending.
+Phase 9C camera/live-provider flows are user-confirmed on the signed iPhone. Physical Watch and partial/denied HealthKit validation cannot be replaced by simulator compilation and remain pending.
