@@ -14,6 +14,23 @@
 
 This is the user's editable starting split. It is not yet implemented in the app.
 
+## Manual Schedule Editing
+
+The user must be able to change the routine without asking Coach:
+
+- rename a session,
+- move or copy a session to another day,
+- add, remove, or reorder strength and swimming sessions,
+- add a rest or recovery day,
+- add, remove, substitute, and reorder exercises,
+- edit sets, rep ranges, target effort, rest time, and notes,
+- make a one-day exception without changing the repeating routine,
+- pause a session for a date range,
+- save the result as a new routine version,
+- restore an earlier routine version.
+
+Manual edits should show a summary before saving when they materially increase weekly volume or remove the only recovery day. They do not require AI approval; the user remains in control.
+
 ## Session Guidance
 
 Each strength session should show:

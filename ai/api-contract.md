@@ -137,6 +137,14 @@ The endpoint must reject unsuitable images, remove metadata, avoid public image 
 
 Returns the active versioned weekly routine with strength exercises, swimming sessions, set and rep ranges, effort targets, rest periods, progression rules, and substitutions.
 
+## `PUT /api/training/routine` (Planned)
+
+Validates and saves a user-edited routine as a new active version. Manual user edits do not require Coach confirmation. The prior version remains available for rollback.
+
+## `POST /api/training/day-exceptions` (Planned)
+
+Creates a date-specific moved, replaced, or skipped session without changing the repeating weekly routine.
+
 ## `POST /api/training/logs` (Planned)
 
 Stores completed strength sets or swimming-session results. Logged effort and performance inform future progression suggestions.

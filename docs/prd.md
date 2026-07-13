@@ -44,6 +44,7 @@ The initial target user is a focused adult fitness user who:
 - 12% body-fat projection engine.
 - Today dashboard with schedule, calories, protein, activity, sleep, and next best action.
 - Editable weekly strength and swimming routine with exercise prescriptions and completion tracking.
+- Manual routine editor for moving sessions between days and changing exercises, sets, reps, rest, and recovery days.
 - Coach-proposed routine changes with an explicit confirmation step.
 - Meal logging with photo/context input.
 - Backend endpoint that sends meal analysis to both OpenAI and Gemini.
@@ -100,6 +101,16 @@ The initial target user is a focused adult fitness user who:
 3. App shows the proposed changes as a before/after summary with reasons and recovery impact.
 4. User chooses Confirm, Edit, or Reject.
 5. Only a confirmed proposal becomes the active routine; the previous version remains in history and can be restored.
+
+### Manual Routine Update
+
+1. User opens the weekly routine editor.
+2. User adds, removes, reorders, copies, or moves sessions and exercises.
+3. User can create a one-day exception or update the repeating routine.
+4. App summarizes changes and warns when recovery or weekly volume changes materially.
+5. User saves a new active version and can later restore an older version.
+
+Manual changes do not require Coach confirmation. Confirmation is required only when Coach proposes a change from chat.
 
 ### Meal Photo Analysis
 
@@ -178,5 +189,6 @@ The app should treat this as an editable starting plan, not a permanent prescrip
 - Backend can later use real OpenAI/Gemini keys without changing iOS code.
 - HealthKit service exists and is ready for real metric query implementation.
 - User can view the current weekly routine and a detailed prescription for each strength session.
+- User can manually change the repeating routine or create a one-day exception.
 - Coach routine changes remain pending until the user confirms them.
 - Docs explain how to run, learn, and continue development.

@@ -17,7 +17,7 @@ Human-readable quick summary: `docs/implementation-status.md`.
 
 ## Partially Implemented
 
-- Phase 4 daily schedule, persisted completion, adherence history, next-best-action logic, and reminders exist. Weekly workout programming, set/rep logging, progression, and coach-confirmed routine updates are not implemented.
+- Phase 4 daily schedule, persisted completion, adherence history, next-best-action logic, and reminders exist. Editable weekly programming, one-day exceptions, set/rep logging, progression, version history, and coach-confirmed routine updates are not implemented.
 - Meal Log UI exists, but photo picker and upload are not implemented.
 - Backend AI provider functions are mocks.
 - Coach chat UI and endpoint exist, but real context wiring is not implemented.

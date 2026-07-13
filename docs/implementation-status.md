@@ -12,7 +12,7 @@ This page is the quick progress summary. See `docs/phases.md` for detailed deliv
 | Phase 1: Real iOS Project | Complete | The SwiftUI app builds successfully for the iOS Simulator. |
 | Phase 2: Profile and Goal Setup | Complete | First-run onboarding, profile editing, local persistence, and live 12% projection are implemented. |
 | Phase 3: HealthKit Daily Sync | Implemented; device check pending | Permission flow, daily metric queries, and manual fallback entries compile; actual Apple Health permissions and data require a signed iPhone run. |
-| Phase 4: Schedule and Training Plan | Partial | Daily schedule, adherence, next action, and reminder code are implemented. Weekly workout programming, exercise prescriptions, progression logs, and coach-confirmed routine updates are planned but not built. |
+| Phase 4: Schedule and Training Plan | Partial | Daily schedule, adherence, next action, and reminder code are implemented. Editable weekly programming, exercise prescriptions, progression logs, version history, and coach-confirmed routine updates are planned but not built. |
 | Phase 5: Meal Photo Logging | Partial | UI and mock dual-provider response exist; photo upload and real AI calls are missing. |
 | Phase 6: Coach Chat | Partial | Chat UI and mock endpoint exist; real contextual provider calls are missing. |
 | Phase 7: Weekly Review and Photos | Partial | History placeholder exists. Weekly progress-photo capture, comparison, and AI body-fat range analysis are planned but not built. |

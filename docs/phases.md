@@ -187,6 +187,9 @@ Training plan still to implement:
 
 - Seed the user's Monday-to-Sunday chest/triceps, back/biceps, legs, swimming, upper-body, and arms/swimming split.
 - Add a weekly routine view and a detailed session screen.
+- Add a weekly routine editor for adding, removing, copying, moving, and reordering sessions.
+- Allow direct exercise, set, rep-range, effort, rest-time, and substitution editing.
+- Support one-day exceptions separately from changes to the repeating routine.
 - Store exercises, warm-ups, working sets, rep ranges, target RIR/RPE, rest time, substitutions, and coaching notes.
 - Log completed load, reps, effort, pain/limitations, and swimming duration/intensity.
 - Suggest double-progression changes from recent performance without automatically applying them.
@@ -208,6 +211,7 @@ Done when:
 - Today screen explains the most important remaining action.
 - Weekly adherence score can be calculated.
 - User can see what exercises, sets, reps, effort, and rest to perform today.
+- User can manually change the weekly schedule and restore an earlier version.
 - Coach cannot modify the active routine until the user confirms the proposal.
 
 Phase 4 done status: daily schedule foundation is complete; training programming and coach approval workflow remain.

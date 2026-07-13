@@ -92,9 +92,18 @@
 - id and userId
 - version and status (active, proposed, archived)
 - effective date
+- optional end date for temporary versions
 - source (user, coach proposal)
 - change rationale and recovery impact
 - createdAt and confirmedAt
+- parent routine version for history and rollback
+
+`training_day_exceptions`
+
+- userId and date
+- source training day
+- replacement or skipped session
+- reason or note
 
 `training_days`
 

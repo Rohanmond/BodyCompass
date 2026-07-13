@@ -19,6 +19,7 @@ Build the first structured training loop:
 - Add pure routine, training-day, exercise-prescription, workout-log, and change-proposal models to `BodyCompassCore`.
 - Seed Monday chest/triceps; Tuesday back/biceps plus swim; Wednesday legs; Thursday swim; Friday upper body; Saturday arms plus swim; Sunday swim.
 - Add weekly routine and session-detail SwiftUI views.
+- Add direct weekly schedule editing, session move/copy, exercise editing, one-day exceptions, and version rollback.
 - Implement a conservative double-progression rule using rep range and target RIR/RPE.
 - Extend Coach responses with a validated structured proposal schema.
 - Add Confirm, Edit, Reject, version history, and rollback behavior.
