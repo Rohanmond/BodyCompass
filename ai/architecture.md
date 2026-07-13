@@ -39,13 +39,15 @@ Current app tabs:
 - History
 - Coach
 
-## Apple Watch Companion (Planned)
+## Apple Watch Companion (In Progress)
 
 - HealthKit workout session and live workout builder own the active Watch workout.
 - HealthKit workout mirroring synchronizes active lifecycle and metrics with iPhone.
 - Watch Connectivity transfers routine versions, setup context, queued logs, and background updates.
 - WorkoutKit schedules compatible swimming and interval plans into Apple's Workout app.
 - Watch remains functional offline and reconciles logs idempotently after reconnecting.
+
+Implemented now: Watch Connectivity transfers the latest active routine through application context; Watch persists that routine and queues strength/swim logs locally; iPhone merges logs by UUID and sends durable acknowledgements. A Watch HealthKit strength session supplies heart rate and active energy. WorkoutKit and HealthKit workout mirroring are still planned boundaries, not current behavior.
 
 ## Swift Core
 

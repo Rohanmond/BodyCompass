@@ -4,34 +4,32 @@ Read `ai/HANDOFF.md` before starting. This brief intentionally covers only the n
 
 ## Best Next Phase
 
-Proceed with Phase 5: Meal Photo Logging.
+Finish and validate the current Phase 4W Watch slice before expanding it.
 
 ## Recommended Scope
 
-Build the first complete meal capture loop:
+On the user's paired Apple Watch Series 10 (watchOS 26.1) and iPhone (iOS 26.5):
 
-- choose a meal image from Photos,
-- capture portion and preparation notes,
-- upload through a typed iOS API client,
-- show OpenAI, Gemini, and reconciled estimates,
-- let the user correct and persist the accepted meal.
+- follow `docs/apple-watch-setup.md` and resolve signing/device-only issues,
+- verify routine sync, offline routine display, strength workout saving, live heart rate/energy, and exact-once queued-log merge,
+- finish W2 elapsed-time UI, substitutions, pain notes, haptic preference, and session completion polish,
+- add focused pure-model checks for any new sync reconciliation logic.
 
 ## Suggested Implementation
 
-- Add PhotosPicker first; camera capture requires real-device verification.
-- Resize the selected image and remove metadata before upload.
-- Add a typed client for `/api/meals/analyze` while keeping backend mock mode operational without API keys.
-- Model loading, retry, low-confidence, and one-provider-failure states.
-- Preserve raw provider estimates and store the user-corrected result separately.
-- Persist accepted meals locally and show a basic history.
-- Keep API keys backend-only.
+- Keep Watch screens glanceable with large controls.
+- Keep Watch logs locally until an iPhone acknowledgement arrives.
+- Merge by stable UUID; retransmission must never duplicate a set or swim.
+- Do not infer reps or prescribe load changes from heart rate.
+- Do not start W3 until pool/open-water mode, pool length, and WorkoutKit preference are known.
+- Keep simulator-build success separate from physical-device validation in status docs.
 
 ## Do Not Expand This Slice Into
 
-- real OpenAI or Gemini calls,
-- database/auth work,
-- Apple Watch Phase 4W unless the user explicitly prioritizes it and supplies device details,
-- progress photo capture,
+- WorkoutKit swimming before requirements are confirmed,
+- HealthKit workout mirroring before W2 is reliable,
+- AI recovery coaching,
+- meal/photo or database work,
 - silent Coach changes to the active routine.
 
 ## Verification
@@ -60,3 +58,5 @@ xcodebuild \
 cd server
 npm test
 ```
+
+Also build the `BodyCompass Watch App` scheme for `generic/platform=watchOS Simulator`. Physical Watch validation cannot be replaced by simulator compilation.

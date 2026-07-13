@@ -8,7 +8,7 @@ Use this file as the authoritative starting point for Claude, ChatGPT, Gemini, C
 
 - Repository: `Rohanmond/BodyCompass`
 - Primary branch: `main`
-- Latest implemented feature commit: `73c7968`
+- Primary implementation state: Phases 0-4 complete; Phase 4W W1 and the W2 strength core implemented and simulator-build verified
 - iOS deployment target: iOS 17
 - App: native SwiftUI under `ios/BodyCompass`
 - Shared logic: Swift package target `BodyCompassCore`
@@ -68,6 +68,15 @@ The generic daily task schedule and the weekly strength/swimming program are bot
 
 Remaining Phase 4 niceties (deferred): date-range pauses, one-tap move/copy between days, and UI for non-rest one-day exceptions (the core `TrainingDayException` already supports arbitrary replacement sessions).
 
+### Phase 4W: Apple Watch Foundation
+
+- Device baseline: Apple Watch Series 10 on watchOS 26.1 paired with iPhone on iOS 26.5.
+- The iPhone target embeds a `BodyCompass Watch App` target with a shared scheme, HealthKit entitlement, workout-processing mode, and shared pure training DTO source membership.
+- `PhoneWatchSyncService` sends the active routine via application context, receives queued Watch logs, merges them through `TrainingStore`, and acknowledges their stable UUIDs.
+- `WatchRoutineStore` persists the latest routine and pending strength/swim logs so today's plan and completed logs survive disconnects and relaunches.
+- Watch UI shows today's sessions. Strength supports HealthKit start/pause/resume/end, live heart rate and energy, load/reps/RIR entry, rest countdown, and haptics. Swimming is manual offline logging only.
+- W1 and the W2 strength core compile for the generic watchOS Simulator SDK. No claim of physical-device connectivity, HealthKit capture, or signing verification has been made.
+
 ## Partially Implemented
 
 ### Phase 5: Meals
@@ -89,7 +98,7 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 
 ## Not Implemented
 
-- Apple Watch companion, live HealthKit workout sessions, WorkoutKit scheduling, workout mirroring, and offline Watch sync. See `docs/apple-watch-plan.md`.
+- Remaining Phase 4W: elapsed-time UI, substitutions, pain notes, haptic preferences, completion polish, WorkoutKit swimming/import, workout mirroring, and recovery-aware suggestions. See `docs/apple-watch-plan.md`.
 - Real OpenAI and Gemini API calls.
 - Typed iOS backend client.
 - Database, authentication, or private object storage.
@@ -99,17 +108,17 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 
 ## Recommended Next Work
 
-Phase 4 is complete. Continue with Phase 5 (Meals) in small verified milestones:
+The user explicitly prioritized Apple Watch. Validate and finish Phase 4W W2 first:
 
-1. Add a camera/photo picker to the Meal Log screen (PhotosPicker first; camera needs a real device).
-2. Add a typed iOS API client for the backend meal-analysis endpoint.
-3. Send the photo plus portion notes to the backend; keep mock providers working without API keys.
-4. Show OpenAI, Gemini, and reconciled estimates; let the user correct the final values.
-5. Persist corrected meals locally and show meal history.
+1. Follow `docs/apple-watch-setup.md` on the paired Series 10 and iPhone.
+2. Verify latest-routine delivery, offline display, HealthKit workout saving/live metrics, reconnect delivery, and UUID deduplication.
+3. Fix device-only signing or connectivity issues without weakening offline durability.
+4. Finish elapsed time, substitutions, pain notes, haptic preference, and session completion polish.
+5. Ask for pool/open-water mode, pool length, and custom BodyCompass versus WorkoutKit preference before W3.
 
 Phase 6 (Coach) should reuse the existing `RoutineChangeProposal` confirmation contract when providers start generating routine changes — the Confirm/Edit/Reject flow and staleness handling are already built.
 
-Apple Watch is planned as Phase 4W. Before implementation, collect the user's Watch model/watchOS, iPhone iOS version, pool/open-water setup, pool length, and preferred balance between a custom BodyCompass workout app and WorkoutKit plans in Apple's Workout app. The detailed plan is `docs/apple-watch-plan.md`.
+After the Watch slice, Phase 5 meal capture remains the next non-Watch milestone. The detailed Watch plan is `docs/apple-watch-plan.md`.
 
 Keep the generic daily task schedule and structured training routine separate. The former tracks habits (`AppStore`); the latter owns programming, performance, and progression (`TrainingStore`).
 

@@ -4,7 +4,7 @@
 
 Make BodyCompass useful while the user is actively lifting or swimming without requiring constant iPhone interaction. Apple Watch should show the current prescription, capture live workout data, provide discreet haptics, log performance, and sync the completed session back to the existing training system.
 
-Status: planned, not implemented.
+Status: in progress. W1 is implemented and simulator-build verified. The strength core of W2 is implemented; real-device validation and the remaining W2 controls are pending.
 
 ## Recommended Architecture
 
@@ -84,12 +84,16 @@ Then update adherence and progression suggestions. Routine changes remain propos
 
 ### W1: Watch Target and Sync Foundation
 
+Status: implemented and simulator-build verified; paired-device validation pending.
+
 - Add a watchOS companion target and shared training DTOs.
 - Configure signing, HealthKit permissions, companion identifiers, and capabilities.
 - Sync active routine and today's session to Watch.
 - Persist a local Watch cache and queued logs.
 
 ### W2: Strength Workout MVP
+
+Status: partially implemented. HealthKit start/pause/resume/end, live heart rate and active energy, quick load/reps/RIR logging, rest countdowns, and haptics compile. Elapsed-time presentation, substitutions, pain notes, a haptic setting, and physical-device validation remain.
 
 - Start, pause, resume, and end a HealthKit workout session.
 - Show current exercise, prescription, heart rate, time, and energy.
@@ -98,6 +102,8 @@ Then update adherence and progression suggestions. Routine changes remain propos
 
 ### W3: Swimming and WorkoutKit
 
+Status: not started. The Watch currently supports durable manual swim logging only.
+
 - Map compatible swim plans to WorkoutKit.
 - Sync or open scheduled workouts in Apple's Workout app where supported.
 - Import completed swimming workout metrics into BodyCompass.
@@ -105,11 +111,15 @@ Then update adherence and progression suggestions. Routine changes remain propos
 
 ### W4: Mirrored iPhone Experience
 
+Status: not started.
+
 - Mirror active session state and metrics to iPhone.
 - Add bidirectional pause, resume, end, and session actions.
 - Reconcile offline logs without duplication.
 
 ### W5: Recovery-Aware Suggestions
+
+Status: not started.
 
 - Combine completed sets, RIR/RPE, heart-rate recovery context, sleep, soreness, and recent volume.
 - Show a post-workout recommendation and next-session progression proposal.
@@ -126,16 +136,21 @@ Then update adherence and progression suggestions. Routine changes remain propos
 - No live data or AI suggestion silently changes the active routine.
 - Real-device tests pass on the user's paired iPhone and Apple Watch.
 
-## Device Information Needed Before Implementation
+## Confirmed Device Information
 
-- Apple Watch model,
-- watchOS version,
-- iPhone iOS version,
+- Apple Watch Series 10,
+- watchOS 26.1,
+- iPhone iOS 26.5.
+
+## Information Still Needed for W3
+
 - pool versus open-water swimming,
 - preferred pool length,
 - whether BodyCompass should run the workout itself or primarily schedule into Apple's Workout app.
 
 Framework availability must be checked against those OS versions before choosing deployment targets.
+
+Beginner setup and paired-device test steps: `docs/apple-watch-setup.md`.
 
 ## Official Apple References
 

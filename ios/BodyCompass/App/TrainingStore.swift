@@ -19,6 +19,7 @@ final class TrainingStore: ObservableObject {
     }
 
     private let defaults: UserDefaults
+    private let watchSync = PhoneWatchSyncService.shared
 
     @Published private(set) var versions: [TrainingRoutine] = []
     @Published private(set) var setup: TrainingSetup?
@@ -42,6 +43,21 @@ final class TrainingStore: ObservableObject {
             versions = [TrainingRoutineSeeder.skeleton()]
             persist(versions, key: StorageKey.versions)
         }
+
+        watchSync.onStrengthLog = { [weak self] log, acknowledge in
+            Task { @MainActor in
+                self?.mergeWatchStrengthLog(log)
+                acknowledge()
+            }
+        }
+        watchSync.onSwimLog = { [weak self] log, acknowledge in
+            Task { @MainActor in
+                self?.mergeWatchSwimLog(log)
+                acknowledge()
+            }
+        }
+        watchSync.activate()
+        watchSync.send(routine: activeRoutine)
     }
 
     // MARK: - Routine access
@@ -121,6 +137,7 @@ final class TrainingStore: ObservableObject {
             versions.removeFirst(versions.count - 30)
         }
         persist(versions, key: StorageKey.versions)
+        watchSync.send(routine: routine)
     }
 
     // MARK: - One-day exceptions
@@ -214,6 +231,18 @@ final class TrainingStore: ObservableObject {
         swimLogs.removeAll { $0.date < cutoff }
         persist(strengthLogs, key: StorageKey.strengthLogs)
         persist(swimLogs, key: StorageKey.swimLogs)
+    }
+
+    private func mergeWatchStrengthLog(_ log: ExerciseSetLog) {
+        guard !strengthLogs.contains(where: { $0.id == log.id }) else { return }
+        strengthLogs.append(log)
+        trimAndPersistLogs()
+    }
+
+    private func mergeWatchSwimLog(_ log: SwimSessionLog) {
+        guard !swimLogs.contains(where: { $0.id == log.id }) else { return }
+        swimLogs.append(log)
+        trimAndPersistLogs()
     }
 
     // MARK: - Coach proposals (mock until Phase 6)
