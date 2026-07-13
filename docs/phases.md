@@ -25,7 +25,7 @@ Implemented:
 - Phase 7 weekly review: persisted health trends, native charts, weekly adherence/nutrition/training summaries, trend-aware goal projection, and standardized private progress-photo analysis.
 
 Partially implemented:
-- Phase 4W WorkoutKit scheduling/opening and basic completed-workout import are simulator-build verified; paired-device validation and recovery-aware coaching remain.
+- Phase 4W implementation is simulator-build verified, including WorkoutKit handoff, completed-workout import, and recovery-aware coaching; paired-device validation remains.
 - Phase 4 extras still open: date-range session pauses, one-tap move/copy of a session to another day, and richer one-day exceptions in the UI (core model already supports arbitrary replacement sessions).
 - Phase 5 needs live-key and physical-camera validation; Phase 6 needs live-key validation.
 - Phase 7 needs physical-camera and live-provider validation; its complete product flow is implemented.
@@ -33,9 +33,9 @@ Partially implemented:
 
 Not implemented yet:
 
-- Phase 4W real-device WorkoutKit/HealthKit validation and recovery-aware Watch suggestions.
-- Database-backed storage.
-- App Store/TestFlight readiness.
+- Phase 4W real-device WorkoutKit, HealthKit, reconnect, and recovery-sample validation.
+- Production backend deployment and restore drill.
+- Signed-device, seven-day beta, and TestFlight release gates.
 
 ## Phase 0: Foundation
 
@@ -231,7 +231,7 @@ Phase 4 done status: complete and simulator-build verified. Real-device notifica
 
 Goal: bring the structured training plan onto Apple Watch for live strength and swimming sessions.
 
-Status: in progress. Apple Workout ownership for strength/swimming, WorkoutKit handoff, and basic HealthKit result import are implemented and simulator-build verified; real-device verification and recovery-aware coaching remain.
+Status: implementation complete and simulator-build verified; real-device verification remains.
 
 Implemented so far:
 
@@ -245,6 +245,9 @@ Implemented so far:
 - iPhone schedule action and Watch `openInWorkoutApp()` handoff for both workout types.
 - Apple Workout-only lifecycle; the custom BodyCompass `HKWorkoutSession` path has been removed.
 - Completed Apple workout matching by session UUID with duration, energy, and swimming distance import.
+- Best-effort average heart rate and one-minute recovery import from Apple Health.
+- Persisted post-workout RPE/soreness reviews with deterministic recovery guidance using completed work, RIR, pain, sleep, resting-heart-rate deviation, and recent volume.
+- Plain-language next-session action with no automatic routine or load changes.
 - Quick load, reps, and RIR set logging with rest countdown and haptic feedback.
 - Recent iPhone strength history sync, durable acknowledged history, stable set numbering, and previous-session load/reps/RIR prefilling.
 - Exercise substitutions, pain-severity notes, and a haptic preference in the separate BodyCompass manual log.
@@ -255,7 +258,6 @@ Still open:
 - Paired Series 10/iPhone signing, permission, connectivity, and workout validation.
 - Physical-device validation for signing, connectivity, reconnect delivery, and exact-once merge.
 - Physical-device WorkoutKit authorization, scheduling/opening, Apple Workout plan support, and HealthKit result import.
-- W5 recovery-aware post-workout suggestions.
 
 Deliverables:
 

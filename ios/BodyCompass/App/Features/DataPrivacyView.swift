@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DataPrivacyView: View {
     @EnvironmentObject private var app: AppStore
+    @EnvironmentObject private var training: TrainingStore
     @StateObject private var checkIns = ProgressCheckInStore()
     @State private var token = ""
     @State private var includeImages = false
@@ -110,6 +111,7 @@ struct DataPrivacyView: View {
             do {
                 try await app.deleteAllServerData()
                 checkIns.deleteAllLocalData()
+                training.deleteAllTrainingData()
                 ServerCredentialStore.token = nil
                 app.deleteAllLocalData()
             } catch {

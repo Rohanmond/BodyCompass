@@ -15,7 +15,12 @@ final class TrainingStore: ObservableObject {
         static let exceptions = "bodycompass.training.exceptions"
         static let strengthLogs = "bodycompass.training.strengthLogs"
         static let swimLogs = "bodycompass.training.swimLogs"
+        static let recoveryCheckIns = "bodycompass.training.recoveryCheckIns"
         static let proposal = "bodycompass.training.proposal"
+
+        static var all: [String] {
+            [versions, setup, exceptions, strengthLogs, swimLogs, recoveryCheckIns, proposal]
+        }
     }
 
     private let defaults: UserDefaults
@@ -26,6 +31,7 @@ final class TrainingStore: ObservableObject {
     @Published private(set) var exceptions: [TrainingDayException] = []
     @Published private(set) var strengthLogs: [ExerciseSetLog] = []
     @Published private(set) var swimLogs: [SwimSessionLog] = []
+    @Published private(set) var recoveryCheckIns: [PostWorkoutCheckIn] = []
     @Published private(set) var proposal: RoutineChangeProposal?
 
     init(defaults: UserDefaults = .standard) {
@@ -35,6 +41,7 @@ final class TrainingStore: ObservableObject {
         exceptions = Self.load([TrainingDayException].self, key: StorageKey.exceptions, from: defaults) ?? []
         strengthLogs = Self.load([ExerciseSetLog].self, key: StorageKey.strengthLogs, from: defaults) ?? []
         swimLogs = Self.load([SwimSessionLog].self, key: StorageKey.swimLogs, from: defaults) ?? []
+        recoveryCheckIns = Self.load([PostWorkoutCheckIn].self, key: StorageKey.recoveryCheckIns, from: defaults) ?? []
         proposal = Self.load(RoutineChangeProposal.self, key: StorageKey.proposal, from: defaults)
 
         // First launch: seed the documented weekly split so the user always
@@ -224,6 +231,104 @@ final class TrainingStore: ObservableObject {
         ProgressionAdvisor.suggest(prescription: prescription, history: strengthLogs)
     }
 
+    func recoveryCheckIn(on date: Date, sessionID: UUID) -> PostWorkoutCheckIn? {
+        let dateKey = HealthKitService.dayKey(for: date)
+        return recoveryCheckIns.first { $0.date == dateKey && $0.sessionID == sessionID }
+    }
+
+    func saveRecoveryCheckIn(
+        date: Date,
+        sessionID: UUID,
+        sessionRPE: Int,
+        soreness: SorenessLevel,
+        note: String?
+    ) {
+        let dateKey = HealthKitService.dayKey(for: date)
+        let existingID = recoveryCheckIn(on: date, sessionID: sessionID)?.id ?? UUID()
+        recoveryCheckIns.removeAll { $0.date == dateKey && $0.sessionID == sessionID }
+        recoveryCheckIns.append(PostWorkoutCheckIn(
+            id: existingID,
+            date: dateKey,
+            sessionID: sessionID,
+            sessionRPE: sessionRPE,
+            soreness: soreness,
+            note: note?.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty == true ? nil : note,
+            createdAt: Date()
+        ))
+        let cutoff = HealthKitService.dayKey(for: Calendar.current.date(byAdding: .day, value: -180, to: Date()) ?? Date())
+        recoveryCheckIns.removeAll { $0.date < cutoff }
+        persist(recoveryCheckIns, key: StorageKey.recoveryCheckIns)
+    }
+
+    func hasLoggedActivity(for session: TrainingSession, on date: Date) -> Bool {
+        let dateKey = HealthKitService.dayKey(for: date)
+        switch session.kind {
+        case .strength:
+            return strengthLogs.contains { $0.date == dateKey && $0.sessionID == session.id }
+        case .swimming:
+            return swimLogs.contains { $0.date == dateKey && $0.sessionID == session.id }
+        case .recovery:
+            return false
+        }
+    }
+
+    func recoveryRecommendation(
+        for session: TrainingSession,
+        on date: Date,
+        sleepHours: Double?,
+        currentRestingHeartRate: Double?,
+        baselineRestingHeartRate: Double?,
+        oneMinuteHeartRateRecovery: Double?
+    ) -> RecoveryRecommendation? {
+        guard let checkIn = recoveryCheckIn(on: date, sessionID: session.id) else { return nil }
+        let dateKey = HealthKitService.dayKey(for: date)
+        let sessionSets = strengthLogs.filter { $0.date == dateKey && $0.sessionID == session.id }
+        let plannedWork: Int
+        let completedWork: Int
+        switch session.kind {
+        case .strength:
+            plannedWork = session.exercises.reduce(0) { $0 + $1.workingSets }
+            completedWork = sessionSets.count
+        case .swimming:
+            plannedWork = 1
+            completedWork = swimLogs.contains { $0.date == dateKey && $0.sessionID == session.id } ? 1 : 0
+        case .recovery:
+            plannedWork = 0
+            completedWork = 0
+        }
+        let ratedRIR = sessionSets.compactMap(\.rir)
+        let averageRIR = ratedRIR.isEmpty ? nil : Double(ratedRIR.reduce(0, +)) / Double(ratedRIR.count)
+        let windows = workloadWindows(endingOn: date)
+
+        return RecoveryAdvisor.recommend(context: RecoveryContext(
+            sleepHours: sleepHours,
+            currentRestingHeartRate: currentRestingHeartRate,
+            baselineRestingHeartRate: baselineRestingHeartRate,
+            oneMinuteHeartRateRecovery: oneMinuteHeartRateRecovery,
+            sessionRPE: checkIn.sessionRPE,
+            soreness: checkIn.soreness,
+            averageRIR: averageRIR,
+            painReported: sessionSets.contains { $0.painNote?.isEmpty == false },
+            plannedWork: plannedWork,
+            completedWork: completedWork,
+            recentWork: workload(from: windows.recentStart, through: windows.recentEnd),
+            priorWork: workload(from: windows.priorStart, through: windows.priorEnd)
+        ))
+    }
+
+    func deleteAllTrainingData() {
+        StorageKey.all.forEach(defaults.removeObject(forKey:))
+        versions = [TrainingRoutineSeeder.skeleton()]
+        setup = nil
+        exceptions = []
+        strengthLogs = []
+        swimLogs = []
+        recoveryCheckIns = []
+        proposal = nil
+        persist(versions, key: StorageKey.versions)
+        syncWatchContext()
+    }
+
     private func trimAndPersistLogs() {
         // Keep roughly three months of history.
         let cutoff = HealthKitService.dayKey(for: Calendar.current.date(byAdding: .day, value: -90, to: Date()) ?? Date())
@@ -232,6 +337,29 @@ final class TrainingStore: ObservableObject {
         persist(strengthLogs, key: StorageKey.strengthLogs)
         persist(swimLogs, key: StorageKey.swimLogs)
         syncWatchContext()
+    }
+
+    private func workloadWindows(endingOn date: Date) -> (
+        recentStart: String,
+        recentEnd: String,
+        priorStart: String,
+        priorEnd: String
+    ) {
+        let calendar = Calendar.current
+        return (
+            HealthKitService.dayKey(for: calendar.date(byAdding: .day, value: -6, to: date) ?? date),
+            HealthKitService.dayKey(for: date),
+            HealthKitService.dayKey(for: calendar.date(byAdding: .day, value: -13, to: date) ?? date),
+            HealthKitService.dayKey(for: calendar.date(byAdding: .day, value: -7, to: date) ?? date)
+        )
+    }
+
+    private func workload(from start: String, through end: String) -> Int {
+        let strength = strengthLogs.filter { ($0.date >= start) && ($0.date <= end) }.count
+        let swim = swimLogs
+            .filter { ($0.date >= start) && ($0.date <= end) }
+            .reduce(0) { $0 + max(1, Int(ceil(Double($1.minutes) / 10))) }
+        return strength + swim
     }
 
     private func syncWatchContext() {

@@ -14,7 +14,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 | Phase 2: Profile and Goal Setup | Complete | First-run onboarding, profile editing, local persistence, and live 12% projection are implemented. |
 | Phase 3: HealthKit Daily Sync | Implemented; device check pending | Permission flow, daily metric queries, and manual fallback entries compile; actual Apple Health permissions and data require a signed iPhone run. |
 | Phase 4: Schedule and Training Plan | Complete (simulator-verified) | Daily schedule, adherence, next action, and reminders plus the full structured training program: seeded weekly split, setup questionnaire, exercise prescriptions, set/swim logging, deterministic progression, versioned editing with rollback, one-day rest exceptions, and a mock coach proposal Confirm/Edit/Reject flow. |
-| Phase 4W: Apple Watch Companion | In progress | Apple Workout now owns strength/swimming. WorkoutKit scheduling/opening, durable manual logs, and basic HealthKit result import compile. Physical-device validation and recovery coaching remain. |
+| Phase 4W: Apple Watch Companion | Implemented; device check pending | Apple Workout ownership, WorkoutKit handoff, durable manual logs, completed-workout metrics, and deterministic recovery-aware post-workout guidance compile. Paired-device validation remains. |
 | Phase 5: Meal Photo Logging | Complete (simulator-verified) | Camera/library capture, compressed upload, real dual-provider adapters, comparison, correction, encrypted local photo history, and deletion are implemented. Live-key and physical-camera checks remain. |
 | Phase 6: Coach Chat | Complete (simulator-verified) | Contextual dual-provider chat, local history, safety routing, provider comparison, and validated confirmed-only routine proposals are implemented. Live-key validation remains. |
 | Phase 7: Weekly Review and Photos | Complete (simulator-build verified) | Persisted HealthKit trends, weekly adherence/nutrition/training review, recalculated projection, standardized three-angle check-ins, protected local photos, comparison, dual-AI range analysis, correction/rejection, and deletion are implemented. Live-key and physical-camera checks remain. |
@@ -35,6 +35,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 - Retained the useful W2 manual layer: recent-history sync, stable acknowledged set history, previous-performance prefilling, substitutions, pain severity, rest timers, and optional haptics. The former custom HealthKit lifecycle/metrics UI was superseded and removed.
 - Replaced the custom BodyCompass HealthKit workout lifecycle with WorkoutKit plans for strength and swimming. iPhone schedules; Watch opens Apple Workout; structured strength falls back safely when unsupported.
 - Added Pool/Open Water selection at handoff time and completed-workout matching by session UUID with duration, energy, and swimming distance display.
+- Completed W5 recovery coaching: persisted session RPE/soreness, best-effort Apple Workout heart-rate context, personalized deterministic recommendations, and next-session actions without automatic plan changes.
 - Completed Phase 5 meal logging: camera and Photos picker, metadata-stripping JPEG preparation, typed iOS API transport, OpenAI and Gemini vision adapters, provider fallback/reconciliation, correction before save, private local photo history, and deletion.
 - Completed Phase 6 Coach Chat: bounded profile/health/meal/adherence/training context, OpenAI and Gemini responses, deterministic safety routing, local conversation history, one next action, and validated routine instructions routed into Confirm/Edit/Reject proposals.
 - Completed Phase 7 weekly review: persisted 180-day health snapshots, native weight/body-fat charts, seven-day adherence/nutrition/training summaries, trend-aware 12% projection, and a standardized front/side/back check-in flow.
@@ -44,7 +45,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 
 ## Verified
 
-- `swift run BodyCompassCoreCheck` passes, including the new training model, validation, exception, diff, progression, and proposal assertions.
+- `swift run BodyCompassCoreCheck` passes, including training validation, progression, proposal, log reconciliation, and W5 recovery-advisor scenarios.
 - `npm test` passes with 26 backend tests.
 - The BodyCompass Xcode target builds successfully for the generic iOS Simulator destination with the meal services and embedded Watch app.
 - The BodyCompass Watch App scheme builds successfully for the generic watchOS Simulator SDK destination.

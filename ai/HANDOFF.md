@@ -26,6 +26,7 @@ The following passed during the July 13, 2026 audit:
 - `npm test` with 26 passing backend tests
 - Xcode iOS and watchOS Simulator builds with `CODE_SIGNING_ALLOWED=NO`
 - Phase 9 release metadata/icon validation and the updated iPhone and standalone Watch simulator builds
+- W5 ready/recover/caution core scenarios and the updated iPhone plus standalone Watch builds
 
 This verifies compilation and existing automated checks. It does not verify real Apple Health data, notification delivery, camera behavior, or device signing.
 
@@ -77,10 +78,11 @@ Remaining Phase 4 niceties (deferred): date-range pauses, one-tap move/copy betw
 - `WatchRoutineStore` persists the latest routine and pending strength/swim logs so today's plan and completed logs survive disconnects and relaunches.
 - Confirmed product rule: Apple Workout always owns active strength and swimming workouts. BodyCompass never starts a parallel `HKWorkoutSession`.
 - `WorkoutPlanFactory` maps strength and swimming sessions to stable-ID WorkoutKit plans. Strength uses structured custom steps when runtime-supported and otherwise falls back to open Traditional Strength Training. Swimming asks Pool/Open Water per handoff; Apple owns pool length.
-- iPhone `WorkoutKitService` requests scheduling authorization, schedules plans, and matches completed HealthKit workouts by plan/session UUID to show duration, energy, and swimming distance.
+- iPhone `WorkoutKitService` requests scheduling authorization, schedules plans, and matches completed HealthKit workouts by plan/session UUID to show duration, energy, swimming distance, average heart rate, and an optional one-minute recovery drop.
 - Watch `WatchWorkoutLauncher` opens plans in Apple Workout. The companion still provides previous-performance prefilling, substitutions, load/reps/RIR, pain severity, rest timers, optional haptics, and durable offline manual logs.
 - Recent iPhone strength history is included in application context. Watch keeps acknowledged history separate from pending delivery, preserving stable set numbers and prior values through reconnects.
 - The Apple Workout migration compiles for iOS and generic watchOS Simulator SDKs. No claim of physical WorkoutKit scheduling/opening, HealthKit result matching, connectivity, or signing verification has been made.
+- W5 persists session RPE/soreness and uses the tested deterministic `RecoveryAdvisor` to combine completion, RIR, pain, sleep, resting-heart-rate deviation, recent volume, and optional heart-rate recovery into a reasoned next-session action. It never edits the routine or prescribes load from heart rate alone.
 
 ### Phase 5: Meals
 
@@ -133,7 +135,7 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 
 ## Not Implemented
 
-- Remaining Phase 4W: physical WorkoutKit/HealthKit validation and recovery-aware suggestions. See `docs/apple-watch-plan.md`.
+- Remaining Phase 4W: physical WorkoutKit/HealthKit, reconnect, and recovery-sample validation. See `docs/apple-watch-plan.md`.
 - Additional typed iOS clients beyond meals, Coach, progress analysis, and account backup.
 - A completed internal TestFlight upload and clean-install smoke test.
 - Real-device HealthKit and notification verification.

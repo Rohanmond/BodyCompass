@@ -5,6 +5,7 @@ import BodyCompassCore
 
 /// What to do today: prescriptions, progression hints, and set-by-set logging.
 struct TrainingSessionView: View {
+    @EnvironmentObject private var app: AppStore
     @EnvironmentObject private var training: TrainingStore
     @StateObject private var workoutKit = WorkoutKitService()
 
@@ -12,6 +13,7 @@ struct TrainingSessionView: View {
 
     @State private var loggingExercise: LoggingTarget?
     @State private var loggingSwim: TrainingSession?
+    @State private var reviewingSession: TrainingSession?
 
     init(date: Date = Date()) {
         self.date = date
@@ -48,6 +50,9 @@ struct TrainingSessionView: View {
         }
         .sheet(item: $loggingSwim) { session in
             SwimLogSheet(date: date, session: session)
+        }
+        .sheet(item: $reviewingSession) { session in
+            PostWorkoutReviewSheet(date: date, session: session)
         }
         .task(id: HealthKitService.dayKey(for: date)) {
             await workoutKit.refreshCompleted(sessions: day.sessions, on: date)
@@ -142,6 +147,8 @@ struct TrainingSessionView: View {
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
+
+            postWorkoutSection(session)
         }
         .padding()
         .background(Theme.surface)
@@ -185,7 +192,7 @@ struct TrainingSessionView: View {
         }
 
         if let imported = workoutKit.completed[session.id] {
-            HStack(spacing: 10) {
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 96), alignment: .leading)], alignment: .leading, spacing: 6) {
                 Label("\(imported.durationMinutes) min", systemImage: "checkmark.circle.fill")
                 if let energy = imported.activeEnergyKcal {
                     Label("\(Int(energy)) kcal", systemImage: "flame")
@@ -193,9 +200,112 @@ struct TrainingSessionView: View {
                 if let distance = imported.distanceMeters, distance > 0 {
                     Label("\(Int(distance)) m", systemImage: "figure.pool.swim")
                 }
+                if let heartRate = imported.averageHeartRateBPM {
+                    Label("\(Int(heartRate.rounded())) bpm avg", systemImage: "heart.fill")
+                }
             }
             .font(.caption.bold())
             .foregroundStyle(Theme.accent)
+        }
+    }
+
+    @ViewBuilder
+    private func postWorkoutSection(_ session: TrainingSession) -> some View {
+        if session.kind != .recovery && (
+            workoutKit.completed[session.id] != nil ||
+            training.hasLoggedActivity(for: session, on: date) ||
+            training.recoveryCheckIn(on: date, sessionID: session.id) != nil
+        ) {
+            Divider()
+            if let recommendation = recoveryRecommendation(for: session) {
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Label(recommendation.headline, systemImage: recoveryIcon(recommendation.level))
+                            .font(.subheadline.bold())
+                            .foregroundStyle(recoveryColor(recommendation.level))
+                        Spacer()
+                        Button("Edit") { reviewingSession = session }
+                            .font(.caption)
+                    }
+                    Text(recommendation.detail)
+                        .font(.caption)
+                    if let note = training.recoveryCheckIn(on: date, sessionID: session.id)?.note {
+                        Label(note, systemImage: "note.text")
+                            .font(.caption)
+                    }
+                    ForEach(Array(recommendation.reasons.prefix(4)), id: \.self) { reason in
+                        Label(reason, systemImage: "circle.fill")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                    }
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Next session")
+                            .font(.caption.bold())
+                        Text(recommendation.nextSessionAction)
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .padding(10)
+                .background(recoveryColor(recommendation.level).opacity(0.10))
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .accessibilityElement(children: .combine)
+            } else {
+                Button {
+                    reviewingSession = session
+                } label: {
+                    Label("Complete post-workout check-in", systemImage: "waveform.path.ecg")
+                        .font(.caption.bold())
+                }
+                .buttonStyle(.bordered)
+            }
+        }
+    }
+
+    private func recoveryRecommendation(for session: TrainingSession) -> RecoveryRecommendation? {
+        let snapshot = healthSnapshot(for: date)
+        return training.recoveryRecommendation(
+            for: session,
+            on: date,
+            sleepHours: snapshot?.sleepHours,
+            currentRestingHeartRate: snapshot?.restingHeartRate,
+            baselineRestingHeartRate: restingHeartRateBaseline(before: date),
+            oneMinuteHeartRateRecovery: workoutKit.completed[session.id]?.oneMinuteHeartRateRecoveryBPM
+        )
+    }
+
+    private func healthSnapshot(for date: Date) -> DailyHealthSnapshot? {
+        let dateKey = HealthKitService.dayKey(for: date)
+        if app.today.date == dateKey { return app.today }
+        return app.healthHistory.first { $0.date == dateKey }
+    }
+
+    private func restingHeartRateBaseline(before date: Date) -> Double? {
+        let dateKey = HealthKitService.dayKey(for: date)
+        let values = app.healthHistory
+            .filter { $0.date < dateKey }
+            .sorted { $0.date < $1.date }
+            .compactMap(\.restingHeartRate)
+            .suffix(7)
+        guard !values.isEmpty else { return nil }
+        return values.reduce(0, +) / Double(values.count)
+    }
+
+    private func recoveryIcon(_ level: RecoveryRecommendationLevel) -> String {
+        switch level {
+        case .ready: return "checkmark.circle.fill"
+        case .maintain: return "equal.circle.fill"
+        case .recover: return "bed.double.fill"
+        case .caution: return "exclamationmark.triangle.fill"
+        }
+    }
+
+    private func recoveryColor(_ level: RecoveryRecommendationLevel) -> Color {
+        switch level {
+        case .ready: return Theme.accent
+        case .maintain: return .blue
+        case .recover: return Theme.warning
+        case .caution: return .red
         }
     }
 
@@ -376,6 +486,87 @@ struct TrainingSessionView: View {
 }
 
 // MARK: - Logging sheets
+
+private struct PostWorkoutReviewSheet: View {
+    @EnvironmentObject private var training: TrainingStore
+    @Environment(\.dismiss) private var dismiss
+
+    let date: Date
+    let session: TrainingSession
+
+    @State private var sessionRPE = 7.0
+    @State private var soreness: SorenessLevel = .none
+    @State private var note = ""
+
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack {
+                            Text("Session effort")
+                            Spacer()
+                            Text("\(Int(sessionRPE))/10")
+                                .font(.headline)
+                                .foregroundStyle(Theme.accent)
+                        }
+                        Slider(value: $sessionRPE, in: 1...10, step: 1)
+                            .tint(Theme.accent)
+                            .accessibilityValue("\(Int(sessionRPE)) out of 10")
+                    }
+                } footer: {
+                    Text("Rate the whole session: 1 is very easy and 10 is maximal.")
+                }
+
+                Section("Soreness now") {
+                    Picker("Soreness", selection: $soreness) {
+                        ForEach(SorenessLevel.allCases) { level in
+                            Text(level.displayName).tag(level)
+                        }
+                    }
+                }
+
+                Section("Note (optional)") {
+                    TextField("Technique issue, fatigue, or limitation", text: $note, axis: .vertical)
+                        .lineLimit(2...4)
+                }
+
+                Section {
+                    Text("BodyCompass combines this check-in with available sleep, recent workload, set effort, pain notes, resting heart rate, and Apple Workout data. It does not diagnose recovery or change your routine automatically.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            .navigationTitle("Post-workout review")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") { dismiss() }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Save") {
+                        training.saveRecoveryCheckIn(
+                            date: date,
+                            sessionID: session.id,
+                            sessionRPE: Int(sessionRPE),
+                            soreness: soreness,
+                            note: note
+                        )
+                        dismiss()
+                    }
+                }
+            }
+            .onAppear(perform: prefill)
+        }
+    }
+
+    private func prefill() {
+        guard let checkIn = training.recoveryCheckIn(on: date, sessionID: session.id) else { return }
+        sessionRPE = Double(checkIn.sessionRPE)
+        soreness = checkIn.soreness
+        note = checkIn.note ?? ""
+    }
+}
 
 private struct StrengthSetLogSheet: View {
     @EnvironmentObject private var training: TrainingStore

@@ -33,6 +33,8 @@ Xcode installs the iPhone companion and Watch app together. The first device bui
 6. Reopen the iPhone session and confirm duration and energy appear under the matching session.
 7. Log one BodyCompass test set and confirm it appears in today's training log.
 8. Turn off Bluetooth or move the phone away, log another set on Watch, reconnect, and confirm it syncs once without duplication.
+9. Reopen the completed session, tap **Complete post-workout check-in**, and save session effort and soreness.
+10. Confirm BodyCompass shows the recommendation, reasons, and next-session action. Average heart rate and a one-minute drop appear only when Apple Health supplies them.
 
 ## What Works in This Build
 
@@ -43,8 +45,10 @@ Xcode installs the iPhone companion and Watch app together. The first device bui
 - Previous performance syncs from iPhone and prefills the next working values.
 - Substitutions, pain severity, and optional haptics are available in BodyCompass; Apple Workout supplies elapsed time and the workout summary.
 - Strength and manual swim logs queue offline and sync idempotently to iPhone.
+- Post-workout reviews combine manual effort/soreness with sleep, recent workload, set RIR/pain, resting-heart-rate context, and available Apple Workout heart-rate data.
+- Recommendations never change the repeating routine or prescribe load from heart rate alone.
 
-Recovery-aware suggestions are not implemented yet. WorkoutKit and completed-workout import still require paired-device validation.
+WorkoutKit, completed-workout import, and recovery heart-rate samples still require paired-device validation.
 
 ## Troubleshooting
 
@@ -52,4 +56,5 @@ Recovery-aware suggestions are not implemented yet. WorkoutKit and completed-wor
 - **Signing error:** choose the same team for both targets and use unique matching bundle identifiers.
 - **No detailed exercises:** complete the training setup questionnaire on iPhone, then reopen both apps so the latest routine context syncs.
 - **No live heart rate:** verify Health permissions in iPhone Settings and wear the Watch snugly. Heart-rate availability can vary during workouts.
+- **No one-minute recovery value:** this is optional. Apple Health may not provide suitable samples after every workout, especially in water; the review remains usable without it.
 - **Queued count does not clear:** open the iPhone app after reconnecting; Watch Connectivity will deliver and acknowledge the durable log in the background.

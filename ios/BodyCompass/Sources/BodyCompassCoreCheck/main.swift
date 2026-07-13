@@ -210,6 +210,61 @@ precondition(reconciled.last?.id == watchLog.id)
 precondition(ExerciseLogReconciler.merge(existing: reconciled, incoming: [watchLog]).count == reconciled.count)
 precondition(ExerciseLogReconciler.merge(existing: reconciled, incoming: [], limit: 2).count == 2)
 
+// W5 recovery advice is deterministic and never turns heart rate directly
+// into a load change.
+let readyRecovery = RecoveryAdvisor.recommend(context: RecoveryContext(
+    sleepHours: 7.8,
+    currentRestingHeartRate: 58,
+    baselineRestingHeartRate: 57,
+    oneMinuteHeartRateRecovery: 24,
+    sessionRPE: 7,
+    soreness: .mild,
+    averageRIR: 2,
+    plannedWork: 12,
+    completedWork: 12,
+    recentWork: 30,
+    priorWork: 28
+))
+precondition(readyRecovery.level == .ready)
+precondition(readyRecovery.reasons.contains { $0.contains("context only") })
+precondition(readyRecovery.reasons.contains { $0.contains("7.8 hours") })
+precondition(readyRecovery.reasons.contains { $0.contains("7/10") })
+
+let stackedFatigue = RecoveryAdvisor.recommend(context: RecoveryContext(
+    sleepHours: 5.5,
+    currentRestingHeartRate: 70,
+    baselineRestingHeartRate: 60,
+    sessionRPE: 9,
+    soreness: .moderate,
+    averageRIR: 0,
+    plannedWork: 12,
+    completedWork: 10,
+    recentWork: 40,
+    priorWork: 25
+))
+precondition(stackedFatigue.level == .recover)
+precondition(stackedFatigue.nextSessionAction.contains("Hold progression"))
+
+let painRecovery = RecoveryAdvisor.recommend(context: RecoveryContext(
+    sessionRPE: 6,
+    soreness: .none,
+    painReported: true,
+    plannedWork: 9,
+    completedWork: 6,
+    recentWork: 20,
+    priorWork: 20
+))
+precondition(painRecovery.level == .caution)
+precondition(painRecovery.nextSessionAction.hasPrefix("Do not add load"))
+
+let boundedCheckIn = PostWorkoutCheckIn(
+    date: "2026-07-13",
+    sessionID: sessionID,
+    sessionRPE: 99,
+    soreness: .none
+)
+precondition(boundedCheckIn.sessionRPE == 10)
+
 // Proposals: pending until decided, stale once the base version moves on.
 let proposal = RoutineChangeProposal(
     baseVersion: detailed.version,

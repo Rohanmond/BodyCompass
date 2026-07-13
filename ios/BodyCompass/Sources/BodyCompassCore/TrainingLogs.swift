@@ -91,6 +91,244 @@ public struct SwimSessionLog: Identifiable, Codable, Equatable, Sendable {
     }
 }
 
+// MARK: - Post-workout recovery
+
+public enum SorenessLevel: Int, Codable, CaseIterable, Identifiable, Sendable {
+    case none
+    case mild
+    case moderate
+    case severe
+
+    public var id: Int { rawValue }
+
+    public var displayName: String {
+        switch self {
+        case .none: return "None"
+        case .mild: return "Mild"
+        case .moderate: return "Moderate"
+        case .severe: return "Severe"
+        }
+    }
+}
+
+public struct PostWorkoutCheckIn: Identifiable, Codable, Equatable, Sendable {
+    public var id: UUID
+    public var date: String
+    public var sessionID: UUID
+    /// Whole-session effort from 1 (very easy) to 10 (maximal).
+    public var sessionRPE: Int
+    public var soreness: SorenessLevel
+    public var note: String?
+    public var createdAt: Date
+
+    public init(
+        id: UUID = UUID(),
+        date: String,
+        sessionID: UUID,
+        sessionRPE: Int,
+        soreness: SorenessLevel,
+        note: String? = nil,
+        createdAt: Date = Date()
+    ) {
+        self.id = id
+        self.date = date
+        self.sessionID = sessionID
+        self.sessionRPE = min(max(sessionRPE, 1), 10)
+        self.soreness = soreness
+        self.note = note
+        self.createdAt = createdAt
+    }
+}
+
+public struct RecoveryContext: Equatable, Sendable {
+    public var sleepHours: Double?
+    public var currentRestingHeartRate: Double?
+    public var baselineRestingHeartRate: Double?
+    public var oneMinuteHeartRateRecovery: Double?
+    public var sessionRPE: Int
+    public var soreness: SorenessLevel
+    public var averageRIR: Double?
+    public var painReported: Bool
+    public var plannedWork: Int
+    public var completedWork: Int
+    public var recentWork: Int
+    public var priorWork: Int
+
+    public init(
+        sleepHours: Double? = nil,
+        currentRestingHeartRate: Double? = nil,
+        baselineRestingHeartRate: Double? = nil,
+        oneMinuteHeartRateRecovery: Double? = nil,
+        sessionRPE: Int,
+        soreness: SorenessLevel,
+        averageRIR: Double? = nil,
+        painReported: Bool = false,
+        plannedWork: Int,
+        completedWork: Int,
+        recentWork: Int,
+        priorWork: Int
+    ) {
+        self.sleepHours = sleepHours
+        self.currentRestingHeartRate = currentRestingHeartRate
+        self.baselineRestingHeartRate = baselineRestingHeartRate
+        self.oneMinuteHeartRateRecovery = oneMinuteHeartRateRecovery
+        self.sessionRPE = min(max(sessionRPE, 1), 10)
+        self.soreness = soreness
+        self.averageRIR = averageRIR
+        self.painReported = painReported
+        self.plannedWork = max(0, plannedWork)
+        self.completedWork = max(0, completedWork)
+        self.recentWork = max(0, recentWork)
+        self.priorWork = max(0, priorWork)
+    }
+}
+
+public enum RecoveryRecommendationLevel: String, Codable, Equatable, Sendable {
+    case ready
+    case maintain
+    case recover
+    case caution
+}
+
+public struct RecoveryRecommendation: Equatable, Sendable {
+    public let level: RecoveryRecommendationLevel
+    public let headline: String
+    public let detail: String
+    public let nextSessionAction: String
+    public let reasons: [String]
+
+    public init(
+        level: RecoveryRecommendationLevel,
+        headline: String,
+        detail: String,
+        nextSessionAction: String,
+        reasons: [String]
+    ) {
+        self.level = level
+        self.headline = headline
+        self.detail = detail
+        self.nextSessionAction = nextSessionAction
+        self.reasons = reasons
+    }
+}
+
+/// Conservative, deterministic recovery guidance. It can hold progression or
+/// suggest normal training, but it never edits the routine or prescribes load
+/// from heart rate alone.
+public enum RecoveryAdvisor {
+    public static func recommend(context: RecoveryContext) -> RecoveryRecommendation {
+        var strainScore = 0
+        var reasons: [String] = []
+
+        if context.painReported {
+            reasons.append("Pain or discomfort was logged during this session.")
+        }
+        if context.soreness == .severe {
+            reasons.append("Severe soreness was reported after the session.")
+        }
+        if context.painReported || context.soreness == .severe {
+            appendHeartRateContext(context, to: &reasons)
+            return RecoveryRecommendation(
+                level: .caution,
+                headline: "Pause progression and reassess",
+                detail: "Pain or severe soreness outweighs performance numbers. Do not push through sharp, severe, or worsening symptoms.",
+                nextSessionAction: "Do not add load next session. Use a pain-free substitution, take recovery time, and seek qualified care when symptoms are severe or persist.",
+                reasons: reasons
+            )
+        }
+
+        if let sleep = context.sleepHours {
+            if sleep < 6 {
+                strainScore += 2
+                reasons.append("Sleep was \(formatted(sleep)) hours, below the recovery floor used by this coach.")
+            } else if sleep < 7 {
+                strainScore += 1
+                reasons.append("Sleep was \(formatted(sleep)) hours, so recovery may be slightly limited.")
+            } else {
+                reasons.append("Sleep was \(formatted(sleep)) hours.")
+            }
+        }
+
+        if context.sessionRPE >= 9 {
+            strainScore += 2
+            reasons.append("Session effort was \(context.sessionRPE)/10, close to maximal.")
+        } else if context.sessionRPE >= 8 {
+            strainScore += 1
+            reasons.append("Session effort was \(context.sessionRPE)/10, a hard day.")
+        } else {
+            reasons.append("Session effort was \(context.sessionRPE)/10.")
+        }
+
+        switch context.soreness {
+        case .moderate:
+            strainScore += 2
+            reasons.append("Moderate soreness was reported.")
+        case .mild:
+            reasons.append("Only mild soreness was reported.")
+        case .none, .severe:
+            break
+        }
+
+        if let averageRIR = context.averageRIR, averageRIR < 1 {
+            strainScore += 1
+            reasons.append("Average effort finished below 1 rep in reserve.")
+        }
+
+        if context.priorWork > 0 && Double(context.recentWork) > Double(context.priorWork) * 1.25 {
+            strainScore += 1
+            reasons.append("Seven-day training volume is more than 25% above the previous week.")
+        }
+
+        if let current = context.currentRestingHeartRate,
+           let baseline = context.baselineRestingHeartRate,
+           current - baseline >= 8 {
+            strainScore += 1
+            reasons.append("Resting heart rate is \(Int((current - baseline).rounded())) bpm above the recent baseline.")
+        }
+
+        if context.plannedWork > 0 {
+            let percent = Int((Double(context.completedWork) / Double(context.plannedWork) * 100).rounded())
+            reasons.append("Completed \(percent)% of planned work.")
+        }
+        appendHeartRateContext(context, to: &reasons)
+
+        if strainScore >= 4 {
+            return RecoveryRecommendation(
+                level: .recover,
+                headline: "Recovery should lead the next 24 hours",
+                detail: "Several recovery signals stacked up today. Treat this as a reason to absorb the work, not to chase more fatigue.",
+                nextSessionAction: "Hold progression next session. Prioritize sleep and food, then repeat or slightly reduce the last prescription if warm-up performance is still down.",
+                reasons: reasons
+            )
+        }
+        if strainScore >= 2 {
+            return RecoveryRecommendation(
+                level: .maintain,
+                headline: "Keep the plan, skip the extra push",
+                detail: "Recovery is mixed. The scheduled plan can remain, but adding unplanned volume or intensity is unlikely to help.",
+                nextSessionAction: "Keep the planned prescription and reassess during warm-ups. Progress only when technique, reps, and target RIR are all there.",
+                reasons: reasons
+            )
+        }
+        return RecoveryRecommendation(
+            level: .ready,
+            headline: "Recovery signals support the normal plan",
+            detail: "Nothing logged here calls for an automatic reduction. Continue the routine and let exercise-level performance decide progression.",
+            nextSessionAction: "Use the existing rep-and-RIR progression suggestion next session. Never force a load increase when warm-ups or technique disagree.",
+            reasons: reasons
+        )
+    }
+
+    private static func appendHeartRateContext(_ context: RecoveryContext, to reasons: inout [String]) {
+        guard let recovery = context.oneMinuteHeartRateRecovery else { return }
+        reasons.append("Apple Watch recorded a \(Int(recovery.rounded())) bpm one-minute heart-rate drop; it is context only, not a strength-load prescription.")
+    }
+
+    private static func formatted(_ value: Double) -> String {
+        String(format: "%.1f", value)
+    }
+}
+
 // MARK: - Progression
 
 public enum ProgressionAction: Equatable, Sendable {

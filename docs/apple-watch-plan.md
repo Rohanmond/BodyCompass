@@ -4,7 +4,7 @@
 
 Make BodyCompass useful for planning, launching, and reviewing lifting and swimming while Apple Workout owns every active workout and sensor stream.
 
-Status: in progress. WorkoutKit handoff for strength/swimming and basic HealthKit result import are implemented and simulator-build verified. Real-device validation and recovery-aware coaching remain.
+Status: implementation complete and simulator-build verified. Real-device validation remains.
 
 ## Recommended Architecture
 
@@ -110,11 +110,21 @@ Status: basic implementation complete and simulator-build verified; paired-devic
 
 ### W5: Recovery-Aware Suggestions
 
-Status: not started.
+Status: implemented and simulator-build verified; real Apple Workout heart-rate recovery samples still need paired-device validation.
 
 - Combine completed sets, RIR/RPE, heart-rate recovery context, sleep, soreness, and recent volume.
 - Show a post-workout recommendation and next-session progression proposal.
 - Keep every material training-plan change behind confirmation.
+
+Implemented:
+
+- Persisted per-session post-workout check-in for whole-session RPE, soreness, and optional context.
+- Deterministic `RecoveryAdvisor` with tested ready, maintain, recover, and caution outcomes.
+- Personalized inputs from completion percentage, average RIR, pain notes, current sleep, resting-heart-rate deviation, and recent-versus-prior seven-day workload.
+- Best-effort imported Apple Workout average heart rate and one-minute post-workout drop when HealthKit provides samples; missing heart rate never blocks swimming or review.
+- Plain-language reasons and one next-session action in the iPhone training session.
+- Heart rate is context only and never directly prescribes strength load.
+- Recovery advice never edits the routine. Existing Coach routine changes still require Confirm/Edit/Reject.
 
 ## Acceptance Criteria
 
