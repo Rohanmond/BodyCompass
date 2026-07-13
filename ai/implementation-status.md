@@ -1,6 +1,7 @@
 # Implementation Status
 
 Source of truth for detailed phase status: `docs/phases.md`.
+Human-readable quick summary: `docs/implementation-status.md`.
 
 ## Implemented
 

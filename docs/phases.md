@@ -4,6 +4,8 @@ This roadmap is written so each phase produces something useful and testable. Do
 
 ## Current Implementation Status
 
+Quick summary: `docs/implementation-status.md`.
+
 Implemented:
 
 - Phase 0 is implemented as the initial repo foundation.
@@ -20,12 +22,13 @@ Partially implemented:
 - Phase 3 has a HealthKit service wrapper and requested data types, but not the full metric query implementation.
 - Phase 4 has mock schedule UI and a basic next best action.
 - Phase 5 and Phase 6 have backend mock provider flows and UI placeholders, but not real photo upload, real provider API calls, or persistence.
-- Phase 7 has a History tab placeholder, but not real weekly analytics yet.
+- Phase 7 has a History tab placeholder, but not real weekly analytics or progress-photo analysis yet.
 - Phase 1 still needs you to open Xcode locally and choose signing for real-device runs.
 
 Not implemented yet:
 
 - Camera/photo picker.
+- Weekly progress-photo capture, comparison, and AI body-fat range estimation.
 - Database-backed storage.
 - Real OpenAI/Gemini HTTP integrations.
 - App Store/TestFlight readiness.
