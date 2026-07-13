@@ -18,8 +18,8 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 | Phase 5: Meal Photo Logging | Complete; live API verified | Camera/library capture, transient compressed upload, real dual-provider adapters, comparison, correction, photo-free result history, and deletion are implemented. Live dual-provider notes-only analysis and fallback pass; physical-camera checks remain. |
 | Phase 6: Coach Chat | Complete; live API verified | Contextual dual-provider chat, local history, safety routing, provider comparison, and validated confirmed-only routine proposals are implemented. Both providers and the reconciled next action pass live API validation. |
 | Phase 7: Weekly Review and Photos | Complete (simulator-build verified) | Persisted HealthKit trends, weekly summaries, standardized transient three-angle analysis, photo-free result history, dual-AI ranges, correction/rejection, and deletion are implemented. Live-key and physical-camera checks remain. |
-| Phase 8: Persistence and Accounts | Complete (simulator-build verified) | SQLite result persistence, private single-user bearer auth, no-photo backup/export enforcement, legacy-photo cleanup, Keychain token, JSON export, and server/device deletion are implemented. Production deployment/restore checks remain. |
-| Phase 9: Polish and Beta | In progress; primary iPhone and live AI checks verified | Signed launch, full-permission HealthKit, authenticated backup, local notification delivery, and Phase 9C dual-provider meal/Coach API checks pass. Physical cameras, progress-photo vision, Watch, and partial/denied HealthKit checks remain before deployment and beta gates. |
+| Phase 8: Persistence and Accounts | Complete (simulator-build verified) | SQLite result persistence, private single-user bearer auth, no-photo backup/export enforcement, legacy-photo cleanup, Keychain token, JSON export, and server/device deletion are implemented. |
+| Phase 9: Polish and Beta | In progress; Phase 9D tooling ready | Signed launch, HealthKit, authenticated backup, reminders, and live meal/Coach APIs pass. Production config checks, health probes, container files, and tested metadata backup/restore are implemented; host deployment and remaining device gates are pending. |
 | Phase 10: Future Ideas | Not started | Post-MVP enhancements remain intentionally deferred. |
 
 ## Latest Completed Work
@@ -47,16 +47,18 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 - Verified live OpenAI and Gemini meal analysis, reconciliation, one-provider meal fallback, and contextual Coach responses. Provider transport now retries bounded 429/503 failures; Gemini defaults to the current `gemini-3.1-flash-lite` model.
 - Expanded meal and progress analysis into actionable coaching: prominent no-photo-storage notices, green/red signals, concrete improvements, and one next action. Both live meal providers return the expanded schema.
 - Built, signed, installed, and launched the actionable-analysis UI on the user's physical iPhone 17 Pro.
+- Added Phase 9D deployment operations: strict production configuration, liveness/readiness probes, graceful shutdown, non-root Docker/Compose packaging, durable `/data`, and checksum-verified photo-free SQLite backup/restore tooling.
 - Created a Personal Team development certificate and provisioning profiles, then built, installed, trusted, and launched BodyCompass successfully on the user's physical iPhone 17 Pro. Xcode physical-Watch discovery remains deferred.
 
 ## Verified
 
 - `swift run BodyCompassCoreCheck` passes, including training validation, progression, proposal, log reconciliation, and W5 recovery-advisor scenarios.
-- `npm test` passes with 30 backend tests, including no-photo persistence and save-route rejection checks.
+- `npm test` passes with 35 backend tests, including production configuration and a checksum/integrity-verified backup/restore drill.
 - The BodyCompass Xcode target builds successfully for the generic iOS Simulator destination with the meal services and embedded Watch app.
 - The BodyCompass Watch App scheme builds successfully for the generic watchOS Simulator SDK destination.
 - Phase 9 privacy manifests and 1024-pixel icon catalogs validate, and the polished iPhone and Watch targets build successfully.
 - Full-permission HealthKit data access and local reminder delivery passed on the signed iPhone; partial/denied HealthKit paths and Watch integrations remain physical-device items.
+- Production-mode liveness/readiness and graceful shutdown pass locally. The Docker image builds and runs successfully as the unprivileged `node` user, with SQLite readiness healthy inside the container.
 
 Verification rerun: July 14, 2026.
 
@@ -67,5 +69,5 @@ Verification rerun: July 14, 2026.
 - Validate Phase 5 on a physical iPhone camera and with both provider API keys; mock mode remains available without keys.
 - Validate Phase 6's live response and Confirm/Edit/Reject proposal flow in the signed-device UI; the live dual-provider API path is verified.
 - Validate Phase 7 with a physical iPhone camera and both live provider keys; deterministic mock mode covers the full flow locally.
-- Deploy Phase 8 behind HTTPS with durable volume backup, then perform a backup/restore drill using stable API/storage secrets.
+- Choose a production host, deploy `server/Dockerfile` behind HTTPS with durable `/data`, then run the documented host-level restore and authenticated iPhone checks in `docs/deployment.md`.
 - Run `./scripts/release-preflight.sh --build`, then complete the signed-device, Series 10, seven-day personal beta, and TestFlight gates in `docs/beta-checklist.md`.

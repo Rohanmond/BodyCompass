@@ -8,12 +8,12 @@ Use this file as the authoritative starting point for Claude, ChatGPT, Gemini, C
 
 - Repository: `Rohanmond/BodyCompass`
 - Primary branch: `main`
-- Primary implementation state: Phases 0-8 complete; Phase 9 code-side polish, signed iPhone launch, and dual-provider meal/Coach API checks verified; physical camera and Watch gates remain
+- Primary implementation state: Phases 0-8 complete; Phase 9 code polish, signed iPhone/live AI checks, and Phase 9D deployment tooling verified; production hosting plus physical camera and Watch gates remain
 - iOS deployment target: iOS 17
 - App: native SwiftUI under `ios/BodyCompass`
 - Shared logic: Swift package target `BodyCompassCore`
 - Backend: dependency-light Node 22.5+ API under `server`
-- Persistence today: local-first iOS storage plus SQLite and encrypted private server image storage
+- Persistence today: local-first iOS storage plus photo-free SQLite result metadata
 - AI today: real OpenAI and Gemini meal, progress-photo, and contextual Coach adapters with no-key mock fallback
 
 Local generated files may appear as `ios/BodyCompass/.swiftpm/` and `server/pnpm-lock.yaml`. Do not stage, delete, or redesign package management around them unless the user explicitly requests it. The documented backend workflow uses npm.
@@ -23,7 +23,8 @@ Local generated files may appear as `ios/BodyCompass/.swiftpm/` and `server/pnpm
 The following passed during the latest audit:
 
 - `swift run BodyCompassCoreCheck`
-- `npm test` with 30 passing backend tests
+- `npm test` with 35 passing backend tests
+- Phase 9D production-mode health probes and graceful shutdown; the Docker image builds, runs as the unprivileged `node` user, and reports SQLite ready
 - Xcode iOS and watchOS Simulator builds with `CODE_SIGNING_ALLOWED=NO`
 - Phase 9 release metadata/icon validation and the updated iPhone and standalone Watch simulator builds
 - W5 ready/recover/caution core scenarios and the updated iPhone plus standalone Watch builds
@@ -147,6 +148,7 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 - Additional typed iOS clients beyond meals, Coach, progress analysis, and account backup.
 - A completed internal TestFlight upload and clean-install smoke test.
 - Partial/denied real-device HealthKit verification; the signed full-permission path and local notification delivery are verified.
+- A selected production host, HTTPS deployment, host restore drill, and deployed-service iPhone verification. Container/config/backup tooling is implemented in Phase 9D.
 
 ## Recommended Next Work
 
@@ -154,7 +156,7 @@ Run the Phase 9 beta gates next:
 
 1. Complete the remaining Phase 9C signed-device camera checks: clear/poor meals, Coach proposal confirmation, and standardized progress-photo vision/correction/deletion.
 2. Return to partial/denied HealthKit checks and the deferred Phase 9A/9B physical Watch discovery and Apple Workout validation using `docs/apple-watch-setup.md` before release.
-3. Complete Phase 9D HTTPS deployment and a backup/restore drill.
+3. Finish Phase 9D by deploying `server/Dockerfile` behind HTTPS with durable `/data`, then complete the host restore drill and authenticated iPhone checks from `docs/deployment.md`.
 4. Complete the Phase 9E seven-day personal beta.
 5. Complete the Phase 9F internal TestFlight clean-install smoke test.
 
@@ -162,7 +164,7 @@ The detailed status, requirements, and completion criteria for Phase 9A-9F are i
 
 Phase 6 Coach instructions now reuse the existing `RoutineChangeProposal` confirmation contract; preserve Confirm/Edit/Reject and staleness handling in future changes.
 
-The detailed Watch plan remains `docs/apple-watch-plan.md` for paired-device validation, and Phase 8 deployment still needs HTTPS plus a backup/restore drill.
+The detailed Watch plan remains `docs/apple-watch-plan.md` for paired-device validation. Phase 9D operations tooling is ready; production HTTPS and host/device validation remain.
 
 Keep the generic daily task schedule and structured training routine separate. The former tracks habits (`AppStore`); the latter owns programming, performance, and progression (`TrainingStore`).
 

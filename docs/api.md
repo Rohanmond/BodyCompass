@@ -2,11 +2,11 @@
 
 Base URL: `http://localhost:8080`
 
-All `/api/*` routes require `Authorization: Bearer <BODYCOMPASS_API_TOKEN>` when that environment variable is configured. Local development without a token uses the private `local-owner` account. Production refuses to start without separate API and image-storage secrets.
+All `/api/*` routes require `Authorization: Bearer <BODYCOMPASS_API_TOKEN>` when that environment variable is configured. Local development without a token uses the private `local-owner` account. Production requires a strong API token, stable owner ID, absolute durable data path, and both AI provider keys; photos are not stored, so no image-storage secret is required.
 
 ## `GET /health`
 
-Returns service status.
+Returns service liveness for backward compatibility. `/health/live` is the explicit process liveness probe and `/health/ready` verifies SQLite is accessible; readiness returns HTTP 503 when persistence is unavailable. Health probes do not expose secrets or user data.
 
 ## `POST /api/health-snapshots`
 

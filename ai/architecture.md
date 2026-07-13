@@ -12,7 +12,7 @@ flowchart TD
     IOS --> API["BodyCompass Node API"]
     API --> OpenAI["OpenAI Provider"]
     API --> Gemini["Gemini Provider"]
-    API --> Store["Private DB / Object Storage"]
+    API --> Store["Private SQLite Metadata"]
     IOS --> Photos["Meal and Weekly Progress Photos"]
     Photos --> API
 ```
@@ -77,8 +77,9 @@ Responsibilities:
 - Validate and reconcile structured training-plan proposals without activating them.
 - Accept health snapshots and future persisted logs.
 - Persist accepted result metadata in SQLite; never persist meal or progress photos.
-- Authenticate the configured private owner, export their data, and delete relational records plus encrypted files.
+- Authenticate the configured private owner, export their data, and delete relational records.
 - Calculate or mirror goal projections for API clients.
+- Expose liveness/readiness probes, validate production configuration, and shut down cleanly.
 
 Current backend is dependency-light Node using `node:http`. Add dependencies only when they clearly help.
 
@@ -91,10 +92,12 @@ Current state:
 - iOS remains local-first with `UserDefaults` result metadata, then asynchronously backs up accepted records without images.
 - A bearer token is optional for local private mode, required in production, and stored in iOS Keychain.
 
-Future production work:
+Deployment-ready operations:
 
-- HTTPS hosting with a durable volume and a tested backup/restore process.
-- Managed relational/object storage only when deployment scale justifies replacing the SQLite/encrypted-file adapter.
+- A non-root Node container mounts durable SQLite storage at `/data` and exposes separate liveness/readiness probes.
+- Backup creates a consistent SQLite snapshot plus photo-free checksum manifest; restore verifies checksum and integrity and preserves the previous database.
+- Actual HTTPS hosting, production secret setup, and a host-level restore drill remain Phase 9D execution work.
+- Managed relational storage is considered only when deployment scale justifies replacing the single-instance SQLite adapter.
 - Multi-user identity only if BodyCompass becomes more than a private single-user app.
 
 ## Important Boundary

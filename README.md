@@ -5,7 +5,7 @@ Native iOS fat-loss coach for reaching 12% body fat with HealthKit history, dail
 ## Structure
 
 - `ios/BodyCompass` - SwiftUI iOS app source plus testable core logic.
-- `server` - Node API with SQLite persistence, encrypted private images, health logs, AI analysis, Coach chat, and provider routing.
+- `server` - Node API with SQLite result persistence, transient image analysis, health logs, Coach chat, and provider routing.
 - `docs` - Product, setup, API, and HealthKit notes.
 - `ai` - AI-native repo context for future agents and implementation planning.
 
@@ -35,6 +35,7 @@ Native iOS fat-loss coach for reaching 12% body fat with HealthKit history, dail
 - AI repo context: `ai/README.md`
 - Cross-model implementation handoff: `ai/HANDOFF.md`
 - Phase 9 beta and TestFlight checklist: `docs/beta-checklist.md`
+- Production backend and backup guide: `docs/deployment.md`
 
 ## Quick Start
 

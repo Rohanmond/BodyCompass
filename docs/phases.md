@@ -488,12 +488,14 @@ Done when both providers, each single-provider fallback, and all physical-camera
 
 #### Phase 9D: Production Backend Deployment
 
-Status: pending deployment and operations work.
+Status: deployment tooling implemented and locally verified; production host, HTTPS, deployed iPhone checks, and host restore drill remain.
 
-- Deploy the Node backend behind HTTPS.
-- Configure stable API and storage secrets outside source control.
-- Attach durable storage for SQLite result metadata.
-- Back up the production data volume and complete a restore drill.
+- Implemented a non-root Node 22 container, localhost-bound Compose service, graceful shutdown, and liveness/readiness probes.
+- Implemented fail-fast production validation for a strong bearer token, stable owner ID, absolute durable data path, and both provider keys.
+- Implemented checksum-manifested photo-free SQLite backup and guarded integrity-checked restore commands; the automated local restore drill passes.
+- Deploy the Node backend behind HTTPS and attach a durable `/data` volume on the selected host.
+- Configure stable API and provider secrets outside source control; the legacy storage secret is not required because photos are not retained.
+- Complete a backup/restore drill on the production volume.
 - Verify authenticated iPhone backup, export, and deletion against the deployed service.
 
 Done when the service survives a restart and a tested backup can restore the metadata database.

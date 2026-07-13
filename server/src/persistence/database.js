@@ -195,6 +195,11 @@ export class BodyCompassStore {
     return { deleted: true };
   }
 
+  healthCheck() {
+    const result = this.db.prepare("PRAGMA quick_check").get();
+    return Object.values(result)[0] === "ok";
+  }
+
   close() { this.db.close(); }
 }
 
@@ -209,4 +214,10 @@ export function persistenceStore() {
     });
   }
   return sharedStore;
+}
+
+export function closePersistenceStore() {
+  if (!sharedStore) return;
+  sharedStore.close();
+  sharedStore = undefined;
 }

@@ -17,6 +17,8 @@ import {
   saveSchedule
 } from "./routes/accountData.js";
 import { authenticate } from "./lib/auth.js";
+import { assertValidConfig } from "./lib/config.js";
+import { closePersistenceStore, persistenceStore } from "./persistence/database.js";
 
 try {
   process.loadEnvFile?.(".env");
@@ -24,19 +26,13 @@ try {
   if (error?.code !== "ENOENT") throw error;
 }
 
-if (process.env.NODE_ENV === "production") {
-  if (!process.env.BODYCOMPASS_API_TOKEN) throw new Error("BODYCOMPASS_API_TOKEN is required in production");
-  if (!process.env.BODYCOMPASS_STORAGE_SECRET) throw new Error("BODYCOMPASS_STORAGE_SECRET is required in production");
-}
-
-const port = Number(process.env.PORT ?? 8080);
-const host = process.env.HOST ?? "127.0.0.1";
-if (!["127.0.0.1", "localhost", "::1"].includes(host) && !process.env.BODYCOMPASS_API_TOKEN) {
-  throw new Error("BODYCOMPASS_API_TOKEN is required when the server listens beyond localhost");
-}
+const config = assertValidConfig();
+const { port, host } = config;
 
 const routes = {
-  "GET /health": async () => json({ ok: true, service: "bodycompass-server" }),
+  "GET /health": liveness,
+  "GET /health/live": liveness,
+  "GET /health/ready": readiness,
   "POST /api/meals/analyze": analyzeMeal,
   "POST /api/chat": createChatAnswer,
   "POST /api/goal/projection": createGoalProjection,
@@ -82,6 +78,35 @@ const server = createServer(async (request, response) => {
 server.listen(port, host, () => {
   console.log(`BodyCompass API listening on http://${host}:${port}`);
 });
+
+let shuttingDown = false;
+for (const signal of ["SIGINT", "SIGTERM"]) {
+  process.on(signal, () => shutdown(signal));
+}
+
+function liveness() {
+  return json({ ok: true, service: "bodycompass-server" });
+}
+
+function readiness() {
+  try {
+    const persistenceReady = persistenceStore().healthCheck();
+    return json({ ok: persistenceReady, service: "bodycompass-server", persistence: persistenceReady ? "ready" : "unavailable" }, persistenceReady ? 200 : 503);
+  } catch {
+    return json({ ok: false, service: "bodycompass-server", persistence: "unavailable" }, 503);
+  }
+}
+
+function shutdown(signal) {
+  if (shuttingDown) return;
+  shuttingDown = true;
+  console.log(`BodyCompass API received ${signal}; finishing active requests`);
+  server.close(() => {
+    closePersistenceStore();
+    process.exit(0);
+  });
+  setTimeout(() => process.exit(1), 10_000).unref();
+}
 
 function send(response, status, body) {
   response.writeHead(status, {

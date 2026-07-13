@@ -25,7 +25,7 @@ Phase 8 persistence variables:
 - `BODYCOMPASS_STORAGE_SECRET`: legacy cleanup compatibility only; new builds do not retain meal or progress photos.
 - `BODYCOMPASS_DATA_DIR`: SQLite directory; defaults to `server/server-data` and is ignored by Git.
 
-Back up the SQLite files. Meal and progress photos are analysis-only and are excluded from history, backup, and export. API keys stay only in `server/.env`; the app stores only the optional bearer token in Keychain.
+Use the checksum-verified `npm run backup` and `npm run restore` commands instead of copying an active SQLite file. Meal and progress photos are analysis-only and are excluded from history, backup, and export. API keys stay only in the server environment; the app stores only the optional bearer token in Keychain. See `docs/deployment.md` for the container, HTTPS, durable-volume, and restore-drill steps.
 
 ## iOS
 
