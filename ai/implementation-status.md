@@ -2,6 +2,9 @@
 
 Source of truth for detailed phase status: `docs/phases.md`.
 Human-readable quick summary: `docs/implementation-status.md`.
+Authoritative cross-model handoff: `ai/HANDOFF.md`.
+
+Last audited: July 13, 2026.
 
 ## Implemented
 
@@ -41,3 +44,7 @@ Human-readable quick summary: `docs/implementation-status.md`.
 - Xcode simulator build with full Xcode selected and `CODE_SIGNING_ALLOWED=NO`
 
 Real HealthKit reads and notification delivery must still be checked on a signed iPhone.
+
+## Important Distinction
+
+The implemented `ScheduleItem` flow is a generic daily habit/task schedule. It is not the planned weekly strength/swimming routine. Future models must introduce separate training models for prescriptions, performance logs, progression, versions, and Coach proposals.

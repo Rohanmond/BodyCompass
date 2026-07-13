@@ -10,4 +10,5 @@ DerivedData/
 *.xcuserdata/
 *.xcuserstate
 ios/BodyCompass/.build/
+ios/BodyCompass/.swiftpm/
 ios/BodyCompass/Package.resolved

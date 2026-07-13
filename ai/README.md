@@ -4,15 +4,16 @@ This folder makes the repo AI-native. Future agents should start here before edi
 
 ## Read Order
 
-1. `product-context.md` - what BodyCompass is and who it is for.
-2. `architecture.md` - how the iOS app, Swift core, and backend fit together.
-3. `implementation-status.md` - what phases are implemented and what is still missing.
-4. `coding-guidelines.md` - repo-specific engineering rules.
-5. `commands.md` - verification and local run commands.
-6. `api-contract.md` - backend route shapes.
-7. `data-model.md` - core entities and planned storage shape.
-8. `ai-provider-strategy.md` - how OpenAI and Gemini should be used.
-9. `next-agent-brief.md` - recommended next steps.
+1. `HANDOFF.md` - authoritative audited state, constraints, and next work.
+2. `product-context.md` - what BodyCompass is and who it is for.
+3. `architecture.md` - how the iOS app, Swift core, and backend fit together.
+4. `implementation-status.md` - compact phase status.
+5. `coding-guidelines.md` - repo-specific engineering rules.
+6. `commands.md` - verification and local run commands.
+7. `api-contract.md` - backend route shapes.
+8. `data-model.md` - core and planned entities.
+9. `ai-provider-strategy.md` - OpenAI and Gemini behavior.
+10. `next-agent-brief.md` - immediately recommended implementation slice.
 
 ## Current Snapshot
 
@@ -21,7 +22,8 @@ This folder makes the repo AI-native. Future agents should start here before edi
 - Core logic: Swift package `BodyCompassCore`.
 - Backend: dependency-light Node API under `server`.
 - AI mode: call both OpenAI and Gemini for meal analysis and coach chat.
-- Current phase: Phase 1 implemented and simulator-build verified.
+- Current phase: Phases 0-3 implemented, with real-device checks pending for HealthKit. Phase 4 is partial: daily schedule/adherence exists, structured training does not.
+- Recommended next work: continue Phase 4 using `HANDOFF.md` and `next-agent-brief.md`.
 
 ## Prime Directive
 

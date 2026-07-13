@@ -3,6 +3,7 @@
 Last updated: July 13, 2026
 
 This page is the quick progress summary. See `docs/phases.md` for detailed deliverables and completion criteria.
+Coding models should start with `ai/HANDOFF.md` for the audited repository handoff.
 
 ## Phase Status
 
@@ -37,6 +38,8 @@ This page is the quick progress summary. See `docs/phases.md` for detailed deliv
 - `npm test` passes with three backend tests.
 - The BodyCompass Xcode target builds successfully for the iOS Simulator.
 - HealthKit data access and reminder delivery are not verifiable in this build-only audit and remain real-device checks.
+
+Verification rerun: July 13, 2026.
 
 ## Next
 

@@ -2,6 +2,15 @@
 
 Run commands from repo root unless noted.
 
+## Before Editing
+
+```sh
+git status --short
+git log -5 --oneline
+```
+
+Read `ai/HANDOFF.md` and preserve unrelated working-tree changes.
+
 ## Swift Core Check
 
 ```sh
@@ -57,3 +66,13 @@ curl -X POST http://127.0.0.1:8080/api/goal/projection \
   -H 'content-type: application/json' \
   -d '{"weightKg":80,"bodyFatPercentage":22,"targetBodyFatPercentage":12,"adherenceScore":0.8}'
 ```
+
+## Required Before a Phase Commit
+
+Run all three:
+
+1. `swift run BodyCompassCoreCheck` from `ios/BodyCompass`.
+2. `npm test` from `server`.
+3. The Xcode Simulator build above from the repo root.
+
+Then update `docs/phases.md`, `docs/implementation-status.md`, `ai/implementation-status.md`, and `ai/HANDOFF.md` when the implementation state changed.

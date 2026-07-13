@@ -36,3 +36,16 @@
 - Keep commits phase-scoped.
 - Run verification commands before committing.
 - Update `docs/phases.md` after completing a phase.
+
+## Xcode Project Membership
+
+- Creating a Swift file does not automatically add it to the manually maintained Xcode project.
+- Add new app/core files to the appropriate PBX group and Sources build phase in `ios/BodyCompass/BodyCompass.xcodeproj/project.pbxproj`.
+- Keep pure logic in `BodyCompassCore`; do not import SwiftUI, HealthKit, UserNotifications, or networking there.
+- Run both the Swift package check and Xcode build because either one can pass while the other is missing a file.
+
+## Status Claims
+
+- Distinguish implemented, build-verified, simulator-tested, and real-device-verified.
+- Do not mark HealthKit, notifications, camera, or signing verified from a build alone.
+- Update `ai/HANDOFF.md`, `ai/implementation-status.md`, and `docs/implementation-status.md` when phase state changes materially.

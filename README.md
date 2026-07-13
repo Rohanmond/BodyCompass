@@ -30,6 +30,7 @@ Native iOS fat-loss coach for reaching 12% body fat with HealthKit history, dail
 - Beginner Swift guide: `docs/swift-beginner-guide.md`
 - Xcode Phase 1 guide: `docs/xcode-phase-1.md`
 - AI repo context: `ai/README.md`
+- Cross-model implementation handoff: `ai/HANDOFF.md`
 
 ## Quick Start
 
