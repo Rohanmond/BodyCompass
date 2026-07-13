@@ -45,7 +45,7 @@ ios/BodyCompass/BodyCompass.xcodeproj
 
 All API clients connect to `http://127.0.0.1:8080` by default, which works from the iOS Simulator when the backend runs on the Mac. Enter an email on the first screen, then verify the six-digit code. First verification creates the account; later verifications sign in. For a physical iPhone using a local Mac server, set `HOST=0.0.0.0`, point `BODYCOMPASS_API_BASE_URL` to the Mac's LAN URL, and keep both devices on the same trusted network. Production must use HTTPS.
 
-BodyCompass remains local-first: device writes succeed immediately and server backup retries on future launches/edits. Use the lock-shield button in Goal to inspect the signed-in account and backup status, sign out, create an export, or delete the account.
+BodyCompass remains local-first: device writes succeed immediately and server backup retries on future launches/edits. Open Today → Settings → Account & Privacy to inspect the signed-in account and backup status, sign out, create an export, or delete the account.
 
 The camera is unavailable in most simulator configurations; use Photo Library there and validate Camera on a signed iPhone.
 

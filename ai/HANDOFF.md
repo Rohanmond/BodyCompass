@@ -151,7 +151,7 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 ## Not Implemented
 
 - Remaining Phase 4W: physical WorkoutKit/HealthKit, reconnect, and recovery-sample validation. See `docs/apple-watch-plan.md`.
-- Resend production delivery configuration and signed-device OTP verification.
+- Post-reset clean-account and friend-device validation.
 - A completed internal TestFlight upload and clean-install smoke test.
 - Partial/denied real-device HealthKit verification; the signed full-permission path and local notification delivery are verified.
 - Railway Hobby is provisioned in Southeast Asia with config-as-code, volume-safe startup, HTTPS, and durable `/data`. Authenticated iPhone verification and the host restore drill remain.
@@ -161,7 +161,7 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 Run the Phase 9 beta gates next:
 
 1. Return to partial/denied HealthKit checks and the deferred Phase 9A/9B physical Watch discovery and Apple Workout validation using `docs/apple-watch-setup.md` before release.
-2. Configure Resend in Railway, deploy OTP, verify the owner account on the signed iPhone, check backup/export/live AI/deletion, and complete the host restore drill.
+2. Create a fresh owner account after the intentional database reset, verify blank onboarding plus backup/export/live AI/deletion, and complete the host restore drill.
 3. Complete the Phase 9E seven-day personal beta.
 4. Complete the Phase 9F internal TestFlight clean-install smoke test.
 

@@ -23,7 +23,7 @@ Implemented:
 - Phase 5 meal logging: camera/library capture, compressed transient upload, dual-provider analysis, correction, and photo-free result history.
 - Phase 6 Coach Chat: contextual dual-provider answers, safety routing, local history, and validated confirmed-only routine proposals.
 - Phase 7 weekly review: persisted health trends, native charts, weekly adherence/nutrition/training summaries, trend-aware goal projection, and standardized private progress-photo analysis.
-- Phase 8 passwordless account update: email OTP challenges, verified-address account creation, hashed sessions, per-user storage, and daily AI limits are implemented locally; Resend production setup and signed-device verification remain.
+- Phase 8 passwordless accounts are live: email OTP challenges, verified-address account creation, hashed sessions, per-user storage, daily AI limits, production Resend delivery, and signed-device verification are complete.
 
 Partially implemented:
 - Phase 4W implementation is simulator-build verified, including WorkoutKit handoff, completed-workout import, and recovery-aware coaching; paired-device validation remains.
@@ -36,7 +36,7 @@ Partially implemented:
 Not implemented yet:
 
 - Phase 4W real-device WorkoutKit, HealthKit, reconnect, and recovery-sample validation.
-- Production host restore drill and Resend OTP delivery configuration.
+- Production host restore drill and post-reset clean-account validation.
 - Signed-device, seven-day beta, and TestFlight release gates.
 
 ## Phase 0: Foundation
@@ -418,7 +418,7 @@ Implemented:
 - Opaque account session stored in iOS Keychain and attached automatically; no server token is shown to users.
 - JSON account export containing result metadata and no photo contents.
 - Root Email/Code flow with AutoFill, launch-time session validation, sign out, account-switch local-data protection, and per-user server ownership.
-- Exact-confirmation account deletion and a Goal → Data & Privacy screen that deletes server and local BodyCompass records while leaving Apple Health untouched.
+- Exact-confirmation account deletion under Today → Settings → Account & Privacy that deletes server and local BodyCompass records while leaving Apple Health untouched.
 - Automated restart, no-photo persistence, export, idempotency, auth, and deletion tests plus authenticated HTTP smoke testing.
 - Server-enforced per-user daily AI allowances with configurable meal, Coach, and progress limits plus an in-app remaining-usage view.
 
@@ -428,7 +428,7 @@ Done when:
 - User can delete meal/check-in result records and health logs; photos never enter history.
 - API keys remain server-side only.
 
-Phase 8 done status: core multi-user identity, OTP verification, data isolation, and AI quotas are implemented. Resend production setup, OTP deployment/device validation, and friend-device beta testing remain release work.
+Phase 8 done status: multi-user identity, production OTP verification, data isolation, and AI quotas are implemented and signed-iPhone verified. Post-reset clean-account and friend-device beta testing remain release work.
 
 ## Phase 9: Polish and Beta
 
@@ -491,7 +491,7 @@ Done when both providers, each single-provider fallback, and all physical-camera
 
 #### Phase 9D: Production Backend Deployment
 
-Status: Railway Hobby is online in Southeast Asia with HTTPS and durable `/data`; authenticated iPhone checks and the host restore drill remain.
+Status: Railway Hobby is online in Southeast Asia with HTTPS and durable `/data`; production OTP is verified. The database was intentionally reset on July 14, 2026 and remained ready; post-reset clean-account checks and the host restore drill remain.
 
 - Implemented a non-root Node 22 container, localhost-bound Compose service, graceful shutdown, and liveness/readiness probes.
 - Implemented fail-fast production validation for a strong bearer token, stable owner ID, absolute durable data path, and both provider keys.
@@ -499,7 +499,7 @@ Status: Railway Hobby is online in Southeast Asia with HTTPS and durable `/data`
 - Deployed the Node backend behind Railway HTTPS with one Southeast Asia replica and an attached durable `/data` volume.
 - Configure stable API and provider secrets outside source control; the legacy storage secret is not required because photos are not retained.
 - Complete a backup/restore drill on the production volume.
-- Pointed the iOS build at the Railway HTTPS endpoint; verify authenticated iPhone backup, export, live AI, and deletion after saving the bearer token in Keychain.
+- Pointed the iOS build at the Railway HTTPS endpoint; verify fresh OTP onboarding, authenticated iPhone backup, export, live AI, and deletion after the production reset.
 
 Done when the service survives a restart and a tested backup can restore the metadata database.
 

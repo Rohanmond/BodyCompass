@@ -100,7 +100,7 @@ Deployment-ready operations:
 
 - A non-root Node container mounts durable SQLite storage at `/data` and exposes separate liveness/readiness probes.
 - Backup creates a consistent SQLite snapshot plus photo-free checksum manifest; restore verifies checksum and integrity and preserves the previous database.
-- Railway HTTPS hosting is live. Resend production variables, a verified sending domain, and a host-level restore drill remain Phase 9D execution work.
+- Railway HTTPS hosting and verified-domain Resend OTP are live. Post-reset clean-account checks and a host-level restore drill remain Phase 9D execution work.
 - Managed relational storage is considered only when deployment scale justifies replacing the single-instance SQLite adapter.
 - SQLite now stores multi-user accounts and hashed expiring sessions. Move to managed Postgres before horizontal API scaling.
 
