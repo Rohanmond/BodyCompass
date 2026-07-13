@@ -8,7 +8,7 @@ Use this file as the authoritative starting point for Claude, ChatGPT, Gemini, C
 
 - Repository: `Rohanmond/BodyCompass`
 - Primary branch: `main`
-- Primary implementation state: Phases 0-8 complete; Phase 9 code-side polish implemented; Phase 4W and Phase 9 physical-device gates remain
+- Primary implementation state: Phases 0-8 complete; Phase 9 code-side polish and signed iPhone launch verified; Phase 9B is in progress and the physical Watch gate is deferred
 - iOS deployment target: iOS 17
 - App: native SwiftUI under `ios/BodyCompass`
 - Shared logic: Swift package target `BodyCompassCore`
@@ -27,6 +27,8 @@ The following passed during the July 13, 2026 audit:
 - Xcode iOS and watchOS Simulator builds with `CODE_SIGNING_ALLOWED=NO`
 - Phase 9 release metadata/icon validation and the updated iPhone and standalone Watch simulator builds
 - W5 ready/recover/caution core scenarios and the updated iPhone plus standalone Watch builds
+
+On July 14, 2026, Xcode automatic signing created a valid Personal Team development certificate and iPhone/Watch provisioning profiles. A fresh signed build completed, and BodyCompass installed and launched successfully on the user's physical iPhone 17 Pro running iOS 26.5. The paired Series 10 remained undiscoverable as an Xcode watchOS destination, and the user chose to continue iPhone validation while deferring that release gate.
 
 This verifies compilation and existing automated checks. It does not verify real Apple Health data, notification delivery, camera behavior, or device signing.
 
@@ -144,8 +146,8 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 
 Run the Phase 9 beta gates next:
 
-1. Complete Phase 9A signing and install both targets on the paired devices.
-2. Complete Phase 9B Apple device validation using `docs/apple-watch-setup.md`.
+1. Continue Phase 9B HealthKit and notification validation on the signed iPhone.
+2. Return to the deferred Phase 9A/9B physical Watch discovery and Apple Workout validation using `docs/apple-watch-setup.md` before release.
 3. Complete Phase 9C live AI and physical-camera validation.
 4. Complete Phase 9D HTTPS deployment and a backup/restore drill.
 5. Complete the Phase 9E seven-day personal beta.

@@ -29,7 +29,7 @@ Partially implemented:
 - Phase 4 extras still open: date-range session pauses, one-tap move/copy of a session to another day, and richer one-day exceptions in the UI (core model already supports arbitrary replacement sessions).
 - Phase 5 needs live-key and physical-camera validation; Phase 6 needs live-key validation.
 - Phase 7 needs physical-camera and live-provider validation; its complete product flow is implemented.
-- Phase 1 still needs you to open Xcode locally and choose signing for real-device runs.
+- Phase 1 is signed-device verified on the user's iPhone; physical Watch setup remains deferred.
 
 Not implemented yet:
 
@@ -446,7 +446,7 @@ Complete these stages in order. They are release gates, not missing simulator im
 
 #### Phase 9A: Signed Device Setup
 
-Status: pending user action in Xcode.
+Status: partially complete. The Personal Team certificate, automatic provisioning, signed iPhone build, installation, trust, and launch are verified. Physical Watch discovery/install is deferred by user choice and remains an open release gate.
 
 - Select the Apple Developer team for the BodyCompass iPhone and Watch targets.
 - Confirm unique bundle identifiers and automatic signing.
@@ -456,7 +456,7 @@ Done when both apps install, launch, and can request their required permissions 
 
 #### Phase 9B: Apple Device Validation
 
-Status: pending physical-device testing.
+Status: in progress. Real-iPhone HealthKit and notification validation can proceed; WorkoutKit, reconnect, and Watch-specific checks remain deferred until Xcode discovers the paired Watch.
 
 - Validate full, partial, and denied HealthKit permission states and real health metrics.
 - Validate local schedule notification permission and delivery.

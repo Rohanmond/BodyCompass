@@ -4,7 +4,7 @@
 
 Make BodyCompass useful for planning, launching, and reviewing lifting and swimming while Apple Workout owns every active workout and sensor stream.
 
-Status: implementation complete and simulator-build verified. Real-device validation remains.
+Status: implementation complete and simulator-build verified. The signed companion iPhone app builds, installs, and launches on the user's physical iPhone; Xcode discovery of the paired Series 10 and Watch-specific real-device validation are deferred by user choice and remain release gates.
 
 ## Recommended Architecture
 
