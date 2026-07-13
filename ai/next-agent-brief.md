@@ -2,27 +2,26 @@
 
 ## Best Next Phase
 
-Proceed with Phase 3: HealthKit Daily Sync.
+Proceed with Phase 5: Meal Photo Logging.
 
 ## Recommended Scope
 
-Read the user's daily Apple Health metrics and merge them with manual fallback values:
+Build the first real meal capture and analysis loop:
 
-- steps,
-- active energy,
-- weight,
-- body-fat percentage,
-- sleep,
-- workouts,
-- resting heart rate.
+- camera and photo-library input,
+- portion and preparation notes,
+- multipart upload to the backend,
+- provider and reconciled result states,
+- user correction before saving.
 
 ## Suggested Implementation
 
-- Expand `HealthKitService` with async queries for each supported metric.
-- Add authorization and missing-data states to the Today screen.
-- Keep manual entry available when a HealthKit value is unavailable.
-- Update the persisted profile when newer weight or body-fat readings are available.
-- Add focused tests around merging partial HealthKit data.
+- Add a SwiftUI photo picker and camera capture flow to `MealLogView`.
+- Resize images and remove metadata before upload.
+- Add a typed iOS API client for `/api/meals/analyze`.
+- Keep OpenAI and Gemini keys and provider calls on the backend.
+- Add loading, low-confidence, provider-failure, correction, and retry states.
+- Persist corrected results separately from raw provider estimates.
 
 ## Verification
 

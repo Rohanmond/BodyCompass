@@ -16,11 +16,10 @@ Implemented:
 - Phase 1 Xcode project, shared scheme, Info.plist, entitlements, and asset catalog exist.
 - Phase 1 iOS simulator build succeeds with Xcode.
 - Phase 2 onboarding, profile persistence, profile editing, and live goal recalculation are implemented.
+- Phase 3 HealthKit permission flow, real daily metric queries, manual fallback entries, and Today-screen refresh are implemented.
+- Phase 4 editable/persisted daily schedule, completion tracking, daily and 7-day adherence scores, metric-aware next best action, and optional local reminders are implemented.
 
 Partially implemented:
-
-- Phase 3 has a HealthKit service wrapper and requested data types, but not the full metric query implementation.
-- Phase 4 has mock schedule UI and a basic next best action.
 - Phase 5 and Phase 6 have backend mock provider flows and UI placeholders, but not real photo upload, real provider API calls, or persistence.
 - Phase 7 has a History tab placeholder, but not real weekly analytics or progress-photo analysis yet.
 - Phase 1 still needs you to open Xcode locally and choose signing for real-device runs.
@@ -140,13 +139,17 @@ Phase 2 done status: done.
 
 Goal: connect BodyCompass to Apple Health data.
 
-Status: partially implemented.
+Status: implemented and build-verified. Real-device HealthKit data still needs a signed device run.
 
-Implemented so far:
+Implemented in this phase:
 
-- HealthKit service file exists.
-- Intended HealthKit read types are listed in code and docs.
-- Manual/mock fallback data exists in `AppStore`.
+- Connect Apple Health banner on the Today screen with a one-tap permission request.
+- Real daily queries for steps, active energy, workout minutes, and last night's sleep.
+- Most-recent-sample queries with short look-back windows for weight, body-fat percentage, and resting heart rate.
+- Independent per-metric queries so denied or partial permissions never break the rest of the dashboard.
+- Manual fallback entry for weight, body fat, and sleep that overrides imported values and persists per day.
+- Today screen refreshes HealthKit data on open and with pull-to-refresh.
+- Weight and body-fat metric cards on the Today dashboard with manual-entry source labels.
 
 Deliverables:
 
@@ -161,17 +164,24 @@ Done when:
 - Today dashboard shows real or manual metrics.
 - Missing values do not break goal calculations.
 
+Phase 3 done status: implementation complete and simulator target builds; confirm the permission sheet, partial/denied access, and real metrics on a signed iPhone run.
+
 ## Phase 4: Daily Schedule and Adherence
 
 Goal: make the app a daily accountability system.
 
-Status: partially implemented.
+Status: implemented and build-verified. Notification delivery still needs a signed device run.
 
-Implemented so far:
+Implemented in this phase:
 
-- Mock daily schedule exists.
-- Today screen shows schedule completion.
-- Today screen shows a simple next best action message.
+- Editable daily schedule with add, edit, delete, and reorder in a dedicated editor screen.
+- Each task has a category (weigh-in, nutrition, training, steps, sleep, other) used for icons and next-best-action ranking.
+- Tap-to-complete tracking on the Today screen, persisted per day in `UserDefaults`.
+- Daily adherence score plus a rolling 7-day adherence average from persisted `DayAdherenceRecord` history.
+- Automatic daily roll that clears completion at a new day while preserving the task list and prior scores.
+- Next-best-action logic that ranks training, protein, steps, sleep, and remaining tasks using real metrics and meal protein.
+- Optional local reminders (UserNotifications) with a master toggle and a per-task reminder time.
+- Pure schedule/adherence/next-best-action logic in `BodyCompassCore`, exercised by `BodyCompassCoreCheck`.
 
 Deliverables:
 
@@ -186,6 +196,8 @@ Done when:
 - User can check off daily tasks.
 - Today screen explains the most important remaining action.
 - Weekly adherence score can be calculated.
+
+Phase 4 done status: implementation complete and simulator target builds; confirm reminder delivery and the notification permission prompt on a signed iPhone run.
 
 ## Phase 5: Meal Photo Logging
 

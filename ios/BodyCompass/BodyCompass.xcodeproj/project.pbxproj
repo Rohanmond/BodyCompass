@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		30FE1F035D724FB9874B2E6C /* BodyCompassApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D489589B99744533BC61F82C /* BodyCompassApp.swift */; };
+		A1B2C3D4E5F60718293A4B5D /* DailySchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5C /* DailySchedule.swift */; };
+		B1B2C3D4E5F60718293A4B5D /* ReminderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B1B2C3D4E5F60718293A4B5C /* ReminderService.swift */; };
+		C1B2C3D4E5F60718293A4B5D /* ScheduleEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C1B2C3D4E5F60718293A4B5C /* ScheduleEditorView.swift */; };
 		53E2DEE75137405D909E13DA /* AppStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 104976314DCC4BE696608BB6 /* AppStore.swift */; };
 		3968E992129E47B2B174A87D /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB9A8FF6D38440A087540C82 /* RootView.swift */; };
 		A34C3E3DEDAE46BC990C3FF3 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = 583605B7B67D46B787978A94 /* Theme.swift */; };
@@ -39,6 +42,9 @@
 		466D1DCD15A5467BBD4068DE /* BodyProfile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyProfile.swift; sourceTree = "<group>"; };
 		2F70F0B18E9E42F5A322C7BE /* DailyHealthSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailyHealthSnapshot.swift; sourceTree = "<group>"; };
 		0496068A1A154719B34DF1DE /* GoalProjection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoalProjection.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B5C /* DailySchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DailySchedule.swift; sourceTree = "<group>"; };
+		B1B2C3D4E5F60718293A4B5C /* ReminderService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderService.swift; sourceTree = "<group>"; };
+		C1B2C3D4E5F60718293A4B5C /* ScheduleEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleEditorView.swift; sourceTree = "<group>"; };
 		C97F2A19AD344594B96EF1B4 /* MealAnalysis.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MealAnalysis.swift; sourceTree = "<group>"; };
 		08B7464CBFA64999BF9A4C0A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		E19FB870D78A44B09B1E4706 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -100,6 +106,7 @@
 				1F0C7010FD7642318310C796 /* MealLogView.swift */,
 				C95C2DBC81D24B87A9B949E8 /* TodayView.swift */,
 				A8C15E7D22BE4B5E9A62DF10 /* OnboardingView.swift */,
+				C1B2C3D4E5F60718293A4B5C /* ScheduleEditorView.swift */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -108,6 +115,7 @@
 			isa = PBXGroup;
 			children = (
 				211A805EEE4449608136F410 /* HealthKitService.swift */,
+				B1B2C3D4E5F60718293A4B5C /* ReminderService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -127,6 +135,7 @@
 				2F70F0B18E9E42F5A322C7BE /* DailyHealthSnapshot.swift */,
 				0496068A1A154719B34DF1DE /* GoalProjection.swift */,
 				C97F2A19AD344594B96EF1B4 /* MealAnalysis.swift */,
+				A1B2C3D4E5F60718293A4B5C /* DailySchedule.swift */,
 			);
 			path = Sources/BodyCompassCore;
 			sourceTree = "<group>";
@@ -223,6 +232,9 @@
 				E32A5F6E499946E6AB520A20 /* GoalProjection.swift in Sources */,
 				CF620A74A25649D498F2816F /* MealAnalysis.swift in Sources */,
 				F20A34B291A44A238A7B0041 /* OnboardingView.swift in Sources */,
+				A1B2C3D4E5F60718293A4B5D /* DailySchedule.swift in Sources */,
+				B1B2C3D4E5F60718293A4B5D /* ReminderService.swift in Sources */,
+				C1B2C3D4E5F60718293A4B5D /* ScheduleEditorView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
