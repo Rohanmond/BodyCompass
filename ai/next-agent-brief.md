@@ -4,11 +4,11 @@ Read `ai/HANDOFF.md` before starting. This brief intentionally covers only the n
 
 ## Completed Software Phase
 
-Phase 7 weekly review, history trends, and standardized progress-photo check-ins are implemented and simulator-build verified.
+Phase 8 SQLite persistence, private encrypted images, single-user authentication, local-first backup, export, and deletion are implemented and simulator-build verified.
 
 ## Best Next Phase
 
-Implement Phase 8 database-backed persistence, private object storage, authentication/private-user mode, export, and complete deletion. First preserve the current local-first behavior and existing typed contracts.
+Proceed to Phase 9 polish and beta readiness: accessibility, reliability and retry UX, real-device testing, app icon work, privacy/setup review, and TestFlight preparation. Keep production deployment/backup validation as an explicit Phase 8 operations track.
 
 ## Safety And Privacy
 

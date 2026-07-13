@@ -18,7 +18,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 | Phase 5: Meal Photo Logging | Complete (simulator-verified) | Camera/library capture, compressed upload, real dual-provider adapters, comparison, correction, encrypted local photo history, and deletion are implemented. Live-key and physical-camera checks remain. |
 | Phase 6: Coach Chat | Complete (simulator-verified) | Contextual dual-provider chat, local history, safety routing, provider comparison, and validated confirmed-only routine proposals are implemented. Live-key validation remains. |
 | Phase 7: Weekly Review and Photos | Complete (simulator-build verified) | Persisted HealthKit trends, weekly adherence/nutrition/training review, recalculated projection, standardized three-angle check-ins, protected local photos, comparison, dual-AI range analysis, correction/rejection, and deletion are implemented. Live-key and physical-camera checks remain. |
-| Phase 8: Persistence and Accounts | Not started | Database, private image storage, auth, export, and deletion are missing. |
+| Phase 8: Persistence and Accounts | Complete (simulator-build verified) | SQLite persistence, private single-user bearer auth, encrypted non-public image storage, local-first iOS backup, Keychain token, JSON export, and server/device deletion are implemented. Production deployment/restore checks remain. |
 | Phase 9: Polish and Beta | Not started | Real-device testing, accessibility, reliability, and TestFlight work are missing. |
 | Phase 10: Future Ideas | Not started | Post-MVP enhancements remain intentionally deferred. |
 
@@ -39,11 +39,12 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 - Completed Phase 6 Coach Chat: bounded profile/health/meal/adherence/training context, OpenAI and Gemini responses, deterministic safety routing, local conversation history, one next action, and validated routine instructions routed into Confirm/Edit/Reject proposals.
 - Completed Phase 7 weekly review: persisted 180-day health snapshots, native weight/body-fat charts, seven-day adherence/nutrition/training summaries, trend-aware 12% projection, and a standardized front/side/back check-in flow.
 - Added protected local progress-photo storage, metadata-stripping JPEG preparation, prior-week comparison, editable/rejectable visual ranges, deletion, and a bounded dual-provider progress-analysis API with quality and privacy rules.
+- Completed Phase 8 persistence: SQLite records survive restart; meal/progress images use an AES-256-GCM private file vault; bearer auth, local-first iOS backup, Keychain token storage, export, and complete server/device deletion are wired end to end.
 
 ## Verified
 
 - `swift run BodyCompassCoreCheck` passes, including the new training model, validation, exception, diff, progression, and proposal assertions.
-- `npm test` passes with 22 backend tests.
+- `npm test` passes with 26 backend tests.
 - The BodyCompass Xcode target builds successfully for the generic iOS Simulator destination with the meal services and embedded Watch app.
 - The BodyCompass Watch App scheme builds successfully for the generic watchOS Simulator SDK destination.
 - HealthKit data access and reminder delivery are not verifiable in a build-only check and remain real-device items.
@@ -57,4 +58,5 @@ Verification rerun: July 13, 2026.
 - Validate Phase 5 on a physical iPhone camera and with both provider API keys; mock mode remains available without keys.
 - Validate Phase 6 with live OpenAI and Gemini keys; mock mode covers the complete UI and proposal workflow locally.
 - Validate Phase 7 with a physical iPhone camera and both live provider keys; deterministic mock mode covers the full flow locally.
-- Phase 8: database-backed persistence, private object storage, authentication/private-user mode, export, and complete deletion controls.
+- Deploy Phase 8 behind HTTPS with durable volume backup, then perform a backup/restore drill using stable API/storage secrets.
+- Phase 9: accessibility, reliability, real-device testing, app icon, and TestFlight preparation.

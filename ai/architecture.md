@@ -28,7 +28,7 @@ Responsibilities:
 - Camera/photo picker for meals and standardized weekly progress check-ins.
 - Local user state and manual fallback inputs.
 - Versioned weekly routine, session logging, and pending coach-change proposals.
-- Sync routine/session data with a future offline-capable watchOS companion.
+- Sync routine/session data with the offline-capable watchOS companion.
 - Display AI comparison and reconciled recommendations.
 - Persist Coach exchanges locally and validate AI routine instructions before creating pending proposals.
 
@@ -76,6 +76,8 @@ Responsibilities:
 - Create combined Coach answers with bounded user context and deterministic safety routing.
 - Validate and reconcile structured training-plan proposals without activating them.
 - Accept health snapshots and future persisted logs.
+- Persist private account data in SQLite and encrypt accepted meal/progress images outside the public web surface.
+- Authenticate the configured private owner, export their data, and delete relational records plus encrypted files.
 - Calculate or mirror goal projections for API clients.
 
 Current backend is dependency-light Node using `node:http`. Add dependencies only when they clearly help.
@@ -84,15 +86,16 @@ Current backend is dependency-light Node using `node:http`. Add dependencies onl
 
 Current state:
 
-- Backend health snapshots are in-memory only.
-- iOS profile, schedule, training, and meal metadata persist in `UserDefaults`.
-- Re-encoded meal JPEGs persist under private Application Support with complete file protection and are deleted with their meal record.
+- SQLite persists users, profiles, health snapshots, schedules, accepted meals, Coach exchanges, and progress check-ins in WAL mode.
+- AES-256-GCM encrypted files persist accepted meal and progress photos under random non-public references.
+- iOS remains local-first with `UserDefaults` metadata and complete-file-protected Application Support photos, then asynchronously backs up accepted records.
+- A bearer token is optional for local private mode, required in production, and stored in iOS Keychain.
 
-Future state:
+Future production work:
 
-- PostgreSQL for structured user/profile/meal/log/chat data.
-- Private object storage for meal and progress images with short-lived URLs.
-- Local encrypted cache on iOS for offline UX.
+- HTTPS hosting with a durable volume and a tested backup/restore process.
+- Managed relational/object storage only when deployment scale justifies replacing the SQLite/encrypted-file adapter.
+- Multi-user identity only if BodyCompass becomes more than a private single-user app.
 
 ## Important Boundary
 

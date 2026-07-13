@@ -393,7 +393,7 @@ Phase 7 done status: all functional completion criteria are implemented. Physica
 
 Goal: stop relying on in-memory/mock data.
 
-Status: not implemented.
+Status: implemented and simulator-build verified; production deployment and restore testing remain.
 
 Deliverables:
 
@@ -402,11 +402,25 @@ Deliverables:
 - Private image storage for meal and progress photos.
 - Delete/export data controls.
 
+Implemented:
+
+- SQLite schema for private users, profiles, daily health snapshots, schedules, accepted meals, Coach exchanges, progress check-ins, and three-angle photo references.
+- WAL mode, foreign keys, per-user ownership, idempotent daily snapshot and device-record synchronization, and persistence across process restart.
+- Private single-user mode for local development plus constant-time bearer-token authentication when configured; production refuses to start without API and storage secrets.
+- AES-256-GCM meal/progress image vault with random non-public filenames, restricted directory/file permissions, authenticated decryption, replacement cleanup, and deletion cleanup.
+- Local-first iOS backup for profile, health, schedule, accepted meals/photos, and progress check-ins/photos.
+- Bearer token stored in iOS Keychain, never in `UserDefaults` or source code.
+- JSON account export with optional decrypted base64 image contents.
+- Exact-confirmation server deletion and a Goal → Data & Privacy screen that deletes server data and local BodyCompass records/photos while leaving Apple Health untouched.
+- Automated restart, encryption/export, idempotency, auth, and deletion tests plus authenticated HTTP smoke testing.
+
 Done when:
 
 - Data survives server restart.
 - User can delete meal images and health logs.
 - API keys remain server-side only.
+
+Phase 8 done status: functional completion criteria are implemented. Cloud hosting, backup/restore operations, multi-user identity, and production HTTPS are deployment work, not claims made by this local MVP.
 
 ## Phase 9: Polish and Beta
 

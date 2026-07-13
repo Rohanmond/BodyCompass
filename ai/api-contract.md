@@ -124,7 +124,7 @@ Request:
 }
 ```
 
-Current storage is in-memory only.
+Storage is a per-user SQLite upsert keyed by day. `GET /api/health-snapshots` returns up to 365 records.
 
 ## `POST /api/progress-check-ins/analyze`
 
@@ -164,6 +164,21 @@ Response:
 ```
 
 The endpoint validates poses, MIME types, base64, standardized-capture confirmations, 6 MB per-image size, and 18 MB total decoded size. The iOS client re-renders selected images before upload to strip source metadata. The server does not persist images or create public URLs. Missing provider keys use deterministic mocks; one provider may fail without losing the reconciled response.
+
+## Persistent Account Routes
+
+All routes below use the authenticated private user:
+
+- `PUT /api/profile`
+- `PUT /api/schedule`
+- `POST /api/meals/save`
+- `DELETE /api/meals` with `{ "id": "..." }`
+- `POST /api/progress-check-ins/save`
+- `DELETE /api/progress-check-ins` with `{ "id": "..." }`
+- `GET /api/data/export?includeImages=false`
+- `DELETE /api/data` with exact confirmation text
+
+Accepted meal/progress save routes persist metadata in SQLite and image bytes in the encrypted private vault. Analysis endpoints remain non-persistent. Exports omit image bytes unless explicitly requested. Account deletion cascades relational data and removes encrypted files.
 
 ## `GET /api/training/routine` (Planned)
 

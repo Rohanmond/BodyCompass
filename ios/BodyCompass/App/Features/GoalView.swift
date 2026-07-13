@@ -38,6 +38,14 @@ struct GoalView: View {
             .navigationTitle("Goal")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink {
+                        DataPrivacyView()
+                    } label: {
+                        Image(systemName: "lock.shield")
+                    }
+                    .accessibilityLabel("Data and privacy")
+                }
+                ToolbarItem(placement: .topBarTrailing) {
                     Button {
                         isEditingProfile = true
                     } label: {

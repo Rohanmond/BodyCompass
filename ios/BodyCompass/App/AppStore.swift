@@ -11,6 +11,13 @@ enum HealthSyncStatus: Equatable {
     case synced(Date)
 }
 
+enum ServerSyncStatus: Equatable {
+    case idle
+    case syncing
+    case synced(Date)
+    case failed(String)
+}
+
 struct ManualHealthEntry: Codable, Equatable {
     var date: String
     var weightKg: Double?
@@ -36,6 +43,7 @@ final class AppStore: ObservableObject {
     private let healthKit = HealthKitService()
     private let reminders = ReminderService()
     private let mealImages = MealImageStore()
+    private let accountAPI = AccountAPIClient()
 
     @Published private(set) var profile: BodyProfile
     @Published private(set) var hasCompletedOnboarding: Bool
@@ -45,6 +53,7 @@ final class AppStore: ObservableObject {
     @Published private(set) var remindersEnabled: Bool = false
     @Published private(set) var mealHistory: [LoggedMeal] = []
     @Published private(set) var healthHistory: [DailyHealthSnapshot] = []
+    @Published private(set) var serverSync: ServerSyncStatus = .idle
 
     static let defaultProfile = BodyProfile(
         name: "Rohan",
@@ -70,6 +79,7 @@ final class AppStore: ObservableObject {
         rollScheduleIfNeeded()
         recordTodayAdherence()
         recordTodaySnapshot()
+        Task { await syncCoreData() }
     }
 
     @Published var today = DailyHealthSnapshot(date: HealthKitService.dayKey())
@@ -153,24 +163,24 @@ final class AppStore: ObservableObject {
     ) {
         let id = UUID()
         let filename = try? mealImages.save(imageData, id: id)
-        mealHistory.insert(
-            LoggedMeal(
-                id: id,
-                notes: notes.trimmingCharacters(in: .whitespacesAndNewlines),
-                imageFilename: filename,
-                estimates: estimates,
-                accepted: accepted
-            ),
-            at: 0
+        let meal = LoggedMeal(
+            id: id,
+            notes: notes.trimmingCharacters(in: .whitespacesAndNewlines),
+            imageFilename: filename,
+            estimates: estimates,
+            accepted: accepted
         )
+        mealHistory.insert(meal, at: 0)
         mealHistory = Array(mealHistory.prefix(200))
         persistMealHistory()
+        Task { await backUp { try await self.accountAPI.saveMeal(meal, imageData: imageData) } }
     }
 
     func deleteMeal(_ meal: LoggedMeal) {
         mealImages.delete(meal.imageFilename)
         mealHistory.removeAll { $0.id == meal.id }
         persistMealHistory()
+        Task { await backUp { try await self.accountAPI.deleteMeal(id: meal.id) } }
     }
 
     func mealImageData(for meal: LoggedMeal) -> Data? {
@@ -199,6 +209,7 @@ final class AppStore: ObservableObject {
         schedule[index].isDone.toggle()
         persistSchedule()
         recordTodayAdherence()
+        backUpSchedule()
     }
 
     func addItem(title: String, category: ScheduleCategory, reminderHour: Int?, reminderMinute: Int?) {
@@ -210,6 +221,7 @@ final class AppStore: ObservableObject {
         persistSchedule()
         recordTodayAdherence()
         syncReminders()
+        backUpSchedule()
     }
 
     func updateItem(_ item: ScheduleItem) {
@@ -217,6 +229,7 @@ final class AppStore: ObservableObject {
         schedule[index] = item
         persistSchedule()
         syncReminders()
+        backUpSchedule()
     }
 
     func deleteItems(at offsets: IndexSet) {
@@ -224,11 +237,13 @@ final class AppStore: ObservableObject {
         persistSchedule()
         recordTodayAdherence()
         syncReminders()
+        backUpSchedule()
     }
 
     func moveItems(from source: IndexSet, to destination: Int) {
         schedule.move(fromOffsets: source, toOffset: destination)
         persistSchedule()
+        backUpSchedule()
     }
 
     // MARK: - Reminders
@@ -299,6 +314,7 @@ final class AppStore: ObservableObject {
             hasCompletedOnboarding = true
             defaults.set(true, forKey: StorageKey.onboardingComplete)
         }
+        Task { await backUp { try await self.accountAPI.saveProfile(updatedProfile) } }
     }
 
     // MARK: - HealthKit sync
@@ -329,6 +345,8 @@ final class AppStore: ObservableObject {
         today = await healthKit.dailySnapshot()
         applyManualEntry()
         recordTodaySnapshot()
+        let snapshot = today
+        Task { await backUp { try await self.accountAPI.saveHealthSnapshot(snapshot) } }
         healthSync = .synced(Date())
     }
 
@@ -347,6 +365,8 @@ final class AppStore: ObservableObject {
         }
         applyManualEntry()
         recordTodaySnapshot()
+        let snapshot = today
+        Task { await backUp { try await self.accountAPI.saveHealthSnapshot(snapshot) } }
     }
 
     // Manual values win over imported ones so the user can correct bad scale
@@ -409,5 +429,62 @@ final class AppStore: ObservableObject {
         formatter.dateFormat = "yyyy-MM-dd"
         guard let startDate = formatter.date(from: start), let endDate = formatter.date(from: end) else { return 1 }
         return Calendar(identifier: .gregorian).dateComponents([.day], from: startDate, to: endDate).day ?? 1
+    }
+
+    func deleteAllLocalData() {
+        mealHistory.forEach { mealImages.delete($0.imageFilename) }
+        defaults.dictionaryRepresentation().keys
+            .filter { $0.hasPrefix("bodycompass.") }
+            .forEach(defaults.removeObject(forKey:))
+        profile = Self.defaultProfile
+        hasCompletedOnboarding = false
+        manualEntry = nil
+        adherenceRecords = []
+        mealHistory = []
+        healthHistory = []
+        schedule = Self.defaultSchedule
+        today = DailyHealthSnapshot(date: HealthKitService.dayKey())
+        serverSync = .idle
+    }
+
+    func deleteAllServerData() async throws {
+        try await accountAPI.deleteAllServerData()
+        serverSync = .idle
+    }
+
+    func exportServerData(includeImages: Bool) async throws -> Data {
+        try await accountAPI.exportData(includeImages: includeImages)
+    }
+
+    func syncNow() async {
+        await syncCoreData()
+    }
+
+    private func syncCoreData() async {
+        await backUp {
+            try await self.accountAPI.saveProfile(self.profile)
+            try await self.accountAPI.saveSchedule(self.schedule)
+            if self.today.weightKg != nil || self.today.bodyFatPercentage != nil || self.today.steps > 0 {
+                try await self.accountAPI.saveHealthSnapshot(self.today)
+            }
+            for meal in self.mealHistory.prefix(200) {
+                try await self.accountAPI.saveMeal(meal, imageData: self.mealImages.data(for: meal.imageFilename))
+            }
+        }
+    }
+
+    private func backUpSchedule() {
+        let snapshot = schedule
+        Task { await backUp { try await self.accountAPI.saveSchedule(snapshot) } }
+    }
+
+    private func backUp(_ operation: @escaping () async throws -> Void) async {
+        serverSync = .syncing
+        do {
+            try await operation()
+            serverSync = .synced(Date())
+        } catch {
+            serverSync = .failed(error.localizedDescription)
+        }
     }
 }

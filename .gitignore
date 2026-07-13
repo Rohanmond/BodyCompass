@@ -6,6 +6,8 @@ node_modules/
 dist/
 coverage/
 uploads/
+server-data/
+server/server-data/
 DerivedData/
 *DerivedData/
 *.xcuserdata/

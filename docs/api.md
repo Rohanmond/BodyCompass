@@ -2,6 +2,8 @@
 
 Base URL: `http://localhost:8080`
 
+All `/api/*` routes require `Authorization: Bearer <BODYCOMPASS_API_TOKEN>` when that environment variable is configured. Local development without a token uses the private `local-owner` account. Production refuses to start without separate API and image-storage secrets.
+
 ## `GET /health`
 
 Returns service status.
@@ -81,3 +83,15 @@ Accepts standardized weekly front, side, and back progress photos plus recent we
 Progress photos must remain private, have metadata removed, and be deletable by the user.
 
 The request requires `currentPhotos` with unique `front`, `side`, and `back` poses plus confirmations for morning capture, consistent lighting/distance, and full-body framing. `previousPhotos` and recent health context are optional. JPEG, PNG, and WebP are accepted; each decoded image is capped at 6 MB and all photos at 18 MB.
+
+## Persistent Account Routes
+
+- `PUT /api/profile`: upserts the private user's profile.
+- `PUT /api/schedule`: replaces the current daily schedule (maximum 200 items).
+- `GET /api/health-snapshots`: returns up to 365 persisted daily snapshots.
+- `POST /api/meals/save` and `DELETE /api/meals`: save/delete accepted meal metadata and its encrypted private image.
+- `POST /api/progress-check-ins/save` and `DELETE /api/progress-check-ins`: save/delete accepted three-angle check-ins and encrypted images.
+- `GET /api/data/export?includeImages=false`: exports all account JSON. Set `includeImages=true` to include decrypted image bytes as base64.
+- `DELETE /api/data`: deletes all database rows and private images. The JSON body must contain `{ "confirmation": "DELETE MY BODYCOMPASS DATA" }`.
+
+Meal and progress analysis routes process uploads without persisting them. Only explicit post-review save routes write accepted records. Private image filenames are random, encrypted with AES-256-GCM, and never exposed through a public/static route.

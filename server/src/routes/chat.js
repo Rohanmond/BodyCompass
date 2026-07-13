@@ -1,5 +1,6 @@
 import { readJson } from "../lib/readJson.js";
 import { chatWithProviders, classifyCoachSafety } from "../services/aiProviders.js";
+import { persistenceStore } from "../persistence/database.js";
 
 export async function createChatAnswer(request) {
   const body = await readJson(request, 500_000);
@@ -16,13 +17,21 @@ export async function createChatAnswer(request) {
   }
 
   try {
+    const answer = await chatWithProviders({
+      ...body,
+      message: body.message.trim(),
+      safetyCategory: classifyCoachSafety(body.message)
+    });
+    if (request.bodyCompassAuth?.userId) {
+      persistenceStore().saveChat(
+        request.bodyCompassAuth.userId,
+        { ...body, message: body.message.trim() },
+        answer
+      );
+    }
     return {
       status: 200,
-      body: await chatWithProviders({
-        ...body,
-        message: body.message.trim(),
-        safetyCategory: classifyCoachSafety(body.message)
-      })
+      body: answer
     };
   } catch (error) {
     return {

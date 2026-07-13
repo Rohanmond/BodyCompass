@@ -1,6 +1,5 @@
 import { readJson } from "../lib/readJson.js";
-
-const snapshots = [];
+import { persistenceStore } from "../persistence/database.js";
 
 export async function saveHealthSnapshot(request) {
   const body = await readJson(request);
@@ -12,16 +11,15 @@ export async function saveHealthSnapshot(request) {
     };
   }
 
-  const snapshot = {
-    id: `${body.date}-${Date.now()}`,
-    ...body,
-    createdAt: new Date().toISOString()
-  };
-
-  snapshots.push(snapshot);
-
   return {
     status: 201,
-    body: snapshot
+    body: persistenceStore().saveHealthSnapshot(request.bodyCompassAuth?.userId ?? "local-owner", body)
+  };
+}
+
+export async function listHealthSnapshots(request) {
+  return {
+    status: 200,
+    body: persistenceStore().listHealthSnapshots(request.bodyCompassAuth?.userId ?? "local-owner")
   };
 }

@@ -18,6 +18,7 @@ Last audited: July 13, 2026.
 - Phase 5 meal logging: camera/library capture, compressed JPEG upload, typed iOS API client, live-or-mock OpenAI and Gemini meal adapters, resilient reconciliation, editable nutrition confirmation, protected local photo history, and deletion.
 - Phase 6 Coach Chat: typed transport, bounded app context, live-or-mock OpenAI and Gemini adapters, safety classification, local conversation history, one next action, and validated confirmed-only routine proposals.
 - Phase 7 weekly review and photos: persisted health history, native trends, weekly summaries, recalculated goal projection, standardized three-angle capture, protected local storage, comparison, dual-provider visual ranges, correction/rejection, and deletion.
+- Phase 8 persistence/accounts: SQLite schema and restart durability, private single-user bearer auth, AES-256-GCM image vault, local-first iOS backup, Keychain token, JSON export, and complete server/device deletion.
 - SwiftUI app shell with five tabs.
 - Swift core goal projection logic.
 - Xcode simulator build verification.
@@ -31,18 +32,17 @@ Last audited: July 13, 2026.
 - Phase 5 still needs physical-camera and live-key verification; its product flow is implemented.
 - Phase 6 needs live-key verification; its contextual chat and proposal flow are implemented.
 - Phase 7 needs physical-camera and live-key verification; its product flow is implemented.
+- Phase 8 needs production HTTPS deployment and backup/restore validation; its local product flow is implemented.
 
 ## Not Implemented
 
 - Phase 4W recovery-aware suggestions and physical-device WorkoutKit/HealthKit validation.
-- Database and object storage.
-- Auth/private user mode.
 - TestFlight/App Store readiness.
 
 ## Latest Verified Commands
 
 - `swift run BodyCompassCoreCheck`
-- `npm test` (22 tests)
+- `npm test` (26 tests)
 - Xcode simulator build with full Xcode selected and `CODE_SIGNING_ALLOWED=NO`
 - Watch app build for the generic watchOS Simulator SDK destination with `CODE_SIGNING_ALLOWED=NO`
 

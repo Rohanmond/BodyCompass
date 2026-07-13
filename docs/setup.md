@@ -2,6 +2,8 @@
 
 ## Backend
 
+The persistent backend requires Node 22.5 or newer.
+
 ```sh
 cd server
 cp .env.example .env
@@ -16,6 +18,15 @@ Without API keys, the backend returns deterministic mock responses. Add real key
 - `GEMINI_API_KEY`
 - `GEMINI_MODEL`
 
+Phase 8 persistence variables:
+
+- `BODYCOMPASS_API_TOKEN`: optional in local development and required in production. Enter the same value under Goal → Data & Privacy in the app.
+- `BODYCOMPASS_USER_ID`: stable private account identifier; defaults to `local-owner`.
+- `BODYCOMPASS_STORAGE_SECRET`: encryption secret for private meal and progress images; required in production and must remain stable across restarts.
+- `BODYCOMPASS_DATA_DIR`: SQLite and encrypted-file directory; defaults to `server/server-data` and is ignored by Git.
+
+Back up both the SQLite files and encrypted image directory together. Losing or changing `BODYCOMPASS_STORAGE_SECRET` makes existing server images unreadable. API keys and storage secrets stay only in `server/.env`; the app stores only the optional bearer token in Keychain.
+
 ## iOS
 
 Open the Xcode project:
@@ -24,7 +35,9 @@ Open the Xcode project:
 ios/BodyCompass/BodyCompass.xcodeproj
 ```
 
-The meal client connects to `http://127.0.0.1:8080` by default, which works from the iOS Simulator when the backend is running on the Mac. On a physical iPhone, set `HOST=0.0.0.0` in `server/.env`, change `BODYCOMPASS_API_BASE_URL` in the app Info plist to the Mac's LAN URL, such as `http://192.168.1.20:8080`, and keep both devices on the same trusted network. Production must use HTTPS.
+All API clients connect to `http://127.0.0.1:8080` by default, which works from the iOS Simulator when the backend is running on the Mac. On a physical iPhone, first set a strong `BODYCOMPASS_API_TOKEN`, then set `HOST=0.0.0.0` in `server/.env`; the server refuses non-localhost binding without authentication. Change `BODYCOMPASS_API_BASE_URL` in the app Info plist to the Mac's LAN URL, such as `http://192.168.1.20:8080`, enter the token under Goal → Data & Privacy, and keep both devices on the same trusted network. Production must use HTTPS.
+
+BodyCompass remains local-first: device writes succeed immediately and server backup retries on future launches/edits. Use the lock-shield button in Goal to inspect backup status, set the bearer token, create an export, or delete all BodyCompass data.
 
 The camera is unavailable in most simulator configurations; use Photo Library there and validate Camera on a signed iPhone.
 

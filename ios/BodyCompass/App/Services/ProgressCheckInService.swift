@@ -64,6 +64,7 @@ struct ProgressCheckIn: Codable, Identifiable, Equatable {
 final class ProgressCheckInStore: ObservableObject {
     private let defaults: UserDefaults
     private let storage = ProgressPhotoStore()
+    private let accountAPI = AccountAPIClient()
     private let key = "bodycompass.progressCheckIns"
 
     @Published private(set) var checkIns: [ProgressCheckIn] = []
@@ -74,6 +75,7 @@ final class ProgressCheckInStore: ObservableObject {
            let saved = try? JSONDecoder().decode([ProgressCheckIn].self, from: data) {
             checkIns = saved.sorted { $0.date > $1.date }
         }
+        Task { await syncAll() }
     }
 
     var latest: ProgressCheckIn? { checkIns.first }
@@ -90,18 +92,20 @@ final class ProgressCheckInStore: ObservableObject {
             references.forEach { storage.delete($0.filename) }
             throw error
         }
-        checkIns.insert(ProgressCheckIn(
+        let checkIn = ProgressCheckIn(
             id: id,
             date: Date(),
             photos: references,
             analysis: analysis,
             acceptedRange: acceptedRange,
             wasRejected: rejected
-        ), at: 0)
+        )
+        checkIns.insert(checkIn, at: 0)
         while checkIns.count > 52 {
             delete(checkIns[checkIns.count - 1])
         }
         persist()
+        Task { try? await accountAPI.saveProgressCheckIn(checkIn, images: images) }
     }
 
     func update(_ checkIn: ProgressCheckIn, acceptedRange: BodyFatEstimateRange?, rejected: Bool) {
@@ -109,12 +113,28 @@ final class ProgressCheckInStore: ObservableObject {
         checkIns[index].acceptedRange = acceptedRange
         checkIns[index].wasRejected = rejected
         persist()
+        let updated = checkIns[index]
+        let images = imageDictionary(for: updated)
+        Task { try? await accountAPI.saveProgressCheckIn(updated, images: images) }
     }
 
     func delete(_ checkIn: ProgressCheckIn) {
         checkIn.photos.forEach { storage.delete($0.filename) }
         checkIns.removeAll { $0.id == checkIn.id }
         persist()
+        Task { try? await accountAPI.deleteProgressCheckIn(id: checkIn.id) }
+    }
+
+    func deleteAllLocalData() {
+        checkIns.flatMap(\.photos).forEach { storage.delete($0.filename) }
+        checkIns = []
+        defaults.removeObject(forKey: key)
+    }
+
+    func syncAll() async {
+        for checkIn in checkIns {
+            try? await accountAPI.saveProgressCheckIn(checkIn, images: imageDictionary(for: checkIn))
+        }
     }
 
     func imageData(for checkIn: ProgressCheckIn, pose: ProgressPose) -> Data? {
@@ -124,6 +144,12 @@ final class ProgressCheckInStore: ObservableObject {
 
     private func persist() {
         if let data = try? JSONEncoder().encode(checkIns) { defaults.set(data, forKey: key) }
+    }
+
+    private func imageDictionary(for checkIn: ProgressCheckIn) -> [ProgressPose: Data] {
+        Dictionary(uniqueKeysWithValues: ProgressPose.allCases.compactMap { pose in
+            imageData(for: checkIn, pose: pose).map { (pose, $0) }
+        })
     }
 }
 
@@ -282,6 +308,9 @@ struct ProgressAPIClient {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        if let token = ServerCredentialStore.token, !token.isEmpty {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
         request.timeoutInterval = 120
         request.httpBody = try JSONEncoder().encode(payload)
         let (data, response) = try await URLSession.shared.data(for: request)

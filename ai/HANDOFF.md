@@ -113,12 +113,20 @@ Remaining Phase 4 niceties (deferred): date-range pauses, one-tap move/copy betw
 
 Photo body-fat output must be a non-clinical range with confidence and limitations, never an exact measurement.
 
+### Phase 8: Persistence and Private Account
+
+- `BodyCompassStore` uses Node's SQLite API with WAL, foreign keys, per-user records, and idempotent device synchronization.
+- Tables cover users, profiles, health snapshots, schedules, accepted meals, Coach exchanges, progress check-ins, and progress-photo references.
+- Meal/progress bytes are AES-256-GCM encrypted in a non-public file vault with random references and deletion/replacement cleanup.
+- Local development permits one private owner without a token. Configuring `BODYCOMPASS_API_TOKEN` requires constant-time bearer authentication; production also requires `BODYCOMPASS_STORAGE_SECRET`.
+- `AccountAPIClient` keeps device saves local-first and backs up profile, schedule, health, meals, and progress check-ins. Its bearer token lives in Keychain.
+- Goal → Data & Privacy shows backup state, configures the token, exports JSON with optional image contents, and deletes server plus local app data. Apple Health is never deleted.
+- SQLite restart, encrypted export, idempotency, auth, deletion, iOS/Watch compilation, and authenticated HTTP routes are verified. Production HTTPS and backup/restore remain operational work.
+
 ## Not Implemented
 
 - Remaining Phase 4W: physical WorkoutKit/HealthKit validation and recovery-aware suggestions. See `docs/apple-watch-plan.md`.
-- Additional typed iOS clients beyond meals, Coach, and progress analysis.
-- Database, authentication, or private object storage.
-- Export and complete deletion controls.
+- Additional typed iOS clients beyond meals, Coach, progress analysis, and account backup.
 - TestFlight/App Store preparation.
 - Real-device HealthKit and notification verification.
 
@@ -134,7 +142,7 @@ The user explicitly chose Apple Workout ownership for both strength and swimming
 
 Phase 6 Coach instructions now reuse the existing `RoutineChangeProposal` confirmation contract; preserve Confirm/Edit/Reject and staleness handling in future changes.
 
-Phase 8 persistence/accounts is the next software phase. The detailed Watch plan remains `docs/apple-watch-plan.md` for paired-device validation.
+Phase 9 polish/beta readiness is the next software phase. The detailed Watch plan remains `docs/apple-watch-plan.md` for paired-device validation, and Phase 8 deployment still needs HTTPS plus a backup/restore drill.
 
 Keep the generic daily task schedule and structured training routine separate. The former tracks habits (`AppStore`); the latter owns programming, performance, and progression (`TrainingStore`).
 
