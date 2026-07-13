@@ -4,7 +4,7 @@
 
 Make BodyCompass useful while the user is actively lifting or swimming without requiring constant iPhone interaction. Apple Watch should show the current prescription, capture live workout data, provide discreet haptics, log performance, and sync the completed session back to the existing training system.
 
-Status: in progress. W1 is implemented and simulator-build verified. The strength core of W2 is implemented; real-device validation and the remaining W2 controls are pending.
+Status: in progress. W1 and W2 are implemented and simulator-build verified. Real-device validation and W3-W5 remain.
 
 ## Recommended Architecture
 
@@ -93,7 +93,7 @@ Status: implemented and simulator-build verified; paired-device validation pendi
 
 ### W2: Strength Workout MVP
 
-Status: partially implemented. HealthKit start/pause/resume/end, live heart rate and active energy, quick load/reps/RIR logging, rest countdowns, and haptics compile. Elapsed-time presentation, substitutions, pain notes, a haptic setting, and physical-device validation remain.
+Status: implemented and simulator-build verified; physical-device validation remains. The Watch includes pause-aware elapsed time, prior performance, substitutions, pain severity, optional haptics, stable offline set numbering, end confirmation, and a saved-workout summary.
 
 - Start, pause, resume, and end a HealthKit workout session.
 - Show current exercise, prescription, heart rate, time, and energy.

@@ -4,7 +4,7 @@ Read `ai/HANDOFF.md` before starting. This brief intentionally covers only the n
 
 ## Best Next Phase
 
-Finish and validate the current Phase 4W Watch slice before expanding it.
+Validate Phase 4W W1-W2 on the paired devices, then scope W3 swimming.
 
 ## Recommended Scope
 
@@ -12,7 +12,6 @@ On the user's paired Apple Watch Series 10 (watchOS 26.1) and iPhone (iOS 26.5):
 
 - follow `docs/apple-watch-setup.md` and resolve signing/device-only issues,
 - verify routine sync, offline routine display, strength workout saving, live heart rate/energy, and exact-once queued-log merge,
-- finish W2 elapsed-time UI, substitutions, pain notes, haptic preference, and session completion polish,
 - add focused pure-model checks for any new sync reconciliation logic.
 
 ## Suggested Implementation
@@ -27,7 +26,7 @@ On the user's paired Apple Watch Series 10 (watchOS 26.1) and iPhone (iOS 26.5):
 ## Do Not Expand This Slice Into
 
 - WorkoutKit swimming before requirements are confirmed,
-- HealthKit workout mirroring before W2 is reliable,
+- HealthKit workout mirroring before W1-W2 are device-verified,
 - AI recovery coaching,
 - meal/photo or database work,
 - silent Coach changes to the active routine.

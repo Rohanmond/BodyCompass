@@ -191,6 +191,25 @@ let mixedLogs = midLogs + (1...bench.workingSets).map { setNumber in
 }
 precondition(ProgressionAdvisor.suggest(prescription: bench, history: mixedLogs).action == .increaseLoad(byKg: 1.5))
 
+// Watch retransmission merges by stable UUID without resetting history order.
+let watchLog = ExerciseSetLog(
+    date: "2026-07-13",
+    sessionID: sessionID,
+    exerciseName: bench.name,
+    setNumber: 1,
+    loadKg: 62.5,
+    reps: bench.repRangeLower,
+    rir: bench.targetRIR
+)
+let reconciled = ExerciseLogReconciler.merge(
+    existing: topLogs,
+    incoming: [watchLog, watchLog]
+)
+precondition(reconciled.count == topLogs.count + 1)
+precondition(reconciled.last?.id == watchLog.id)
+precondition(ExerciseLogReconciler.merge(existing: reconciled, incoming: [watchLog]).count == reconciled.count)
+precondition(ExerciseLogReconciler.merge(existing: reconciled, incoming: [], limit: 2).count == 2)
+
 // Proposals: pending until decided, stale once the base version moves on.
 let proposal = RoutineChangeProposal(
     baseVersion: detailed.version,

@@ -39,9 +39,11 @@ Xcode installs the iPhone companion and Watch app together. The first device bui
 - Strength workouts start, pause, resume, and save through HealthKit.
 - Heart rate and active energy update during the strength workout.
 - Load, reps, and RIR can be logged with rest countdowns and haptics.
+- Previous performance syncs from iPhone and prefills the next working values.
+- Substitutions, pain severity, elapsed time, optional haptics, end confirmation, and a saved-workout summary are available.
 - Strength and manual swim logs queue offline and sync idempotently to iPhone.
 
-Live swimming through WorkoutKit, iPhone workout mirroring, substitutions/pain notes on Watch, elapsed-time presentation, haptic settings, and recovery-aware suggestions are not implemented yet.
+Live swimming through WorkoutKit, iPhone workout mirroring, and recovery-aware suggestions are not implemented yet.
 
 ## Troubleshooting
 

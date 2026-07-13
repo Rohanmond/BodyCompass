@@ -40,6 +40,29 @@ public struct ExerciseSetLog: Identifiable, Codable, Equatable, Sendable {
     }
 }
 
+/// Deterministically reconciles phone and Watch copies of set history. Stable
+/// UUIDs make retransmission safe, while incoming values win if a future
+/// correction arrives for an existing log.
+public enum ExerciseLogReconciler {
+    public static func merge(
+        existing: [ExerciseSetLog],
+        incoming: [ExerciseSetLog],
+        limit: Int = 300
+    ) -> [ExerciseSetLog] {
+        guard limit > 0 else { return [] }
+        var byID: [UUID: ExerciseSetLog] = [:]
+        existing.forEach { byID[$0.id] = $0 }
+        incoming.forEach { byID[$0.id] = $0 }
+        let ordered = byID.values.sorted {
+            if $0.date != $1.date { return $0.date < $1.date }
+            if $0.exerciseName != $1.exerciseName { return $0.exerciseName < $1.exerciseName }
+            if $0.setNumber != $1.setNumber { return $0.setNumber < $1.setNumber }
+            return $0.id.uuidString < $1.id.uuidString
+        }
+        return Array(ordered.suffix(limit))
+    }
+}
+
 public struct SwimSessionLog: Identifiable, Codable, Equatable, Sendable {
     public var id: UUID
     public var date: String

@@ -22,7 +22,7 @@ Implemented:
 - Phase 4W W1: watchOS target, HealthKit capability, routine cache, Watch Connectivity routine sync, and durable queued log sync.
 
 Partially implemented:
-- Phase 4W W2 strength core: HealthKit workout lifecycle, live heart rate/energy, load/reps/RIR logging, rest timer, and haptics. Real-device validation and the remaining controls are open.
+- Phase 4W is simulator-build verified through W2; paired-device validation and W3-W5 remain.
 - Phase 4 extras still open: date-range session pauses, one-tap move/copy of a session to another day, richer one-day exceptions in the UI (core model already supports arbitrary replacement sessions), and real Coach-generated proposals (Phase 6).
 - Phase 5 and Phase 6 have backend mock provider flows and UI placeholders, but not real photo upload, real provider API calls, or persistence.
 - Phase 7 has a History tab placeholder, but not real weekly analytics or progress-photo analysis yet.
@@ -231,7 +231,7 @@ Phase 4 done status: complete and simulator-build verified. Real-device notifica
 
 Goal: bring the structured training plan onto Apple Watch for live strength and swimming sessions.
 
-Status: in progress. W1 is implemented and simulator-build verified. W2 strength workout basics are implemented; real-device verification and later milestones remain.
+Status: in progress. W1 and W2 are implemented and simulator-build verified; real-device verification and W3-W5 remain.
 
 Implemented so far:
 
@@ -242,12 +242,14 @@ Implemented so far:
 - Today's session browser with strength and swimming entries.
 - Strength HealthKit workout start, pause, resume, end, heart rate, and active energy.
 - Quick load, reps, and RIR set logging with rest countdown and haptic feedback.
+- Recent iPhone strength history sync, durable acknowledged history, stable set numbering, and previous-session load/reps/RIR prefilling.
+- Pause-aware elapsed time, exercise substitutions, pain-severity notes, a haptic preference, explicit end confirmation, and a retained workout summary.
 - Manual offline swim log as a temporary bridge until W3.
 
 Still open:
 
 - Paired Series 10/iPhone signing, permission, connectivity, and workout validation.
-- Remaining W2 UI: elapsed time, substitutions, pain notes, haptic preference, and richer completion flow.
+- Physical-device validation for W1/W2 signing, HealthKit capture, connectivity, reconnect delivery, and exact-once merge.
 - W3 WorkoutKit swimming and completed-workout import.
 - W4 HealthKit workout mirroring and bidirectional iPhone controls.
 - W5 recovery-aware post-workout suggestions.

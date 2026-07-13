@@ -4,6 +4,7 @@ import WatchKit
 struct WatchRootView: View {
     @EnvironmentObject private var store: WatchRoutineStore
     @EnvironmentObject private var workout: WatchWorkoutManager
+    @AppStorage("bodycompass.watch.hapticsEnabled") private var hapticsEnabled = true
 
     var body: some View {
         NavigationStack {
@@ -44,6 +45,10 @@ struct WatchRootView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 }
+
+                Section("Settings") {
+                    Toggle("Workout haptics", isOn: $hapticsEnabled)
+                }
             }
             .navigationTitle("BodyCompass")
         }
@@ -52,22 +57,34 @@ struct WatchRootView: View {
 
 struct WatchStrengthSessionView: View {
     @EnvironmentObject private var workout: WatchWorkoutManager
+    @EnvironmentObject private var store: WatchRoutineStore
     let session: TrainingSession
+    @State private var confirmsEnd = false
 
     var body: some View {
         List {
             Section {
                 workoutControls
                 if workout.state == .running || workout.state == .paused {
-                    HStack {
-                        Label("\(Int(workout.heartRate))", systemImage: "heart.fill")
-                            .foregroundStyle(.red)
-                        Spacer()
-                        Label("\(Int(workout.activeEnergy))", systemImage: "flame.fill")
-                            .foregroundStyle(.orange)
+                    TimelineView(.periodic(from: .now, by: 1)) { context in
+                        VStack(alignment: .leading, spacing: 4) {
+                            Label(watchDuration(workout.elapsedTime(at: context.date)), systemImage: "timer")
+                                .monospacedDigit()
+                            HStack {
+                                Label("\(Int(workout.heartRate))", systemImage: "heart.fill")
+                                    .foregroundStyle(.red)
+                                Spacer()
+                                Label("\(Int(workout.activeEnergy))", systemImage: "flame.fill")
+                                    .foregroundStyle(.orange)
+                            }
+                        }
+                        .font(.caption)
                     }
-                    .font(.caption)
                 }
+
+                Text("\(store.sessionSetCount(sessionID: session.id, date: dateKey)) sets logged")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
             }
 
             Section("Exercises") {
@@ -92,6 +109,10 @@ struct WatchStrengthSessionView: View {
             }
         }
         .navigationTitle(session.title)
+        .confirmationDialog("End and save this workout?", isPresented: $confirmsEnd) {
+            Button("End Workout", role: .destructive) { workout.end() }
+            Button("Keep Training", role: .cancel) {}
+        }
     }
 
     @ViewBuilder
@@ -112,19 +133,51 @@ struct WatchStrengthSessionView: View {
                     Image(systemName: workout.state == .paused ? "play.fill" : "pause.fill")
                 }
                 .tint(.yellow)
-                Button { workout.end() } label: {
+                Button { confirmsEnd = true } label: {
                     Image(systemName: "stop.fill")
                 }
                 .tint(.red)
             }
         case .ending:
             HStack { ProgressView(); Text("Saving") }
+        case .completed(let summary):
+            VStack(alignment: .leading, spacing: 5) {
+                Label("Workout saved", systemImage: "checkmark.circle.fill")
+                    .foregroundStyle(.green)
+                Text("\(watchDuration(summary.duration)) · \(Int(summary.activeEnergy)) kcal")
+                    .font(.caption)
+                if summary.finalHeartRate > 0 {
+                    Text("Final heart rate: \(Int(summary.finalHeartRate)) bpm")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
+                Button("Done") { workout.reset() }
+            }
         case .failed(let message):
             VStack(alignment: .leading) {
                 Text(message).font(.caption).foregroundStyle(.red)
                 Button("Reset") { workout.reset() }
             }
         }
+    }
+
+    private var dateKey: String { watchDateKey() }
+}
+
+private enum WatchPainRating: String, CaseIterable, Identifiable {
+    case none
+    case mild
+    case moderate
+    case severe
+
+    var id: String { rawValue }
+
+    var displayName: String {
+        rawValue.capitalized
+    }
+
+    var note: String? {
+        self == .none ? nil : "\(displayName) pain or discomfort reported on Watch."
     }
 }
 
@@ -134,17 +187,22 @@ struct WatchExerciseView: View {
     let session: TrainingSession
     let exercise: ExercisePrescription
 
+    @AppStorage("bodycompass.watch.hapticsEnabled") private var hapticsEnabled = true
     @State private var loadKg = 0.0
     @State private var reps: Int
     @State private var rir: Int
+    @State private var selectedExerciseName: String
+    @State private var painRating: WatchPainRating = .none
     @State private var restRemaining = 0
     @State private var restTask: Task<Void, Never>?
+    @State private var loadedBaseline = false
 
     init(session: TrainingSession, exercise: ExercisePrescription) {
         self.session = session
         self.exercise = exercise
         _reps = State(initialValue: exercise.repRangeLower)
         _rir = State(initialValue: exercise.targetRIR)
+        _selectedExerciseName = State(initialValue: exercise.name)
     }
 
     var body: some View {
@@ -152,9 +210,34 @@ struct WatchExerciseView: View {
             Section {
                 Text("\(exercise.setsText) · RIR \(exercise.targetRIR)")
                     .font(.caption)
+                if !exercise.warmUp.isEmpty {
+                    Text(exercise.warmUp)
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
+                }
                 if restRemaining > 0 {
                     Label("Rest \(restRemaining)s", systemImage: "timer")
                         .foregroundStyle(.yellow)
+                }
+            }
+
+            if !exercise.substitutions.isEmpty {
+                Section("Exercise") {
+                    Picker("Movement", selection: $selectedExerciseName) {
+                        Text(exercise.name).tag(exercise.name)
+                        ForEach(exercise.substitutions, id: \.self) { substitution in
+                            Text(substitution).tag(substitution)
+                        }
+                    }
+                }
+            }
+
+            if !previousLogs.isEmpty {
+                Section("Last Time") {
+                    ForEach(previousLogs) { log in
+                        Text("Set \(log.setNumber): \(log.loadKg, specifier: "%.1f") kg × \(log.reps)")
+                            .font(.caption)
+                    }
                 }
             }
 
@@ -162,6 +245,16 @@ struct WatchExerciseView: View {
                 Stepper("\(loadKg, specifier: "%.1f") kg", value: $loadKg, in: 0...400, step: 0.5)
                 Stepper("\(reps) reps", value: $reps, in: 1...50)
                 Stepper("RIR \(rir)", value: $rir, in: 0...5)
+                Picker("Pain", selection: $painRating) {
+                    ForEach(WatchPainRating.allCases) { rating in
+                        Text(rating.displayName).tag(rating)
+                    }
+                }
+                if painRating != .none {
+                    Text("Stop if pain is sharp, severe, or worsening. Choose a safer movement or end the session.")
+                        .font(.caption2)
+                        .foregroundStyle(.red)
+                }
                 Button {
                     logSet()
                 } label: {
@@ -170,32 +263,52 @@ struct WatchExerciseView: View {
                 .tint(.green)
             }
         }
-        .navigationTitle(exercise.name)
+        .navigationTitle(selectedExerciseName)
+        .onAppear { loadPreviousBaselineIfNeeded() }
+        .onChange(of: selectedExerciseName) { _, _ in
+            loadedBaseline = false
+            loadPreviousBaselineIfNeeded()
+        }
         .onDisappear { restTask?.cancel() }
     }
 
     private var dateKey: String {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withFullDate]
-        formatter.timeZone = .current
-        return formatter.string(from: Date())
+        watchDateKey()
     }
 
     private var nextSetNumber: Int {
-        store.localLogs(exerciseName: exercise.name, date: dateKey).count + 1
+        store.localLogs(exerciseName: selectedExerciseName, date: dateKey).count + 1
+    }
+
+    private var previousLogs: [ExerciseSetLog] {
+        store.previousLogs(exerciseName: selectedExerciseName, before: dateKey)
+    }
+
+    private func loadPreviousBaselineIfNeeded() {
+        guard !loadedBaseline else { return }
+        loadedBaseline = true
+        if let previous = previousLogs.last {
+            loadKg = previous.loadKg
+            reps = previous.reps
+            rir = previous.rir ?? exercise.targetRIR
+        }
     }
 
     private func logSet() {
         store.queue(ExerciseSetLog(
             date: dateKey,
             sessionID: session.id,
-            exerciseName: exercise.name,
+            exerciseName: selectedExerciseName,
             setNumber: nextSetNumber,
             loadKg: loadKg,
             reps: reps,
-            rir: rir
+            rir: rir,
+            painNote: painRating.note
         ))
-        WKInterfaceDevice.current().play(.success)
+        if hapticsEnabled {
+            WKInterfaceDevice.current().play(painRating == .none ? .success : .failure)
+        }
+        painRating = .none
         startRest(seconds: exercise.restSeconds)
     }
 
@@ -207,7 +320,7 @@ struct WatchExerciseView: View {
                 try? await Task.sleep(for: .seconds(1))
                 if !Task.isCancelled { restRemaining -= 1 }
             }
-            if !Task.isCancelled {
+            if !Task.isCancelled && hapticsEnabled {
                 WKInterfaceDevice.current().play(.notification)
             }
         }
@@ -217,6 +330,7 @@ struct WatchExerciseView: View {
 struct WatchSwimLogView: View {
     @EnvironmentObject private var store: WatchRoutineStore
     @Environment(\.dismiss) private var dismiss
+    @AppStorage("bodycompass.watch.hapticsEnabled") private var hapticsEnabled = true
 
     let session: TrainingSession
     @State private var minutes: Int
@@ -249,7 +363,9 @@ struct WatchSwimLogView: View {
                     distanceMeters: distanceMeters == 0 ? nil : distanceMeters,
                     intensity: intensity
                 ))
-                WKInterfaceDevice.current().play(.success)
+                if hapticsEnabled {
+                    WKInterfaceDevice.current().play(.success)
+                }
                 dismiss()
             }
             .tint(.blue)
@@ -258,9 +374,18 @@ struct WatchSwimLogView: View {
     }
 
     private var dateKey: String {
-        let formatter = ISO8601DateFormatter()
-        formatter.formatOptions = [.withFullDate]
-        formatter.timeZone = .current
-        return formatter.string(from: Date())
+        watchDateKey()
     }
+}
+
+private func watchDateKey() -> String {
+    let formatter = ISO8601DateFormatter()
+    formatter.formatOptions = [.withFullDate]
+    formatter.timeZone = .current
+    return formatter.string(from: Date())
+}
+
+private func watchDuration(_ interval: TimeInterval) -> String {
+    let seconds = max(0, Int(interval))
+    return String(format: "%02d:%02d", seconds / 60, seconds % 60)
 }

@@ -47,7 +47,7 @@ Current app tabs:
 - WorkoutKit schedules compatible swimming and interval plans into Apple's Workout app.
 - Watch remains functional offline and reconciles logs idempotently after reconnecting.
 
-Implemented now: Watch Connectivity transfers the latest active routine through application context; Watch persists that routine and queues strength/swim logs locally; iPhone merges logs by UUID and sends durable acknowledgements. A Watch HealthKit strength session supplies heart rate and active energy. WorkoutKit and HealthKit workout mirroring are still planned boundaries, not current behavior.
+Implemented now: Watch Connectivity transfers the latest active routine and recent strength history through application context; Watch persists both and queues strength/swim logs locally; iPhone merges logs by UUID and sends durable acknowledgements. Acknowledged Watch history remains separate from pending delivery so set numbering and previous-performance context survive reconnects. A Watch HealthKit strength session supplies heart rate, active energy, and pause-aware elapsed time. WorkoutKit and HealthKit workout mirroring are still planned boundaries, not current behavior.
 
 ## Swift Core
 

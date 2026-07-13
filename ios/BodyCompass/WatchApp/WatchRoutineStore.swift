@@ -4,15 +4,18 @@ import WatchConnectivity
 final class WatchRoutineStore: NSObject, ObservableObject, WCSessionDelegate {
     private enum Key {
         static let routine = "bodycompass.routine"
+        static let strengthHistory = "bodycompass.strengthHistory"
         static let strengthLog = "bodycompass.strengthLog"
         static let swimLog = "bodycompass.swimLog"
         static let acknowledgedLogID = "bodycompass.acknowledgedLogID"
         static let cachedRoutine = "bodycompass.watch.cachedRoutine"
+        static let cachedStrengthHistory = "bodycompass.watch.cachedStrengthHistory"
         static let pendingStrength = "bodycompass.watch.pendingStrength"
         static let pendingSwim = "bodycompass.watch.pendingSwim"
     }
 
     @Published private(set) var routine: TrainingRoutine
+    @Published private(set) var strengthHistory: [ExerciseSetLog]
     @Published private(set) var pendingStrengthLogs: [ExerciseSetLog]
     @Published private(set) var pendingSwimLogs: [SwimSessionLog]
 
@@ -21,6 +24,7 @@ final class WatchRoutineStore: NSObject, ObservableObject, WCSessionDelegate {
     override init() {
         defaults = .standard
         routine = Self.load(TrainingRoutine.self, key: Key.cachedRoutine) ?? TrainingRoutineSeeder.skeleton()
+        strengthHistory = Self.load([ExerciseSetLog].self, key: Key.cachedStrengthHistory) ?? []
         pendingStrengthLogs = Self.load([ExerciseSetLog].self, key: Key.pendingStrength) ?? []
         pendingSwimLogs = Self.load([SwimSessionLog].self, key: Key.pendingSwim) ?? []
         super.init()
@@ -34,6 +38,7 @@ final class WatchRoutineStore: NSObject, ObservableObject, WCSessionDelegate {
 
     func queue(_ log: ExerciseSetLog) {
         guard !pendingStrengthLogs.contains(where: { $0.id == log.id }) else { return }
+        mergeIntoHistory([log])
         pendingStrengthLogs.append(log)
         persistPending()
         transfer(log)
@@ -47,7 +52,23 @@ final class WatchRoutineStore: NSObject, ObservableObject, WCSessionDelegate {
     }
 
     func localLogs(exerciseName: String, date: String) -> [ExerciseSetLog] {
-        pendingStrengthLogs.filter { $0.exerciseName == exerciseName && $0.date == date }
+        strengthHistory
+            .filter { $0.exerciseName == exerciseName && $0.date == date }
+            .sorted { $0.setNumber < $1.setNumber }
+    }
+
+    func previousLogs(exerciseName: String, before date: String) -> [ExerciseSetLog] {
+        guard let previousDate = strengthHistory
+            .filter({ $0.exerciseName == exerciseName && $0.date < date })
+            .map(\.date)
+            .max() else { return [] }
+        return strengthHistory
+            .filter { $0.exerciseName == exerciseName && $0.date == previousDate }
+            .sorted { $0.setNumber < $1.setNumber }
+    }
+
+    func sessionSetCount(sessionID: UUID, date: String) -> Int {
+        strengthHistory.filter { $0.sessionID == sessionID && $0.date == date }.count
     }
 
     private func activate() {
@@ -73,12 +94,24 @@ final class WatchRoutineStore: NSObject, ObservableObject, WCSessionDelegate {
     }
 
     private func apply(_ applicationContext: [String: Any]) {
-        guard let data = applicationContext[Key.routine] as? Data,
-              let updated = try? JSONDecoder().decode(TrainingRoutine.self, from: data) else { return }
+        let updatedRoutine = (applicationContext[Key.routine] as? Data)
+            .flatMap { try? JSONDecoder().decode(TrainingRoutine.self, from: $0) }
+        let updatedHistory = (applicationContext[Key.strengthHistory] as? Data)
+            .flatMap { try? JSONDecoder().decode([ExerciseSetLog].self, from: $0) }
         DispatchQueue.main.async {
-            self.routine = updated
-            Self.save(updated, key: Key.cachedRoutine)
+            if let updatedRoutine {
+                self.routine = updatedRoutine
+                Self.save(updatedRoutine, key: Key.cachedRoutine)
+            }
+            if let updatedHistory {
+                self.mergeIntoHistory(updatedHistory)
+            }
         }
+    }
+
+    private func mergeIntoHistory(_ logs: [ExerciseSetLog]) {
+        strengthHistory = ExerciseLogReconciler.merge(existing: strengthHistory, incoming: logs)
+        Self.save(strengthHistory, key: Key.cachedStrengthHistory)
     }
 
     private func acknowledge(_ idString: String) {

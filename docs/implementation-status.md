@@ -14,7 +14,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 | Phase 2: Profile and Goal Setup | Complete | First-run onboarding, profile editing, local persistence, and live 12% projection are implemented. |
 | Phase 3: HealthKit Daily Sync | Implemented; device check pending | Permission flow, daily metric queries, and manual fallback entries compile; actual Apple Health permissions and data require a signed iPhone run. |
 | Phase 4: Schedule and Training Plan | Complete (simulator-verified) | Daily schedule, adherence, next action, and reminders plus the full structured training program: seeded weekly split, setup questionnaire, exercise prescriptions, set/swim logging, deterministic progression, versioned editing with rollback, one-day rest exceptions, and a mock coach proposal Confirm/Edit/Reject flow. |
-| Phase 4W: Apple Watch Companion | In progress | W1 sync/offline foundation and W2 strength basics compile: HealthKit workout lifecycle, live heart rate/energy, set logging, rest timer, and haptics. Physical-device validation, WorkoutKit swimming, mirroring, and recovery guidance remain. |
+| Phase 4W: Apple Watch Companion | In progress | W1 and W2 compile: durable sync/history plus a complete strength flow with HealthKit metrics, elapsed time, prior values, substitutions, pain notes, rest/haptics, and summary. Physical-device validation and W3-W5 remain. |
 | Phase 5: Meal Photo Logging | Partial | UI and mock dual-provider response exist; photo upload and real AI calls are missing. |
 | Phase 6: Coach Chat | Partial | Chat UI and mock endpoint exist; real contextual provider calls are missing. |
 | Phase 7: Weekly Review and Photos | Partial | History placeholder exists. Weekly progress-photo capture, comparison, and AI body-fat range analysis are planned but not built. |
@@ -33,6 +33,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 - Added a mock Coach proposal flow with reasons, recovery impact, before/after diff, staleness detection, and Confirm/Edit/Reject; proposals never activate without explicit confirmation and are refused without setup context.
 - Added an embedded watchOS companion target with a shared scheme, HealthKit workout capability, cached routine sync, and durable UUID-based Watch log delivery/acknowledgement.
 - Added the first Watch strength experience: today's session list, HealthKit start/pause/resume/end, live heart rate and energy, load/reps/RIR logging, rest countdown, and haptics. Manual offline swim logging bridges to the planned WorkoutKit phase.
+- Completed W2 with recent-history sync, stable acknowledged set history, previous-performance prefilling, substitutions, pain severity, pause-aware elapsed time, optional haptics, end confirmation, and a saved-workout summary.
 
 ## Verified
 

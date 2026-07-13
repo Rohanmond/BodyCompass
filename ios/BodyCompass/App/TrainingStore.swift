@@ -57,7 +57,7 @@ final class TrainingStore: ObservableObject {
             }
         }
         watchSync.activate()
-        watchSync.send(routine: activeRoutine)
+        syncWatchContext()
     }
 
     // MARK: - Routine access
@@ -137,7 +137,7 @@ final class TrainingStore: ObservableObject {
             versions.removeFirst(versions.count - 30)
         }
         persist(versions, key: StorageKey.versions)
-        watchSync.send(routine: routine)
+        syncWatchContext()
     }
 
     // MARK: - One-day exceptions
@@ -231,6 +231,11 @@ final class TrainingStore: ObservableObject {
         swimLogs.removeAll { $0.date < cutoff }
         persist(strengthLogs, key: StorageKey.strengthLogs)
         persist(swimLogs, key: StorageKey.swimLogs)
+        syncWatchContext()
+    }
+
+    private func syncWatchContext() {
+        watchSync.send(routine: activeRoutine, strengthHistory: strengthLogs)
     }
 
     private func mergeWatchStrengthLog(_ log: ExerciseSetLog) {

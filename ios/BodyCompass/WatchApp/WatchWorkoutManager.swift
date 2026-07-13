@@ -1,12 +1,19 @@
 import Foundation
 import HealthKit
 
+struct WatchWorkoutSummary: Equatable {
+    let duration: TimeInterval
+    let activeEnergy: Double
+    let finalHeartRate: Double
+}
+
 enum WatchWorkoutState: Equatable {
     case idle
     case authorizing
     case running
     case paused
     case ending
+    case completed(WatchWorkoutSummary)
     case failed(String)
 }
 
@@ -19,6 +26,8 @@ final class WatchWorkoutManager: NSObject, ObservableObject {
     private let healthStore = HKHealthStore()
     private var session: HKWorkoutSession?
     private var builder: HKLiveWorkoutBuilder?
+    private var pausedAt: Date?
+    private var accumulatedPausedTime: TimeInterval = 0
 
     func startStrength() {
         guard state == .idle else { return }
@@ -55,9 +64,17 @@ final class WatchWorkoutManager: NSObject, ObservableObject {
         session = nil
         builder = nil
         startedAt = nil
+        pausedAt = nil
+        accumulatedPausedTime = 0
         heartRate = 0
         activeEnergy = 0
         state = .idle
+    }
+
+    func elapsedTime(at date: Date = Date()) -> TimeInterval {
+        guard let startedAt else { return 0 }
+        let currentPause = pausedAt.map { max(0, date.timeIntervalSince($0)) } ?? 0
+        return max(0, date.timeIntervalSince(startedAt) - accumulatedPausedTime - currentPause)
     }
 
     private func requestAuthorization() async throws {
@@ -129,8 +146,15 @@ extension WatchWorkoutManager: HKWorkoutSessionDelegate {
     ) {
         DispatchQueue.main.async {
             switch toState {
-            case .running: self.state = .running
-            case .paused: self.state = .paused
+            case .running:
+                if let pausedAt = self.pausedAt {
+                    self.accumulatedPausedTime += max(0, date.timeIntervalSince(pausedAt))
+                    self.pausedAt = nil
+                }
+                self.state = .running
+            case .paused:
+                self.pausedAt = date
+                self.state = .paused
             case .ended: self.finishWorkout(at: date)
             default: break
             }
@@ -152,11 +176,25 @@ extension WatchWorkoutManager: HKWorkoutSessionDelegate {
                     if let finishError {
                         self?.state = .failed(finishError.localizedDescription)
                     } else {
-                        self?.reset()
+                        self?.completeWorkout(at: date)
                     }
                 }
             }
         }
+    }
+
+    private func completeWorkout(at date: Date) {
+        let summary = WatchWorkoutSummary(
+            duration: elapsedTime(at: date),
+            activeEnergy: activeEnergy,
+            finalHeartRate: heartRate
+        )
+        session = nil
+        builder = nil
+        startedAt = nil
+        pausedAt = nil
+        accumulatedPausedTime = 0
+        state = .completed(summary)
     }
 }
 

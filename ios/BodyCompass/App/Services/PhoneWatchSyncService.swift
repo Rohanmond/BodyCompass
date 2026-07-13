@@ -9,6 +9,7 @@ final class PhoneWatchSyncService: NSObject, WCSessionDelegate {
 
     private enum Key {
         static let routine = "bodycompass.routine"
+        static let strengthHistory = "bodycompass.strengthHistory"
         static let strengthLog = "bodycompass.strengthLog"
         static let swimLog = "bodycompass.swimLog"
         static let acknowledgedLogID = "bodycompass.acknowledgedLogID"
@@ -30,10 +31,14 @@ final class PhoneWatchSyncService: NSObject, WCSessionDelegate {
         session.activate()
     }
 
-    func send(routine: TrainingRoutine) {
+    func send(routine: TrainingRoutine, strengthHistory: [ExerciseSetLog]) {
         guard WCSession.isSupported(),
-              let data = try? JSONEncoder().encode(routine) else { return }
-        latestRoutineContext = [Key.routine: data]
+              let routineData = try? JSONEncoder().encode(routine),
+              let historyData = try? JSONEncoder().encode(Array(strengthHistory.suffix(300))) else { return }
+        latestRoutineContext = [
+            Key.routine: routineData,
+            Key.strengthHistory: historyData
+        ]
         sendLatestRoutine()
     }
 
