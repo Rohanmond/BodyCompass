@@ -267,6 +267,10 @@ final class AppStore: ObservableObject {
         Task { await reminders.reschedule(for: schedule) }
     }
 
+    func scheduleTestReminder() async -> Bool {
+        await reminders.scheduleTest()
+    }
+
     // MARK: - Persistence & daily roll
 
     // A new day keeps the item list but clears completion. Yesterday's score is

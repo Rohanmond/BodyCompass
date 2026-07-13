@@ -43,6 +43,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 - Completed Phase 8 persistence: SQLite records survive restart; meal/progress images use an AES-256-GCM private file vault; bearer auth, local-first iOS backup, Keychain token storage, export, and complete server/device deletion are wired end to end.
 - Implemented Phase 9 code-side polish: iPhone/Watch icons, privacy manifests, local-first backup recovery, accessible metrics and trends, a 12% chart target, automated preflight, and a physical-device/TestFlight checklist.
 - Added app-wide keyboard dismissal and refreshed the daily-use UI: priority-first Today hierarchy, varied metric colors, clearer HealthKit date windows, adherence progress, a visual goal summary, and improved Meals/Coach presentation. Simulator and signed-iPhone builds pass.
+- Verified real HealthKit snapshot backup from the signed iPhone and added a Debug-only 10-second notification delivery test to the schedule editor; user confirmation of banner/sound delivery remains pending.
 - Created a Personal Team development certificate and provisioning profiles, then built, installed, trusted, and launched BodyCompass successfully on the user's physical iPhone 17 Pro. Xcode physical-Watch discovery remains deferred.
 
 ## Verified

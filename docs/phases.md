@@ -460,6 +460,8 @@ Done when both apps install, launch, and can request their required permissions 
 
 Status: in progress. Real-iPhone HealthKit and notification validation can proceed; WorkoutKit, reconnect, and Watch-specific checks remain deferred until Xcode discovers the paired Watch.
 
+Signed-iPhone progress: real HealthKit reads and authenticated private backup are verified. A Debug-only 10-second local-notification test control is implemented; actual banner/sound/lock-screen delivery still requires the user to run it on device.
+
 - Validate full, partial, and denied HealthKit permission states and real health metrics.
 - Validate local schedule notification permission and delivery.
 - Validate WorkoutKit scheduling and handoff to Apple's Workout app for strength, pool swimming, and open-water swimming.

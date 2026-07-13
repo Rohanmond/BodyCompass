@@ -9,6 +9,7 @@ import BodyCompassCore
 final class ReminderService {
     private let center = UNUserNotificationCenter.current()
     private static let prefix = "bodycompass.reminder."
+    private static let testIdentifier = "bodycompass.reminder.test"
 
     func authorizationStatus() async -> UNAuthorizationStatus {
         await center.notificationSettings().authorizationStatus
@@ -51,5 +52,32 @@ final class ReminderService {
         let existing = await center.pendingNotificationRequests()
         let ours = existing.map(\.identifier).filter { $0.hasPrefix(Self.prefix) }
         center.removePendingNotificationRequests(withIdentifiers: ours)
+    }
+
+    /// Schedules a one-off reminder so signed-device builds can verify that
+    /// permission, sounds, banners, and lock-screen delivery all work.
+    func scheduleTest(after delay: TimeInterval = 10) async -> Bool {
+        guard await authorizationStatus() == .authorized else { return false }
+
+        center.removePendingNotificationRequests(withIdentifiers: [Self.testIdentifier])
+
+        let content = UNMutableNotificationContent()
+        content.title = "BodyCompass"
+        content.body = "Test reminder delivered. Your daily schedule is ready."
+        content.sound = .default
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: max(delay, 1), repeats: false)
+        let request = UNNotificationRequest(
+            identifier: Self.testIdentifier,
+            content: content,
+            trigger: trigger
+        )
+
+        do {
+            try await center.add(request)
+            return true
+        } catch {
+            return false
+        }
     }
 }

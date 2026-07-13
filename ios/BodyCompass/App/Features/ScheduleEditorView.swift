@@ -7,6 +7,7 @@ struct ScheduleEditorView: View {
     @EnvironmentObject private var store: AppStore
     @State private var editingItem: ScheduleItem?
     @State private var isAdding = false
+    @State private var testReminderMessage: String?
 
     var body: some View {
         List {
@@ -15,6 +16,23 @@ struct ScheduleEditorView: View {
                     get: { store.remindersEnabled },
                     set: { newValue in Task { await store.setRemindersEnabled(newValue) } }
                 ))
+#if DEBUG
+                Button {
+                    Task {
+                        let scheduled = await store.scheduleTestReminder()
+                        testReminderMessage = scheduled
+                            ? "Test scheduled. Lock the iPhone and wait 10 seconds."
+                            : "Enable Daily reminders and allow notifications first."
+                    }
+                } label: {
+                    Label("Send test reminder in 10 seconds", systemImage: "bell.badge")
+                }
+                if let testReminderMessage {
+                    Text(testReminderMessage)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+#endif
             } footer: {
                 Text("Get a local notification at the time set on each task. Tasks without a time are silent.")
             }
