@@ -36,6 +36,7 @@ Native iOS fat-loss coach for reaching 12% body fat with HealthKit history, dail
 - Cross-model implementation handoff: `ai/HANDOFF.md`
 - Phase 9 beta and TestFlight checklist: `docs/beta-checklist.md`
 - Production backend and backup guide: `docs/deployment.md`
+- Selected Railway Hobby walkthrough: `docs/railway-deployment.md`
 
 ## Quick Start
 

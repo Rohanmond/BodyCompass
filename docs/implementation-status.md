@@ -49,6 +49,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 - Built, signed, installed, and launched the actionable-analysis UI on the user's physical iPhone 17 Pro.
 - Added Phase 9D deployment operations: strict production configuration, liveness/readiness probes, graceful shutdown, non-root Docker/Compose packaging, durable `/data`, and checksum-verified photo-free SQLite backup/restore tooling.
 - User confirmed Phase 9C on the signed iPhone: physical meal and three-angle progress capture/analysis flows work, corrections and deletion work, and Coach routine changes retain explicit confirmation.
+- Selected Railway Hobby in Singapore for Phase 9D and added config-as-code, safe volume initialization with privilege drop, and a beginner deployment walkthrough.
 - Created a Personal Team development certificate and provisioning profiles, then built, installed, trusted, and launched BodyCompass successfully on the user's physical iPhone 17 Pro. Xcode physical-Watch discovery remains deferred.
 
 ## Verified
@@ -67,5 +68,5 @@ Verification rerun: July 14, 2026.
 
 - Follow `docs/apple-watch-setup.md` to validate WorkoutKit permission, iPhone scheduling, Watch handoff, Apple Workout capture, HealthKit import, offline queueing, and exact-once manual-log merge.
 - Complete the remaining partial/denied HealthKit permission checks on the signed iPhone.
-- Choose a production host, deploy `server/Dockerfile` behind HTTPS with durable `/data`, then run the documented host-level restore and authenticated iPhone checks in `docs/deployment.md`.
+- Provision the selected Railway Hobby service by following `docs/railway-deployment.md`, then run the host-level restore and authenticated iPhone checks.
 - Run `./scripts/release-preflight.sh --build`, then complete the signed-device, Series 10, seven-day personal beta, and TestFlight gates in `docs/beta-checklist.md`.

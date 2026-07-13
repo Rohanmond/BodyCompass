@@ -13,6 +13,8 @@ BodyCompass is local-first, but AI requests and private metadata backup need the
 
 The remaining Phase 9D work is choosing a host, connecting HTTPS, setting its secrets, and validating the signed iPhone against that deployed URL.
 
+Railway Hobby in Singapore is the selected host. Follow the exact dashboard walkthrough in `docs/railway-deployment.md`; this document remains the provider-neutral operations and restore reference.
+
 ## 1. Prepare Production Secrets
 
 Never commit `.env.production`. The example is safe to commit.

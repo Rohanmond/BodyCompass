@@ -488,7 +488,7 @@ Done when both providers, each single-provider fallback, and all physical-camera
 
 #### Phase 9D: Production Backend Deployment
 
-Status: deployment tooling implemented and locally verified; production host, HTTPS, deployed iPhone checks, and host restore drill remain.
+Status: Railway Hobby in Singapore selected and deployment tooling locally verified; Railway provisioning, HTTPS iPhone checks, and host restore drill remain.
 
 - Implemented a non-root Node 22 container, localhost-bound Compose service, graceful shutdown, and liveness/readiness probes.
 - Implemented fail-fast production validation for a strong bearer token, stable owner ID, absolute durable data path, and both provider keys.

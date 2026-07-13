@@ -148,14 +148,14 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 - Additional typed iOS clients beyond meals, Coach, progress analysis, and account backup.
 - A completed internal TestFlight upload and clean-install smoke test.
 - Partial/denied real-device HealthKit verification; the signed full-permission path and local notification delivery are verified.
-- A selected production host, HTTPS deployment, host restore drill, and deployed-service iPhone verification. Container/config/backup tooling is implemented in Phase 9D.
+- Railway Hobby Singapore is selected, with config-as-code and volume-safe container startup implemented. Railway provisioning, HTTPS iPhone verification, and the host restore drill remain.
 
 ## Recommended Next Work
 
 Run the Phase 9 beta gates next:
 
 1. Return to partial/denied HealthKit checks and the deferred Phase 9A/9B physical Watch discovery and Apple Workout validation using `docs/apple-watch-setup.md` before release.
-2. Finish Phase 9D by deploying `server/Dockerfile` behind HTTPS with durable `/data`, then complete the host restore drill and authenticated iPhone checks from `docs/deployment.md`.
+2. Finish Phase 9D on the selected Railway Hobby Singapore service using `docs/railway-deployment.md`, then complete the host restore drill and authenticated iPhone checks.
 3. Complete the Phase 9E seven-day personal beta.
 4. Complete the Phase 9F internal TestFlight clean-install smoke test.
 
