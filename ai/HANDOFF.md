@@ -30,7 +30,7 @@ The following passed during the July 13, 2026 audit:
 
 On July 14, 2026, Xcode automatic signing created a valid Personal Team development certificate and iPhone/Watch provisioning profiles. A fresh signed build completed, and BodyCompass installed and launched successfully on the user's physical iPhone 17 Pro running iOS 26.5. The paired Series 10 remained undiscoverable as an Xcode watchOS destination, and the user chose to continue iPhone validation while deferring that release gate.
 
-This verifies compilation and existing automated checks. It does not verify real Apple Health data, notification delivery, camera behavior, or device signing.
+This verifies compilation and existing automated checks. A later July 14 signed-iPhone run also verified device signing, full-permission Apple Health reads, authenticated private backup, and local notification delivery. Physical camera, partial/denied Health access, and Watch behavior remain unverified.
 
 ## Implemented
 
@@ -142,18 +142,17 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 - Remaining Phase 4W: physical WorkoutKit/HealthKit, reconnect, and recovery-sample validation. See `docs/apple-watch-plan.md`.
 - Additional typed iOS clients beyond meals, Coach, progress analysis, and account backup.
 - A completed internal TestFlight upload and clean-install smoke test.
-- Real-device HealthKit and notification verification.
+- Partial/denied real-device HealthKit verification; the signed full-permission path and local notification delivery are verified.
 
 ## Recommended Next Work
 
 Run the Phase 9 beta gates next:
 
-1. Continue Phase 9B HealthKit and notification validation on the signed iPhone.
-2. Return to the deferred Phase 9A/9B physical Watch discovery and Apple Workout validation using `docs/apple-watch-setup.md` before release.
-3. Complete Phase 9C live AI and physical-camera validation.
-4. Complete Phase 9D HTTPS deployment and a backup/restore drill.
-5. Complete the Phase 9E seven-day personal beta.
-6. Complete the Phase 9F internal TestFlight clean-install smoke test.
+1. Complete Phase 9C live AI and physical-camera validation.
+2. Return to partial/denied HealthKit checks and the deferred Phase 9A/9B physical Watch discovery and Apple Workout validation using `docs/apple-watch-setup.md` before release.
+3. Complete Phase 9D HTTPS deployment and a backup/restore drill.
+4. Complete the Phase 9E seven-day personal beta.
+5. Complete the Phase 9F internal TestFlight clean-install smoke test.
 
 The detailed status, requirements, and completion criteria for Phase 9A-9F are in `docs/phases.md`. Run `./scripts/release-preflight.sh --build` before device testing and again before archiving.
 

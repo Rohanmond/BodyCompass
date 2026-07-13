@@ -144,7 +144,7 @@ Phase 2 done status: done.
 
 Goal: connect BodyCompass to Apple Health data.
 
-Status: implemented and build-verified. Real-device HealthKit data still needs a signed device run.
+Status: implemented and signed-device verified for the full-permission path. Real weight, active energy, resting heart rate, and daily values synced on the user's iPhone; partial and denied permission paths remain to be exercised manually.
 
 Implemented in this phase:
 
@@ -169,7 +169,7 @@ Done when:
 - Today dashboard shows real or manual metrics.
 - Missing values do not break goal calculations.
 
-Phase 3 done status: implementation complete and simulator target builds; confirm the permission sheet, partial/denied access, and real metrics on a signed iPhone run.
+Phase 3 done status: implementation, signed-device permission sheet, and real-metric reads are verified. Partial/denied access behavior remains a release check; the independent-query and manual-fallback implementation already handles those states.
 
 ## Phase 4: Daily Schedule, Training Plan, and Adherence
 
@@ -225,7 +225,7 @@ Done when:
 - User can manually change the weekly schedule and restore an earlier version.
 - Coach cannot modify the active routine until the user confirms the proposal.
 
-Phase 4 done status: complete and simulator-build verified. Real-device notification and HealthKit checks remain global open items.
+Phase 4 done status: complete and simulator-build verified. Real-device local-notification permission and delivery are verified on the user's iPhone.
 
 ## Phase 4W: Apple Watch Workout Companion
 
@@ -458,9 +458,9 @@ Done when both apps install, launch, and can request their required permissions 
 
 #### Phase 9B: Apple Device Validation
 
-Status: in progress. Real-iPhone HealthKit and notification validation can proceed; WorkoutKit, reconnect, and Watch-specific checks remain deferred until Xcode discovers the paired Watch.
+Status: in progress. Signed-iPhone HealthKit, authenticated backup, and local-notification delivery are verified. Partial/denied HealthKit checks plus WorkoutKit, reconnect, and other Watch-specific checks remain deferred until Xcode discovers the paired Watch.
 
-Signed-iPhone progress: real HealthKit reads and authenticated private backup are verified. A Debug-only 10-second local-notification test control is implemented; actual banner/sound/lock-screen delivery still requires the user to run it on device.
+Signed-iPhone progress: real HealthKit reads, authenticated private backup, and the Debug-only 10-second local-notification banner/sound delivery test are verified.
 
 - Validate full, partial, and denied HealthKit permission states and real health metrics.
 - Validate local schedule notification permission and delivery.
