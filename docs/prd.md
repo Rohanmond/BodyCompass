@@ -61,6 +61,8 @@ The initial target user is a focused adult fitness user who:
 - Weekly projection recalculation from real trend data.
 - Simple local notifications for schedule reminders.
 - Privacy controls for deleting meal images and logs.
+- Apple Watch companion for active strength/swimming guidance, live workout metrics, quick logging, rest haptics, and offline sync.
+- WorkoutKit scheduling for compatible swimming and interval plans.
 
 ### Out of Scope for MVP
 
@@ -68,7 +70,6 @@ The initial target user is a focused adult fitness user who:
 - Android app.
 - Paid subscriptions.
 - Full nutrition database integration.
-- Wearable-specific workout coaching.
 - Medical diagnosis or treatment advice.
 
 ## 6. Key User Flows
@@ -111,6 +112,16 @@ The initial target user is a focused adult fitness user who:
 5. User saves a new active version and can later restore an older version.
 
 Manual changes do not require Coach confirmation. Confirmation is required only when Coach proposes a change from chat.
+
+### Apple Watch Workout
+
+1. Today's prescribed session syncs to Apple Watch and remains available offline.
+2. User starts a BodyCompass workout or a compatible WorkoutKit plan.
+3. Watch shows the current exercise or interval, targets, live metrics, and large workout controls.
+4. User confirms sets, reps, load, effort, substitutions, or swimming work with minimal interaction.
+5. Rest and interval haptics provide optional prompts.
+6. Completed HealthKit metrics and BodyCompass logs sync back exactly once.
+7. Post-workout suggestions use performance and recovery context; material routine changes still require confirmation.
 
 ### Meal Photo Analysis
 

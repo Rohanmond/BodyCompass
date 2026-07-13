@@ -14,6 +14,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 | Phase 2: Profile and Goal Setup | Complete | First-run onboarding, profile editing, local persistence, and live 12% projection are implemented. |
 | Phase 3: HealthKit Daily Sync | Implemented; device check pending | Permission flow, daily metric queries, and manual fallback entries compile; actual Apple Health permissions and data require a signed iPhone run. |
 | Phase 4: Schedule and Training Plan | Complete (simulator-verified) | Daily schedule, adherence, next action, and reminders plus the full structured training program: seeded weekly split, setup questionnaire, exercise prescriptions, set/swim logging, deterministic progression, versioned editing with rollback, one-day rest exceptions, and a mock coach proposal Confirm/Edit/Reject flow. |
+| Phase 4W: Apple Watch Companion | Planned | Live strength/swimming guidance, workout metrics, rest haptics, offline logging, WorkoutKit scheduling, and mirrored iPhone controls are documented but not implemented. |
 | Phase 5: Meal Photo Logging | Partial | UI and mock dual-provider response exist; photo upload and real AI calls are missing. |
 | Phase 6: Coach Chat | Partial | Chat UI and mock endpoint exist; real contextual provider calls are missing. |
 | Phase 7: Weekly Review and Photos | Partial | History placeholder exists. Weekly progress-photo capture, comparison, and AI body-fat range analysis are planned but not built. |
@@ -43,5 +44,6 @@ Verification rerun: July 13, 2026.
 ## Next
 
 - On a signed iPhone run, confirm the notification-permission prompt, reminder delivery, and real HealthKit reads.
+- Confirm Apple Watch model/watchOS, iPhone iOS version, swimming mode, and whether to prioritize BodyCompass live workouts or WorkoutKit scheduling.
 - Phase 5: camera/photo picker, meal upload, typed API client, and correction persistence.
 - Phase 6: real provider chat with profile/health/meal/training context, reusing the existing proposal confirmation contract.

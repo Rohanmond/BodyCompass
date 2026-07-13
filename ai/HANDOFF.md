@@ -8,7 +8,7 @@ Use this file as the authoritative starting point for Claude, ChatGPT, Gemini, C
 
 - Repository: `Rohanmond/BodyCompass`
 - Primary branch: `main`
-- Last feature commit before this handoff: `65126bb`
+- Latest implemented feature commit: `73c7968`
 - iOS deployment target: iOS 17
 - App: native SwiftUI under `ios/BodyCompass`
 - Shared logic: Swift package target `BodyCompassCore`
@@ -89,6 +89,7 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 
 ## Not Implemented
 
+- Apple Watch companion, live HealthKit workout sessions, WorkoutKit scheduling, workout mirroring, and offline Watch sync. See `docs/apple-watch-plan.md`.
 - Real OpenAI and Gemini API calls.
 - Typed iOS backend client.
 - Database, authentication, or private object storage.
@@ -107,6 +108,8 @@ Phase 4 is complete. Continue with Phase 5 (Meals) in small verified milestones:
 5. Persist corrected meals locally and show meal history.
 
 Phase 6 (Coach) should reuse the existing `RoutineChangeProposal` confirmation contract when providers start generating routine changes — the Confirm/Edit/Reject flow and staleness handling are already built.
+
+Apple Watch is planned as Phase 4W. Before implementation, collect the user's Watch model/watchOS, iPhone iOS version, pool/open-water setup, pool length, and preferred balance between a custom BodyCompass workout app and WorkoutKit plans in Apple's Workout app. The detailed plan is `docs/apple-watch-plan.md`.
 
 Keep the generic daily task schedule and structured training routine separate. The former tracks habits (`AppStore`); the latter owns programming, performance, and progression (`TrainingStore`).
 
@@ -151,8 +154,9 @@ All met in the July 13, 2026 implementation:
 1. `docs/prd.md`
 2. `docs/phases.md`
 3. `docs/training-plan.md`
-4. `ai/architecture.md`
-5. `ai/data-model.md`
-6. `ai/api-contract.md`
-7. `ai/coding-guidelines.md`
-8. `ai/commands.md`
+4. `docs/apple-watch-plan.md`
+5. `ai/architecture.md`
+6. `ai/data-model.md`
+7. `ai/api-contract.md`
+8. `ai/coding-guidelines.md`
+9. `ai/commands.md`

@@ -28,6 +28,7 @@ Partially implemented:
 
 Not implemented yet:
 
+- Phase 4W Apple Watch companion and live workout synchronization.
 - Camera/photo picker.
 - Weekly progress-photo capture, comparison, and AI body-fat range estimation.
 - Database-backed storage.
@@ -224,6 +225,35 @@ Done when:
 
 Phase 4 done status: complete and simulator-build verified. Real-device notification and HealthKit checks remain global open items.
 
+## Phase 4W: Apple Watch Workout Companion
+
+Goal: bring the structured training plan onto Apple Watch for live strength and swimming sessions.
+
+Status: planned, not implemented.
+
+Deliverables:
+
+- watchOS companion target with HealthKit workout capabilities.
+- Offline sync of today's routine and durable queued workout logs.
+- Strength workout UI for prescriptions, set logging, rest timers, optional haptics, substitutions, and pain/effort notes.
+- Live heart rate, elapsed time, and active energy from a HealthKit workout session.
+- WorkoutKit scheduling for compatible swim/interval plans.
+- Import of completed swimming duration, distance/laps, energy, and available heart-rate data.
+- HealthKit workout mirroring for an optional live iPhone dashboard and bidirectional controls.
+- Watch Connectivity for routine versions, setup context, logs, and offline/background synchronization.
+- Recovery-aware post-workout suggestions without automatic load or routine changes.
+
+Done when:
+
+- A complete strength session can be run and saved from Watch.
+- Today's plan works without an active iPhone connection.
+- Logs survive disconnects and sync exactly once.
+- Swimming succeeds even when water prevents heart-rate readings.
+- Mirrored Watch/iPhone workout state remains consistent.
+- Real-device tests pass on the user's paired Watch and iPhone.
+
+Detailed plan: `docs/apple-watch-plan.md`.
+
 ## Phase 5: Meal Photo Logging
 
 Goal: make meal logging fast and useful.
@@ -360,7 +390,6 @@ Only consider these after the MVP loop works:
 Status: not implemented.
 
 - Nutrition database barcode/search integration.
-- Apple Watch companion.
 - Streaks and habit analytics.
 - Subscription/payment model.
 - Android version.

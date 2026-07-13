@@ -22,8 +22,8 @@ This folder makes the repo AI-native. Future agents should start here before edi
 - Core logic: Swift package `BodyCompassCore`.
 - Backend: dependency-light Node API under `server`.
 - AI mode: call both OpenAI and Gemini for meal analysis and coach chat.
-- Current phase: Phases 0-3 implemented, with real-device checks pending for HealthKit. Phase 4 is partial: daily schedule/adherence exists, structured training does not.
-- Recommended next work: continue Phase 4 using `HANDOFF.md` and `next-agent-brief.md`.
+- Current phase: Phases 0-4 are implemented and simulator-build verified, with real-device HealthKit/notification checks pending. Phase 4W Apple Watch is planned.
+- Recommended next work: Phase 5 meal capture, unless the user prioritizes Apple Watch Phase 4W after providing device details.
 
 ## Prime Directive
 

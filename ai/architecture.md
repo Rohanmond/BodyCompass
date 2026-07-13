@@ -7,6 +7,8 @@ flowchart TD
     User["User on iPhone"] --> IOS["SwiftUI iOS App"]
     IOS --> Core["BodyCompassCore Swift Logic"]
     IOS --> HealthKit["Apple HealthKit"]
+    IOS <--> Watch["BodyCompass watchOS Companion"]
+    Watch --> HealthKit
     IOS --> API["BodyCompass Node API"]
     API --> OpenAI["OpenAI Provider"]
     API --> Gemini["Gemini Provider"]
@@ -26,6 +28,7 @@ Responsibilities:
 - Camera/photo picker for meals and standardized weekly progress check-ins.
 - Local user state and manual fallback inputs.
 - Versioned weekly routine, session logging, and pending coach-change proposals.
+- Sync routine/session data with a future offline-capable watchOS companion.
 - Display AI comparison and reconciled recommendations.
 
 Current app tabs:
@@ -35,6 +38,14 @@ Current app tabs:
 - Goal
 - History
 - Coach
+
+## Apple Watch Companion (Planned)
+
+- HealthKit workout session and live workout builder own the active Watch workout.
+- HealthKit workout mirroring synchronizes active lifecycle and metrics with iPhone.
+- Watch Connectivity transfers routine versions, setup context, queued logs, and background updates.
+- WorkoutKit schedules compatible swimming and interval plans into Apple's Workout app.
+- Watch remains functional offline and reconciles logs idempotently after reconnecting.
 
 ## Swift Core
 

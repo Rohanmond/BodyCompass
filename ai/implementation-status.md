@@ -31,6 +31,7 @@ Last audited: July 13, 2026.
 
 ## Not Implemented
 
+- Phase 4W Apple Watch companion, live Watch workouts, WorkoutKit scheduling, mirroring, and offline Watch sync.
 - Camera/photo picker.
 - Progress-photo capture, private storage, comparison, and body-fat range analysis.
 - Real OpenAI and Gemini HTTP calls.

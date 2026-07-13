@@ -156,6 +156,16 @@
 - status (pending, confirmed, edited, rejected)
 - user decision timestamp
 
+`watch_workout_sync`
+
+- workout/session UUID shared across Watch and iPhone
+- routine and training-day version identifiers
+- workout lifecycle state and last update timestamp
+- origin device and sync revision
+- queued set/swim log identifiers
+- HealthKit workout UUID after save
+- sync status, conflict state, and retry metadata
+
 `progress_check_ins`
 
 - userId

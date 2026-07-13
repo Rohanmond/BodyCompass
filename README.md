@@ -25,6 +25,7 @@ Native iOS fat-loss coach for reaching 12% body fat with HealthKit history, dail
 
 - Current implementation status: `docs/implementation-status.md`
 - Training plan requirements: `docs/training-plan.md`
+- Apple Watch companion plan: `docs/apple-watch-plan.md`
 - Product requirements: `docs/prd.md`
 - Step-by-step phases: `docs/phases.md`
 - Beginner Swift guide: `docs/swift-beginner-guide.md`

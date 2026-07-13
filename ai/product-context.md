@@ -14,6 +14,7 @@ The user wants:
 - daily schedule tracking,
 - a structured weekly strength/swimming plan with sets, reps, effort, rest, and progression,
 - coach-suggested routine updates that require confirmation,
+- an Apple Watch workout companion for live strength/swimming guidance and logging,
 - feedback from both ChatGPT and Gemini,
 - guidance while learning iOS development.
 
