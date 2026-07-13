@@ -2,30 +2,27 @@
 
 ## Best Next Phase
 
-Proceed with Phase 2: Profile and Goal Setup.
+Proceed with Phase 3: HealthKit Daily Sync.
 
 ## Recommended Scope
 
-Build onboarding and editable profile state:
+Read the user's daily Apple Health metrics and merge them with manual fallback values:
 
-- age,
-- height,
-- current weight,
-- current body-fat estimate,
-- target body-fat percentage,
-- adherence baseline,
-- optional weekly trend.
-
-Then replace the hardcoded mock profile in `AppStore` with persisted local state.
+- steps,
+- active energy,
+- weight,
+- body-fat percentage,
+- sleep,
+- workouts,
+- resting heart rate.
 
 ## Suggested Implementation
 
-- Add `OnboardingView`.
-- Add simple local persistence using `UserDefaults` with Codable JSON for MVP.
-- Add an edit profile screen under Goal.
-- Keep `BodyProfile` in `BodyCompassCore`.
-- Recalculate `GoalProjection` whenever profile changes.
-- Update `docs/phases.md` and `/ai/implementation-status.md`.
+- Expand `HealthKitService` with async queries for each supported metric.
+- Add authorization and missing-data states to the Today screen.
+- Keep manual entry available when a HealthKit value is unavailable.
+- Update the persisted profile when newer weight or body-fat readings are available.
+- Add focused tests around merging partial HealthKit data.
 
 ## Verification
 

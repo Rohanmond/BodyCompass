@@ -2,6 +2,7 @@ import SwiftUI
 
 struct GoalView: View {
     @EnvironmentObject private var store: AppStore
+    @State private var isEditingProfile = false
 
     var body: some View {
         let projection = store.projection
@@ -35,6 +36,33 @@ struct GoalView: View {
                 .padding()
             }
             .navigationTitle("Goal")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        isEditingProfile = true
+                    } label: {
+                        Image(systemName: "person.crop.circle")
+                    }
+                    .accessibilityLabel("Edit profile")
+                }
+            }
+            .sheet(isPresented: $isEditingProfile) {
+                NavigationStack {
+                    ProfileFormView(
+                        initialProfile: store.profile,
+                        title: "Edit Profile",
+                        actionTitle: "Save Changes"
+                    ) { profile in
+                        store.saveProfile(profile)
+                        isEditingProfile = false
+                    }
+                    .toolbar {
+                        ToolbarItem(placement: .cancellationAction) {
+                            Button("Cancel") { isEditingProfile = false }
+                        }
+                    }
+                }
+            }
         }
     }
 }

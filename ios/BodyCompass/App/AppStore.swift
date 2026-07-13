@@ -5,14 +5,31 @@ import BodyCompassCore
 
 @MainActor
 final class AppStore: ObservableObject {
-    @Published var profile = BodyProfile(
+    private enum StorageKey {
+        static let profile = "bodycompass.profile"
+        static let onboardingComplete = "bodycompass.onboardingComplete"
+    }
+
+    private let defaults: UserDefaults
+
+    @Published private(set) var profile: BodyProfile
+    @Published private(set) var hasCompletedOnboarding: Bool
+
+    static let defaultProfile = BodyProfile(
         name: "Rohan",
         age: 26,
         heightCm: 176,
         weightKg: 80,
         bodyFatPercentage: 22,
-        adherenceScore: 0.78
+        adherenceScore: 0.78,
+        workoutTimePreference: .evening
     )
+
+    init(defaults: UserDefaults = .standard) {
+        self.defaults = defaults
+        profile = Self.loadProfile(from: defaults) ?? Self.defaultProfile
+        hasCompletedOnboarding = defaults.bool(forKey: StorageKey.onboardingComplete)
+    }
 
     @Published var today = DailyHealthSnapshot(
         date: "2026-07-06",
@@ -60,6 +77,23 @@ final class AppStore: ObservableObject {
             status: .alreadyAtGoal,
             explanation: "Add a valid profile to calculate your target timeline."
         )
+    }
+
+    func saveProfile(_ updatedProfile: BodyProfile, completingOnboarding: Bool = false) {
+        profile = updatedProfile
+        if let data = try? JSONEncoder().encode(updatedProfile) {
+            defaults.set(data, forKey: StorageKey.profile)
+        }
+
+        if completingOnboarding {
+            hasCompletedOnboarding = true
+            defaults.set(true, forKey: StorageKey.onboardingComplete)
+        }
+    }
+
+    private static func loadProfile(from defaults: UserDefaults) -> BodyProfile? {
+        guard let data = defaults.data(forKey: StorageKey.profile) else { return nil }
+        return try? JSONDecoder().decode(BodyProfile.self, from: data)
     }
 }
 

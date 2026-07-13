@@ -13,6 +13,7 @@ Implemented:
 - PRD, setup docs, HealthKit notes, API notes, and beginner Swift guide exist.
 - Phase 1 Xcode project, shared scheme, Info.plist, entitlements, and asset catalog exist.
 - Phase 1 iOS simulator build succeeds with Xcode.
+- Phase 2 onboarding, profile persistence, profile editing, and live goal recalculation are implemented.
 
 Partially implemented:
 
@@ -24,7 +25,6 @@ Partially implemented:
 
 Not implemented yet:
 
-- Real onboarding/profile persistence.
 - Camera/photo picker.
 - Database-backed storage.
 - Real OpenAI/Gemini HTTP integrations.
@@ -107,7 +107,16 @@ Done when:
 
 Goal: let the user enter real starting data.
 
-Status: not implemented.
+Status: implemented and simulator-build verified.
+
+Implemented in this phase:
+
+- First-run onboarding for name, age, height, weight, current body fat, target body fat, and preferred workout time.
+- Input validation prevents an empty name or a target body-fat value that is not below the current estimate.
+- Profile persistence using Codable JSON in `UserDefaults`.
+- Automatic goal projection recalculation whenever the profile changes.
+- Profile editing from the Goal tab.
+- Clear aggressive, optimum, and conservative timeline estimates.
 
 Deliverables:
 
@@ -121,6 +130,8 @@ Done when:
 - User can complete onboarding.
 - Goal tab reflects entered data.
 - User can edit profile values.
+
+Phase 2 done status: done.
 
 ## Phase 3: HealthKit Daily Sync
 

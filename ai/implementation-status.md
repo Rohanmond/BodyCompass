@@ -6,6 +6,7 @@ Source of truth for detailed phase status: `docs/phases.md`.
 
 - Phase 0 foundation.
 - Phase 1 Xcode project.
+- Phase 2 onboarding, profile editing, and local persistence.
 - SwiftUI app shell with five tabs.
 - Swift core goal projection logic.
 - Xcode simulator build verification.
@@ -23,8 +24,6 @@ Source of truth for detailed phase status: `docs/phases.md`.
 
 ## Not Implemented
 
-- Onboarding.
-- Profile editing and persistence.
 - Real HealthKit reads.
 - Camera/photo picker.
 - Real OpenAI and Gemini HTTP calls.

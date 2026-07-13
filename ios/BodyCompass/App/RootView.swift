@@ -1,7 +1,17 @@
 import SwiftUI
 
 struct RootView: View {
+    @EnvironmentObject private var store: AppStore
+
     var body: some View {
+        if store.hasCompletedOnboarding {
+            mainTabs
+        } else {
+            OnboardingView()
+        }
+    }
+
+    private var mainTabs: some View {
         TabView {
             TodayView()
                 .tabItem { Label("Today", systemImage: "target") }

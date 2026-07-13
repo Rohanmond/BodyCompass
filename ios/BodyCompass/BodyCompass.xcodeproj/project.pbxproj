@@ -21,6 +21,7 @@
 		B294F333562547C8BE577E84 /* DailyHealthSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F70F0B18E9E42F5A322C7BE /* DailyHealthSnapshot.swift */; };
 		E32A5F6E499946E6AB520A20 /* GoalProjection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0496068A1A154719B34DF1DE /* GoalProjection.swift */; };
 		CF620A74A25649D498F2816F /* MealAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = C97F2A19AD344594B96EF1B4 /* MealAnalysis.swift */; };
+		F20A34B291A44A238A7B0041 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8C15E7D22BE4B5E9A62DF10 /* OnboardingView.swift */; };
 		8C1B8501AC0441C9987C575C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 08B7464CBFA64999BF9A4C0A /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
@@ -43,6 +44,7 @@
 		E19FB870D78A44B09B1E4706 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		46CFA48E5F8F4BBF894A3F95 /* BodyCompass.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BodyCompass.entitlements; sourceTree = "<group>"; };
 		AE32B164E769415AAAE52C96 /* BodyCompass.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BodyCompass.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A8C15E7D22BE4B5E9A62DF10 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -97,6 +99,7 @@
 				49B5652FA1894B829223EE29 /* HistoryView.swift */,
 				1F0C7010FD7642318310C796 /* MealLogView.swift */,
 				C95C2DBC81D24B87A9B949E8 /* TodayView.swift */,
+				A8C15E7D22BE4B5E9A62DF10 /* OnboardingView.swift */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -219,6 +222,7 @@
 				B294F333562547C8BE577E84 /* DailyHealthSnapshot.swift in Sources */,
 				E32A5F6E499946E6AB520A20 /* GoalProjection.swift in Sources */,
 				CF620A74A25649D498F2816F /* MealAnalysis.swift in Sources */,
+				F20A34B291A44A238A7B0041 /* OnboardingView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
