@@ -8,7 +8,7 @@ Use this file as the authoritative starting point for Claude, ChatGPT, Gemini, C
 
 - Repository: `Rohanmond/BodyCompass`
 - Primary branch: `main`
-- Primary implementation state: Phases 0-8 and Phase 9C complete; Phase 8 now includes multi-user accounts; Phase 9D Railway hosting is live; account-migration production, restore, permission/Watch, beta, and TestFlight gates remain
+- Primary implementation state: Phases 0-8 and Phase 9C complete; multi-user accounts are deployed to Phase 9D Railway hosting; owner-account, restore, permission/Watch, beta, and TestFlight gates remain
 - iOS deployment target: iOS 17
 - App: native SwiftUI under `ios/BodyCompass`
 - Shared logic: Swift package target `BodyCompassCore`
@@ -25,7 +25,7 @@ The following passed during the latest audit:
 - `swift run BodyCompassCoreCheck`
 - `npm test` with account lifecycle, persistence, privacy, provider, and operations coverage
 - Phase 9D production-mode health probes and graceful shutdown; the Docker image builds, runs as the unprivileged `node` user, and reports SQLite ready
-- Railway Hobby is online in Southeast Asia with HTTPS, one replica, an attached `/data` volume, and SQLite readiness; multi-user migration deployment remains to be verified
+- Railway Hobby is online in Southeast Asia with HTTPS, one replica, an attached `/data` volume, SQLite readiness, and the multi-user registration route verified
 - Xcode iOS and watchOS Simulator builds with `CODE_SIGNING_ALLOWED=NO`
 - Phase 9 release metadata/icon validation and the updated iPhone and standalone Watch simulator builds
 - W5 ready/recover/caution core scenarios and the updated iPhone plus standalone Watch builds
@@ -131,7 +131,7 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 - Register/login are public and throttled; all other `/api/*` routes require a valid account session and use its user ID for row ownership. Sign out revokes the current session.
 - The iOS root owns Sign In/Create Account and validates sessions at launch. The opaque session lives in Keychain and is automatically attached to every API client; no server credential is shown to users.
 - Account switches clear prior local app/training/progress state before syncing. Goal → Data & Privacy shows account/backup state, sign out, photo-free export, and complete account deletion. Apple Health is never deleted.
-- SQLite restart, photo-free export, idempotency, account lifecycle, deletion, and iOS/Watch compilation are verified locally. Production migration, email verification/password recovery, host restore drill, and friend-device checks remain.
+- SQLite restart, photo-free export, idempotency, account lifecycle, deletion, and iOS/Watch compilation are verified. The migration is live and a signed build is installed; owner-account use, email verification/password recovery, host restore drill, and friend-device checks remain.
 
 ### Phase 9: Polish and Beta Preparation
 
@@ -157,7 +157,7 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 Run the Phase 9 beta gates next:
 
 1. Return to partial/denied HealthKit checks and the deferred Phase 9A/9B physical Watch discovery and Apple Workout validation using `docs/apple-watch-setup.md` before release.
-2. Deploy the multi-user migration, create the owner account in the signed iPhone app, check backup/export/live AI/deletion, and complete the host restore drill.
+2. Create the owner account in the signed iPhone app, check backup/export/live AI/deletion, and complete the host restore drill.
 3. Complete the Phase 9E seven-day personal beta.
 4. Complete the Phase 9F internal TestFlight clean-install smoke test.
 

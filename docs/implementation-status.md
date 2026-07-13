@@ -18,7 +18,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 | Phase 5: Meal Photo Logging | Complete; signed-device verified | Camera/library capture, transient upload, dual-provider comparison/fallback, actionable coaching, correction, photo-free history, and deletion work on the signed iPhone. |
 | Phase 6: Coach Chat | Complete; signed-device verified | Contextual dual-provider chat, safety routing, provider comparison, and confirmed-only routine proposals work; Confirm/Edit/Reject remains required. |
 | Phase 7: Weekly Review and Photos | Complete; signed-device verified | Trends, weekly summaries, transient three-angle analysis, broad non-medical ranges, correction/rejection, comparison, photo-free history, and deletion work on the signed iPhone. |
-| Phase 8: Persistence and Accounts | Multi-user core complete (simulator-build verified) | Registration/login, scrypt password hashes, hashed expiring sessions, per-user SQLite isolation, Keychain session handling, export, sign out, and account deletion are implemented. Deployed migration and friend-device checks remain. |
+| Phase 8: Persistence and Accounts | Multi-user core deployed; signed build installed | Registration/login, scrypt password hashes, hashed expiring sessions, per-user SQLite isolation, Keychain session handling, export, sign out, and account deletion are live. Owner-account and friend-device checks remain. |
 | Phase 9: Polish and Beta | In progress; Phase 9C complete and Phase 9D hosted | Signed launch, primary HealthKit, backup, reminders, and all Phase 9C live AI/camera flows pass. The Railway backend is online with durable storage; authenticated iPhone, restore-drill, Watch/permission, seven-day beta, and TestFlight gates remain. |
 | Phase 10: Future Ideas | Not started | Post-MVP enhancements remain intentionally deferred. |
 
@@ -63,7 +63,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 - Phase 9 privacy manifests and 1024-pixel icon catalogs validate, and the polished iPhone and Watch targets build successfully.
 - Full-permission HealthKit data access and local reminder delivery passed on the signed iPhone; partial/denied HealthKit paths and Watch integrations remain physical-device items.
 - Production-mode liveness/readiness and graceful shutdown pass locally. The Docker image builds and runs successfully as the unprivileged `node` user, with SQLite readiness healthy inside the container.
-- Railway reports the service online in Southeast Asia; `/health/ready` returns persistence `ready`. The multi-user migration still needs deployment and production account-flow validation.
+- Railway reports the multi-user service online in Southeast Asia; registration validation is live and `/health/ready` returns persistence `ready`. Production owner-account and friend-device flows remain to be exercised.
 
 Verification rerun: July 14, 2026.
 
@@ -71,7 +71,7 @@ Verification rerun: July 14, 2026.
 
 - Follow `docs/apple-watch-setup.md` to validate WorkoutKit permission, iPhone scheduling, Watch handoff, Apple Workout capture, HealthKit import, offline queueing, and exact-once manual-log merge.
 - Complete the remaining partial/denied HealthKit permission checks on the signed iPhone.
-- Deploy the multi-user migration, create the owner account in the iPhone app, then verify backup, export, deletion, and live AI against production HTTPS.
+- Create the owner account in the installed iPhone app, then verify backup, export, deletion, and live AI against production HTTPS.
 - Add email verification and password recovery before a broader external beta.
 - Run the host-level production backup/restore drill before marking Phase 9D complete.
 - Run `./scripts/release-preflight.sh --build`, then complete the signed-device, Series 10, seven-day personal beta, and TestFlight gates in `docs/beta-checklist.md`.

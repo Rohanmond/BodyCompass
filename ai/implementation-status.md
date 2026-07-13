@@ -31,7 +31,7 @@ Last audited: July 14, 2026.
 
 - Phase 4 extras: date-range pauses, one-tap move/copy of sessions between days, and non-rest one-day exception UI (the core model supports arbitrary replacement sessions).
 - Phase 4W Apple Workout migration is simulator-build verified: WorkoutKit strength/swim mapping, iPhone scheduling, Watch handoff, runtime strength fallback, Pool/Open Water selection, completed-workout UUID matching, duration/energy/distance import, and durable manual strength details. Paired-device verification remains.
-- Phase 8/9D production HTTPS hosting is live; multi-user migration deployment, host restore drill, and authenticated friend-device verification remain.
+- Phase 8/9D production HTTPS hosting and multi-user migration are live; owner-account validation, host restore drill, and authenticated friend-device verification remain.
 
 ## Not Implemented
 

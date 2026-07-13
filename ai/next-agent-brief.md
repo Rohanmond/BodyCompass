@@ -4,7 +4,7 @@ Read `ai/HANDOFF.md` before starting. This brief intentionally covers only the n
 
 ## Completed Software Phase
 
-Phase 8 SQLite persistence, photo-free multi-user accounts, local-first backup, export, and deletion are implemented. The Railway production service is live with HTTPS and durable `/data`; the account migration still needs deployment validation.
+Phase 8 SQLite persistence, photo-free multi-user accounts, local-first backup, export, and deletion are implemented. The Railway production migration is live with HTTPS and durable `/data`; registration validation and SQLite readiness pass.
 
 ## Best Next Phase
 

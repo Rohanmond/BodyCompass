@@ -398,7 +398,7 @@ Phase 7 done status: all functional criteria and Phase 9C physical-camera/live-k
 
 Goal: stop relying on in-memory/mock data.
 
-Status: multi-user accounts implemented and simulator-build verified; deployed migration and friend-device testing remain.
+Status: multi-user accounts implemented, deployed to Railway, and signed-device build verified; owner-account and friend-device testing remain.
 
 Deliverables:
 
@@ -426,7 +426,7 @@ Done when:
 - User can delete meal/check-in result records and health logs; photos never enter history.
 - API keys remain server-side only.
 
-Phase 8 done status: core multi-user identity and data isolation are implemented. Email verification, password recovery, deployed migration validation, and friend-device beta testing remain release work.
+Phase 8 done status: core multi-user identity and data isolation are implemented and deployed. Email verification, password recovery, owner-account validation, and friend-device beta testing remain release work.
 
 ## Phase 9: Polish and Beta
 
