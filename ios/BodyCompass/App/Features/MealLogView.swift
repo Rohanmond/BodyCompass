@@ -32,6 +32,13 @@ struct MealLogView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Log what you actually ate")
+                            .font(.title3.bold())
+                        Text("A clear photo plus portion details gives both models a better starting point.")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
                     photoInput
 
                     TextField("Portion, cooking oil, sauces, restaurant or home", text: $notes, axis: .vertical)
@@ -48,6 +55,7 @@ struct MealLogView: View {
                         }
                     }
                     .buttonStyle(.borderedProminent)
+                    .tint(Theme.accent)
                     .disabled(imageData == nil || isAnalyzing)
 
                     if let errorMessage {
@@ -64,6 +72,7 @@ struct MealLogView: View {
                 }
                 .padding()
             }
+            .background(Theme.background)
             .navigationTitle("Meals")
             .sheet(isPresented: $isShowingCamera) {
                 CameraPicker { pickedImage in
@@ -115,6 +124,8 @@ struct MealLogView: View {
                     description: Text("Use a clear overhead photo and add portion notes below.")
                 )
                 .frame(maxWidth: .infinity, minHeight: 190)
+                .background(Theme.surface)
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             }
 
             HStack {

@@ -58,6 +58,7 @@ struct CoachChatView: View {
                 composer
             }
             .padding()
+            .background(Theme.background)
             .navigationTitle("Coach")
             .toolbar {
                 if !history.exchanges.isEmpty {

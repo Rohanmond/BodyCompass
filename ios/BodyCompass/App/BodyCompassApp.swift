@@ -10,6 +10,7 @@ struct BodyCompassApp: App {
             RootView()
                 .environmentObject(store)
                 .environmentObject(training)
+                .keyboardDismissible()
         }
     }
 }

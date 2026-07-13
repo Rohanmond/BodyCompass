@@ -437,6 +437,8 @@ Implemented:
 - Clear local-first recovery messaging and one-tap retry when private server backup is offline.
 - VoiceOver summaries for dashboard metrics, adherence, schedule completion, progress photos, and trend charts.
 - Improved trend scaling and a visible 12% body-fat target reference.
+- App-wide keyboard dismissal with an explicit Done control, interactive scroll dismissal, and outside-tap dismissal.
+- Refreshed operational UI with a priority-first Today screen, distinct metric colors, explicit HealthKit time windows, adherence progress, a visual 12% goal summary, and clearer Meals and Coach surfaces.
 - A repeatable release preflight for metadata, icons, backend tests, Swift core checks, and both simulator builds.
 - Beginner-friendly signed-device, Series 10, live-provider, seven-day beta, and TestFlight checklist in `docs/beta-checklist.md`.
 

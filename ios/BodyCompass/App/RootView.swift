@@ -29,5 +29,7 @@ struct RootView: View {
                 .tabItem { Label("Coach", systemImage: "bubble.left.and.bubble.right") }
         }
         .tint(Theme.accent)
+        .toolbarBackground(.visible, for: .tabBar)
+        .toolbarBackground(.ultraThinMaterial, for: .tabBar)
     }
 }

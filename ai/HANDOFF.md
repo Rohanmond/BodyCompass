@@ -129,6 +129,8 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 ### Phase 9: Polish and Beta Preparation
 
 - iPhone and Watch targets have production 1024-pixel app icons and privacy manifests.
+- The app root supplies a keyboard Done action plus scroll/outside-tap dismissal to every text-entry flow.
+- Today is priority-first with distinct health-metric colors and explicit time windows; Goal has a visual 12% summary and scannable pacing rows; Meals and Coach use the refreshed grouped visual system.
 - Today distinguishes private-backup failure from local data loss and offers a retry action.
 - Dashboard metrics, adherence, schedule rows, progress-photo selection, and charts have VoiceOver summaries.
 - History charts use readable padded scales; body fat includes the 12% target reference.

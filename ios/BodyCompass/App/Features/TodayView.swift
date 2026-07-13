@@ -9,23 +9,22 @@ struct TodayView: View {
         NavigationStack {
             ScrollView {
                 VStack(alignment: .leading, spacing: 18) {
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text("Today")
-                            .font(.largeTitle.bold())
-                        Text("Stay honest, stay consistent, adjust fast.")
-                            .foregroundStyle(.secondary)
-                    }
+                    dayHeader
 
                     healthSyncBanner
                     serverSyncBanner
 
+                    priorityCard
+
+                    SectionHeader(title: "Health today")
+
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
-                        MetricCard(title: "Steps", value: "\(store.today.steps)", caption: "Goal: 10,000", systemImage: "figure.walk")
-                        MetricCard(title: "Active energy", value: "\(Int(store.today.activeEnergyKcal)) kcal", caption: "From Apple Health", systemImage: "flame")
-                        MetricCard(title: "Sleep", value: hoursText(store.today.sleepHours), caption: sourceCaption(for: \.sleepHours, fallback: "Recovery input"), systemImage: "bed.double")
-                        MetricCard(title: "Workout", value: "\(store.today.workoutMinutes) min", caption: "Strength protects lean mass", systemImage: "dumbbell")
-                        MetricCard(title: "Weight", value: weightText, caption: sourceCaption(for: \.weightKg, fallback: "Latest measurement"), systemImage: "scalemass")
-                        MetricCard(title: "Body fat", value: bodyFatText, caption: sourceCaption(for: \.bodyFatPercentage, fallback: "Latest estimate"), systemImage: "percent")
+                        MetricCard(title: "Steps", value: "\(store.today.steps)", caption: "Since midnight · 10,000 goal", systemImage: "figure.walk", tint: Theme.blue)
+                        MetricCard(title: "Active energy", value: "\(Int(store.today.activeEnergyKcal)) kcal", caption: "Since midnight · Apple Health", systemImage: "flame.fill", tint: Theme.orange)
+                        MetricCard(title: "Sleep", value: hoursText(store.today.sleepHours), caption: sourceCaption(for: \.sleepHours, fallback: "Current night · recovery"), systemImage: "bed.double.fill", tint: Theme.indigo)
+                        MetricCard(title: "Workout", value: "\(store.today.workoutMinutes) min", caption: "Since midnight · Apple Health", systemImage: "dumbbell.fill", tint: Theme.coral)
+                        MetricCard(title: "Weight", value: weightText, caption: sourceCaption(for: \.weightKg, fallback: "Latest within 14 days"), systemImage: "scalemass.fill", tint: Theme.cyan)
+                        MetricCard(title: "Body fat", value: bodyFatText, caption: sourceCaption(for: \.bodyFatPercentage, fallback: "Latest within 30 days"), systemImage: "percent", tint: Theme.violet)
                     }
 
                     Button {
@@ -89,28 +88,74 @@ struct TodayView: View {
                         }
                     }
 
-                    SectionHeader(title: "Next best action")
-                    VStack(alignment: .leading, spacing: 6) {
-                        Text(store.nextBestAction.headline)
-                            .font(.headline)
-                        Text(store.nextBestAction.detail)
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding()
-                    .background(Theme.accent.opacity(0.12))
-                    .clipShape(RoundedRectangle(cornerRadius: 8))
                 }
                 .padding()
             }
-            .navigationTitle("BodyCompass")
+            .background(Theme.background)
+            .navigationTitle("Today")
+            .navigationBarTitleDisplayMode(.inline)
             .task { await store.refreshToday() }
             .refreshable { await store.refreshToday() }
             .sheet(isPresented: $showingManualEntry) {
                 ManualEntrySheet()
             }
         }
+    }
+
+    private var dayHeader: some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(Date.now.formatted(.dateTime.weekday(.wide).month(.wide).day()))
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(Theme.accent)
+            Text("\(greeting), \(firstName)")
+                .font(.title2.bold())
+            Text("Keep the next decision simple and useful.")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var priorityCard: some View {
+        HStack(alignment: .top, spacing: 14) {
+            Image(systemName: "scope")
+                .font(.title3.bold())
+                .foregroundStyle(.white)
+                .frame(width: 40, height: 40)
+                .background(Theme.accent)
+                .clipShape(Circle())
+            VStack(alignment: .leading, spacing: 4) {
+                Text("PRIORITY NOW")
+                    .font(.caption.bold())
+                    .foregroundStyle(Theme.accent)
+                Text(store.nextBestAction.headline)
+                    .font(.headline)
+                Text(store.nextBestAction.detail)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding()
+        .background(Theme.accent.opacity(0.10))
+        .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .stroke(Theme.accent.opacity(0.22), lineWidth: 1)
+        }
+    }
+
+    private var greeting: String {
+        switch Calendar.current.component(.hour, from: Date()) {
+        case 5..<12: "Good morning"
+        case 12..<17: "Good afternoon"
+        case 17..<22: "Good evening"
+        default: "Good night"
+        }
+    }
+
+    private var firstName: String {
+        store.profile.name.split(separator: " ").first.map(String.init) ?? "there"
     }
 
     // Today's structured session from the weekly program — separate from the
@@ -177,22 +222,26 @@ struct TodayView: View {
 
     private var adherenceCard: some View {
         let daily = store.dailyAdherence
-        return HStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("Today's adherence")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                Text("\(daily.completed)/\(daily.total) · \(daily.percent)%")
-                    .font(.title3.bold())
+        return VStack(spacing: 12) {
+            HStack(spacing: 16) {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Today's adherence")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Text("\(daily.completed)/\(daily.total) · \(daily.percent)%")
+                        .font(.title3.bold())
+                }
+                Spacer()
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text("7-day")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    Text(store.weeklyAdherence.map { "\(Int(($0 * 100).rounded()))%" } ?? "—")
+                        .font(.title3.bold())
+                }
             }
-            Spacer()
-            VStack(alignment: .trailing, spacing: 4) {
-                Text("7-day")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                Text(store.weeklyAdherence.map { "\(Int(($0 * 100).rounded()))%" } ?? "—")
-                    .font(.title3.bold())
-            }
+            ProgressView(value: Double(daily.percent), total: 100)
+                .tint(Theme.accent)
         }
         .padding()
         .background(Theme.surface)
