@@ -56,3 +56,37 @@ test("provider results are normalized before reaching the app", () => {
   assert.equal(result.proteinGrams, 0);
   assert.equal(result.confidence, 1);
 });
+
+test("provider transport retries temporary 503 responses", async () => {
+  const responses = [
+    new Response("busy", { status: 503 }),
+    new Response(JSON.stringify({ ok: true }), { status: 200 })
+  ];
+  let calls = 0;
+
+  const result = await __testing.fetchWithRetry("https://provider.test", {}, {
+    fetchImpl: async () => {
+      calls += 1;
+      return responses.shift();
+    },
+    sleep: async () => undefined
+  });
+
+  assert.equal(result.status, 200);
+  assert.equal(calls, 2);
+});
+
+test("provider transport returns the final temporary failure after bounded retries", async () => {
+  let calls = 0;
+  const result = await __testing.fetchWithRetry("https://provider.test", {}, {
+    fetchImpl: async () => {
+      calls += 1;
+      return new Response("busy", { status: 503 });
+    },
+    sleep: async () => undefined,
+    attempts: 3
+  });
+
+  assert.equal(result.status, 503);
+  assert.equal(calls, 3);
+});

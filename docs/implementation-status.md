@@ -1,6 +1,6 @@
 # BodyCompass Implementation Status
 
-Last updated: July 13, 2026
+Last updated: July 14, 2026
 
 This page is the quick progress summary. See `docs/phases.md` for detailed deliverables and completion criteria.
 Coding models should start with `ai/HANDOFF.md` for the audited repository handoff.
@@ -15,11 +15,11 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 | Phase 3: HealthKit Daily Sync | Signed-device primary flow verified | Full-permission HealthKit authorization and real weight, energy, resting-heart-rate, and daily reads work on the user's iPhone. Partial/denied permission exercises remain. |
 | Phase 4: Schedule and Training Plan | Complete (simulator-verified) | Daily schedule, adherence, next action, and reminders plus the full structured training program: seeded weekly split, setup questionnaire, exercise prescriptions, set/swim logging, deterministic progression, versioned editing with rollback, one-day rest exceptions, and a mock coach proposal Confirm/Edit/Reject flow. |
 | Phase 4W: Apple Watch Companion | Implemented; device check pending | Apple Workout ownership, WorkoutKit handoff, durable manual logs, completed-workout metrics, and deterministic recovery-aware post-workout guidance compile. Paired-device validation remains. |
-| Phase 5: Meal Photo Logging | Complete (simulator-verified) | Camera/library capture, compressed upload, real dual-provider adapters, comparison, correction, encrypted local photo history, and deletion are implemented. Live-key and physical-camera checks remain. |
-| Phase 6: Coach Chat | Complete (simulator-verified) | Contextual dual-provider chat, local history, safety routing, provider comparison, and validated confirmed-only routine proposals are implemented. Live-key validation remains. |
+| Phase 5: Meal Photo Logging | Complete; live API verified | Camera/library capture, compressed upload, real dual-provider adapters, comparison, correction, encrypted local photo history, and deletion are implemented. Live dual-provider notes-only analysis and fallback pass; physical-camera checks remain. |
+| Phase 6: Coach Chat | Complete; live API verified | Contextual dual-provider chat, local history, safety routing, provider comparison, and validated confirmed-only routine proposals are implemented. Both providers and the reconciled next action pass live API validation. |
 | Phase 7: Weekly Review and Photos | Complete (simulator-build verified) | Persisted HealthKit trends, weekly adherence/nutrition/training review, recalculated projection, standardized three-angle check-ins, protected local photos, comparison, dual-AI range analysis, correction/rejection, and deletion are implemented. Live-key and physical-camera checks remain. |
 | Phase 8: Persistence and Accounts | Complete (simulator-build verified) | SQLite persistence, private single-user bearer auth, encrypted non-public image storage, local-first iOS backup, Keychain token, JSON export, and server/device deletion are implemented. Production deployment/restore checks remain. |
-| Phase 9: Polish and Beta | In progress; primary iPhone checks verified | Signed launch, full-permission HealthKit, authenticated backup, and local notification delivery pass. Watch and partial/denied HealthKit checks remain, followed by 9C live AI/camera, 9D deployment, 9E beta, and 9F TestFlight. |
+| Phase 9: Polish and Beta | In progress; primary iPhone and live AI checks verified | Signed launch, full-permission HealthKit, authenticated backup, local notification delivery, and Phase 9C dual-provider meal/Coach API checks pass. Physical cameras, progress-photo vision, Watch, and partial/denied HealthKit checks remain before deployment and beta gates. |
 | Phase 10: Future Ideas | Not started | Post-MVP enhancements remain intentionally deferred. |
 
 ## Latest Completed Work
@@ -44,25 +44,26 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 - Implemented Phase 9 code-side polish: iPhone/Watch icons, privacy manifests, local-first backup recovery, accessible metrics and trends, a 12% chart target, automated preflight, and a physical-device/TestFlight checklist.
 - Added app-wide keyboard dismissal and refreshed the daily-use UI: priority-first Today hierarchy, varied metric colors, clearer HealthKit date windows, adherence progress, a visual goal summary, and improved Meals/Coach presentation. Simulator and signed-iPhone builds pass.
 - Verified real HealthKit snapshot backup and the Debug-only 10-second notification banner/sound delivery on the signed iPhone.
+- Verified live OpenAI and Gemini meal analysis, reconciliation, one-provider meal fallback, and contextual Coach responses. Provider transport now retries bounded 429/503 failures; Gemini defaults to the current `gemini-3.1-flash-lite` model.
 - Created a Personal Team development certificate and provisioning profiles, then built, installed, trusted, and launched BodyCompass successfully on the user's physical iPhone 17 Pro. Xcode physical-Watch discovery remains deferred.
 
 ## Verified
 
 - `swift run BodyCompassCoreCheck` passes, including training validation, progression, proposal, log reconciliation, and W5 recovery-advisor scenarios.
-- `npm test` passes with 26 backend tests.
+- `npm test` passes with 28 backend tests.
 - The BodyCompass Xcode target builds successfully for the generic iOS Simulator destination with the meal services and embedded Watch app.
 - The BodyCompass Watch App scheme builds successfully for the generic watchOS Simulator SDK destination.
 - Phase 9 privacy manifests and 1024-pixel icon catalogs validate, and the polished iPhone and Watch targets build successfully.
 - Full-permission HealthKit data access and local reminder delivery passed on the signed iPhone; partial/denied HealthKit paths and Watch integrations remain physical-device items.
 
-Verification rerun: July 13, 2026.
+Verification rerun: July 14, 2026.
 
 ## Next
 
-- Start Phase 9C physical-camera and live-provider validation. Return to partial/denied HealthKit and deferred Watch discovery before release.
+- Continue Phase 9C on the signed iPhone: clear/poor meal photos, correction/deletion, Coach routine proposal confirmation, and the three-angle progress-photo flow. Return to partial/denied HealthKit and deferred Watch discovery before release.
 - Follow `docs/apple-watch-setup.md` to validate WorkoutKit permission, iPhone scheduling, Watch handoff, Apple Workout capture, HealthKit import, offline queueing, and exact-once manual-log merge.
 - Validate Phase 5 on a physical iPhone camera and with both provider API keys; mock mode remains available without keys.
-- Validate Phase 6 with live OpenAI and Gemini keys; mock mode covers the complete UI and proposal workflow locally.
+- Validate Phase 6's live response and Confirm/Edit/Reject proposal flow in the signed-device UI; the live dual-provider API path is verified.
 - Validate Phase 7 with a physical iPhone camera and both live provider keys; deterministic mock mode covers the full flow locally.
 - Deploy Phase 8 behind HTTPS with durable volume backup, then perform a backup/restore drill using stable API/storage secrets.
 - Run `./scripts/release-preflight.sh --build`, then complete the signed-device, Series 10, seven-day personal beta, and TestFlight gates in `docs/beta-checklist.md`.

@@ -43,7 +43,7 @@ async function callOpenAI(kind, payload) {
 
   if (kind === "progress") return callOpenAIProgress(payload);
 
-  const response = await fetch("https://api.openai.com/v1/responses", {
+  const response = await fetchWithRetry("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
@@ -84,8 +84,8 @@ async function callGemini(kind, payload) {
 
   if (kind === "progress") return callGeminiProgress(payload);
 
-  const model = encodeURIComponent(process.env.GEMINI_MODEL ?? "gemini-2.5-pro");
-  const response = await fetch(
+  const model = encodeURIComponent(process.env.GEMINI_MODEL ?? "gemini-3.1-flash-lite");
+  const response = await fetchWithRetry(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
     {
       method: "POST",
@@ -347,7 +347,7 @@ function mealInputParts(payload, provider) {
 }
 
 async function callOpenAIProgress(payload) {
-  const response = await fetch("https://api.openai.com/v1/responses", {
+  const response = await fetchWithRetry("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
@@ -374,8 +374,8 @@ async function callOpenAIProgress(payload) {
 }
 
 async function callGeminiProgress(payload) {
-  const model = encodeURIComponent(process.env.GEMINI_MODEL ?? "gemini-2.5-pro");
-  const response = await fetch(
+  const model = encodeURIComponent(process.env.GEMINI_MODEL ?? "gemini-3.1-flash-lite");
+  const response = await fetchWithRetry(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
     {
       method: "POST",
@@ -456,6 +456,38 @@ async function parseProviderResponse(response, provider) {
   return result;
 }
 
+async function fetchWithRetry(url, options, overrides = {}) {
+  const fetchImpl = overrides.fetchImpl ?? fetch;
+  const sleep = overrides.sleep ?? ((milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds)));
+  const attempts = overrides.attempts ?? 3;
+  let lastError;
+
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      const response = await fetchImpl(url, options);
+      const shouldRetry = response.status === 429 || response.status === 503;
+      if (!shouldRetry || attempt === attempts - 1) return response;
+
+      await response.arrayBuffer().catch(() => undefined);
+      await sleep(retryDelayMilliseconds(response, attempt));
+    } catch (error) {
+      lastError = error;
+      if (attempt === attempts - 1) throw error;
+      await sleep(750 * (2 ** attempt));
+    }
+  }
+
+  throw lastError ?? new Error("Provider request failed");
+}
+
+function retryDelayMilliseconds(response, attempt) {
+  const retryAfterSeconds = Number(response.headers.get("retry-after"));
+  if (Number.isFinite(retryAfterSeconds) && retryAfterSeconds > 0) {
+    return Math.min(retryAfterSeconds * 1_000, 5_000);
+  }
+  return 750 * (2 ** attempt);
+}
+
 function normalizeMealResult(provider, result) {
   if (!result || !Array.isArray(result.caloriesRange) || result.caloriesRange.length !== 2) {
     throw new Error(`${provider} returned an invalid meal analysis`);
@@ -482,7 +514,7 @@ function nonNegativeInteger(value) {
   return Math.max(0, Math.round(Number(value) || 0));
 }
 
-export const __testing = { reconcileMeal, normalizeMealResult };
+export const __testing = { reconcileMeal, normalizeMealResult, fetchWithRetry };
 
 const coachSchema = {
   type: "object",
@@ -534,7 +566,7 @@ const coachSchema = {
 };
 
 async function callOpenAIChat(payload) {
-  const response = await fetch("https://api.openai.com/v1/responses", {
+  const response = await fetchWithRetry("https://api.openai.com/v1/responses", {
     method: "POST",
     headers: {
       authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
@@ -561,8 +593,8 @@ async function callOpenAIChat(payload) {
 }
 
 async function callGeminiChat(payload) {
-  const model = encodeURIComponent(process.env.GEMINI_MODEL ?? "gemini-2.5-pro");
-  const response = await fetch(
+  const model = encodeURIComponent(process.env.GEMINI_MODEL ?? "gemini-3.1-flash-lite");
+  const response = await fetchWithRetry(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
     {
       method: "POST",
