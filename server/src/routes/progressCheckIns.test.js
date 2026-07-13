@@ -28,6 +28,8 @@ test("progress endpoint returns dual mock estimates", async () => {
   assert.equal(result.status, 200);
   assert.equal(result.body.openai.mode, "mock");
   assert.deepEqual(result.body.reconciled.bodyFatRange, [15, 21]);
+  assert.ok(result.body.reconciled.positiveSignals.length > 0);
+  assert.ok(result.body.reconciled.warningSignals.length > 0);
 });
 
 function confirmations() {

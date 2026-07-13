@@ -9,6 +9,10 @@ test("mock meal analysis returns two estimates and a reconciliation", async () =
   assert.equal(result.gemini.mode, "mock");
   assert.deepEqual(result.reconciled.caloriesRange, [620, 780]);
   assert.equal(result.reconciled.proteinGrams, 42);
+  assert.ok(result.reconciled.greenSigns.length > 0);
+  assert.ok(result.reconciled.redFlags.length > 0);
+  assert.ok(result.reconciled.improvements.length > 0);
+  assert.ok(result.reconciled.nextAction.length > 0);
 });
 
 test("reconciliation remains useful when one provider fails", () => {
@@ -55,6 +59,8 @@ test("provider results are normalized before reaching the app", () => {
   assert.deepEqual(result.caloriesRange, [300, 411]);
   assert.equal(result.proteinGrams, 0);
   assert.equal(result.confidence, 1);
+  assert.deepEqual(result.greenSigns, []);
+  assert.ok(result.nextAction.length > 0);
 });
 
 test("provider transport retries temporary 503 responses", async () => {

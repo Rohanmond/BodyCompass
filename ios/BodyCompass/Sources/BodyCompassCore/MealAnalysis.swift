@@ -10,6 +10,10 @@ public struct MealAnalysis: Codable, Equatable, Identifiable, Sendable {
     public var confidence: Double
     public var likelyMistakes: [String]
     public var recommendation: String
+    public var greenSigns: [String]?
+    public var redFlags: [String]?
+    public var improvements: [String]?
+    public var nextAction: String?
 
     public init(
         id: UUID = UUID(),
@@ -20,7 +24,11 @@ public struct MealAnalysis: Codable, Equatable, Identifiable, Sendable {
         fatGrams: Int,
         confidence: Double,
         likelyMistakes: [String],
-        recommendation: String
+        recommendation: String,
+        greenSigns: [String]? = nil,
+        redFlags: [String]? = nil,
+        improvements: [String]? = nil,
+        nextAction: String? = nil
     ) {
         self.id = id
         self.title = title
@@ -31,6 +39,10 @@ public struct MealAnalysis: Codable, Equatable, Identifiable, Sendable {
         self.confidence = confidence
         self.likelyMistakes = likelyMistakes
         self.recommendation = recommendation
+        self.greenSigns = greenSigns
+        self.redFlags = redFlags
+        self.improvements = improvements
+        self.nextAction = nextAction
     }
 }
 

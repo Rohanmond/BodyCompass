@@ -49,6 +49,7 @@ The initial target user is a focused adult fitness user who:
 - Meal logging with photo/context input.
 - Backend endpoint that sends meal analysis to both OpenAI and Gemini.
 - Reconciled calorie/macro estimate with confidence and warnings.
+- Actionable meal verdict: green signs, red signs, what to reduce/add/swap/measure, and one next action.
 - Coach chat with combined answer and separate provider outputs.
 - Weekly review and history screen.
 - Standardized weekly morning progress-photo check-in.

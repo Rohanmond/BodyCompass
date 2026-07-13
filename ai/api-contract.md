@@ -69,7 +69,11 @@ Response:
     "fatGrams": 22,
     "confidence": 0.68,
     "likelyMistakes": ["Confirm cooking oil"],
-    "recommendation": "Confirm the rice and oil portions before saving."
+    "recommendation": "This can fit the cut if the oil and sauce portions stay controlled.",
+    "greenSigns": ["Meaningful lean-protein serving", "Vegetables add volume and fiber"],
+    "redFlags": ["Unmeasured sauce can materially raise calories"],
+    "improvements": ["Measure the sauce", "Keep at least half the plate vegetables"],
+    "nextAction": "Keep the chicken and vegetables; use half the sauce before saving the corrected meal."
   }
 }
 ```

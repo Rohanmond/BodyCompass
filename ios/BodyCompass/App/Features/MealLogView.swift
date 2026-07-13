@@ -40,9 +40,7 @@ struct MealLogView: View {
                             .foregroundStyle(.secondary)
                     }
                     photoInput
-                    Label("Sent to the configured AI providers for analysis, then discarded. The photo is not saved in BodyCompass history or backup.", systemImage: "hand.raised")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    AnalysisPrivacyNotice(subject: "meal")
 
                     TextField("Portion, cooking oil, sauces, restaurant or home", text: $notes, axis: .vertical)
                         .lineLimit(3...5)
@@ -204,12 +202,21 @@ struct MealLogView: View {
                 .foregroundStyle(.secondary)
             ProgressView(value: meal.confidence)
                 .tint(meal.confidence >= 0.65 ? Theme.accent : Theme.warning)
-            Text(meal.recommendation)
-            ForEach(meal.likelyMistakes, id: \.self) { mistake in
-                Label(mistake, systemImage: "exclamationmark.triangle")
-                    .font(.caption)
-                    .foregroundStyle(Theme.warning)
+            VStack(alignment: .leading, spacing: 4) {
+                Text("What this means").font(.subheadline.bold())
+                Text(meal.recommendation).font(.callout)
             }
+            signalList("Green signs", items: greenSigns(for: meal), icon: "checkmark.circle.fill", color: Theme.accent)
+            signalList("Red signs", items: redSigns(for: meal), icon: "exclamationmark.triangle.fill", color: Theme.coral)
+            signalList("Improve this meal", items: improvements(for: meal), icon: "arrow.up.circle.fill", color: Theme.blue)
+            VStack(alignment: .leading, spacing: 5) {
+                Label("Next action", systemImage: "figure.walk.motion")
+                    .font(.subheadline.bold())
+                    .foregroundStyle(Theme.indigo)
+                Text(meal.nextAction ?? meal.recommendation)
+                    .font(.callout.weight(.medium))
+            }
+            .padding(.top, 2)
         }
         .padding()
         .background(Theme.surface)
@@ -230,6 +237,12 @@ struct MealLogView: View {
                         Text(meal.createdAt, style: .date).font(.caption).foregroundStyle(.secondary)
                         Text("\(meal.accepted.caloriesRange.lowerBound) kcal | P \(meal.accepted.proteinGrams)g | C \(meal.accepted.carbsGrams)g | F \(meal.accepted.fatGrams)g")
                             .font(.callout)
+                        if let nextAction = meal.accepted.nextAction {
+                            Text(nextAction)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .lineLimit(2)
+                        }
                     }
                     Spacer(minLength: 4)
                     Button(role: .destructive) {
@@ -244,6 +257,34 @@ struct MealLogView: View {
                 .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }
+    }
+
+    @ViewBuilder
+    private func signalList(_ title: String, items: [String], icon: String, color: Color) -> some View {
+        if !items.isEmpty {
+            VStack(alignment: .leading, spacing: 5) {
+                Text(title).font(.subheadline.bold()).foregroundStyle(color)
+                ForEach(items, id: \.self) { item in
+                    Label(item, systemImage: icon)
+                        .font(.callout)
+                        .foregroundStyle(.primary)
+                        .symbolRenderingMode(.hierarchical)
+                }
+            }
+        }
+    }
+
+    private func greenSigns(for meal: MealAnalysis) -> [String] {
+        meal.greenSigns ?? (meal.proteinGrams >= 25 ? ["Protein is high enough to support fullness and lean-mass retention."] : [])
+    }
+
+    private func redSigns(for meal: MealAnalysis) -> [String] {
+        let signals = meal.redFlags ?? meal.likelyMistakes
+        return signals.isEmpty && meal.confidence < 0.65 ? ["Low-confidence estimate: portion details may change the calories materially."] : signals
+    }
+
+    private func improvements(for meal: MealAnalysis) -> [String] {
+        meal.improvements ?? ["Confirm oils, sauces, and portion size before saving."]
     }
 
     private func analyzeMeal() {
@@ -344,7 +385,11 @@ private struct NutritionCorrectionView: View {
                                 fatGrams: fat,
                                 confidence: analysis.confidence,
                                 likelyMistakes: analysis.likelyMistakes,
-                                recommendation: analysis.recommendation
+                                recommendation: analysis.recommendation,
+                                greenSigns: analysis.greenSigns,
+                                redFlags: analysis.redFlags,
+                                improvements: analysis.improvements,
+                                nextAction: analysis.nextAction
                             )
                         )
                     }

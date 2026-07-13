@@ -32,6 +32,8 @@ On July 14, 2026, Xcode automatic signing created a valid Personal Team developm
 
 This verifies compilation and existing automated checks. A later July 14 signed-iPhone run also verified device signing, full-permission Apple Health reads, authenticated private backup, and local notification delivery. Live OpenAI and Gemini meal/Coach API calls and reconciliation also pass. Physical camera, progress-photo vision, partial/denied Health access, and Watch behavior remain unverified.
 
+A subsequent July 14 signed-iPhone deployment added prominent no-photo-storage notices and actionable meal/progress result sections. Live OpenAI and Gemini meal responses both satisfy the expanded green signs, red flags, improvements, and next-action schema.
+
 ## Implemented
 
 ### Foundation and iOS App
@@ -91,6 +93,7 @@ Remaining Phase 4 niceties (deferred): date-range pauses, one-tap move/copy betw
 - Camera and Photos picker inputs re-render selected images at a bounded size, which normalizes orientation and strips original metadata before JPEG upload.
 - `MealAPIClient` sends the image, notes, and protein target to the backend. The server caps JSON at 12 MB and decoded images at 8 MB.
 - OpenAI Responses and Gemini generateContent adapters request structured estimates. The defaults are `gpt-5.4` and `gemini-3.1-flash-lite`; provider transport retries temporary 429/503 responses with bounded backoff. Missing keys produce deterministic mock estimates; one-provider failure still yields a lower-confidence reconciliation.
+- Meal results must include green signs, red flags, practical reduce/add/swap/measure improvements, and one next action; calorie/macros alone are not considered a complete analysis.
 - The app shows Combined, ChatGPT, and Gemini results, supports calorie/macro correction, and stores accepted result metadata in `UserDefaults`. Meal photos are discarded and never enter history or backup.
 - Deleting a meal deletes its result metadata. Live notes-only dual-provider analysis and one-provider fallback are verified; physical-camera checks remain unverified.
 
@@ -111,6 +114,7 @@ Remaining Phase 4 niceties (deferred): date-range pauses, one-tap move/copy betw
 - Images are resized and re-rendered before transient upload, then discarded after analysis instead of being added to history.
 - The backend validates bounded images and calls OpenAI and Gemini vision adapters, with deterministic mocks and one-provider fallback.
 - Results remain broad non-clinical ranges with quality, visible changes, limitations, suggestions, and one next-week action.
+- Progress results also expose cautious green and red signals; they must never judge appearance or imply diagnosis.
 - The user can correct or reject an estimate, compare with the prior saved result and health trend, and delete the result record. No progress photos are retained.
 - Physical-camera and live-provider verification remain pending.
 

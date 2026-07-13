@@ -248,9 +248,7 @@ private struct ProgressCaptureView: View {
             VStack(alignment: .leading, spacing: 18) {
                 Text("Use the same room, camera height, distance, posture, and relaxed pose each week.")
                     .font(.callout).foregroundStyle(.secondary)
-                Label("Photos are sent to the configured AI providers for this analysis only and are not saved to history or backup.", systemImage: "hand.raised")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                AnalysisPrivacyNotice(subject: "progress")
                 HStack(spacing: 8) {
                     photoSlot(.front, item: $frontItem)
                     photoSlot(.side, item: $sideItem)
@@ -310,9 +308,11 @@ private struct ProgressCaptureView: View {
                     Label(selected.imageQuality.capitalized, systemImage: selected.imageQuality == "good" ? "checkmark.circle" : "exclamationmark.triangle")
                         .font(.caption).foregroundStyle(selected.imageQuality == "good" ? Theme.accent : Theme.warning)
                 }
+                resultList("Green signs", items: selected.positiveSignals ?? [], icon: "checkmark.circle.fill", color: Theme.accent)
+                resultList("Red signs", items: selected.warningSignals ?? selected.limitations, icon: "exclamationmark.triangle.fill", color: Theme.coral)
                 resultList("Visual notes", selected.visibleChanges)
                 resultList("Limits", selected.limitations)
-                resultList("Suggestions", selected.suggestions)
+                resultList("What to improve", items: selected.suggestions, icon: "arrow.up.circle.fill", color: Theme.blue)
                 VStack(alignment: .leading, spacing: 4) { Text("Next week").font(.headline); Text(selected.nextWeekAction) }
             } else {
                 Text(selectedError(bundle) ?? "This provider did not return an estimate.").foregroundStyle(Theme.warning)
@@ -336,9 +336,13 @@ private struct ProgressCaptureView: View {
     }
 
     private func resultList(_ title: String, _ items: [String]) -> some View {
+        resultList(title, items: items, icon: "circle.fill", color: .primary)
+    }
+
+    private func resultList(_ title: String, items: [String], icon: String, color: Color) -> some View {
         VStack(alignment: .leading, spacing: 5) {
-            Text(title).font(.headline)
-            ForEach(items, id: \.self) { Label($0, systemImage: "circle.fill").font(.callout).symbolRenderingMode(.hierarchical) }
+            Text(title).font(.headline).foregroundStyle(color)
+            ForEach(items, id: \.self) { Label($0, systemImage: icon).font(.callout).symbolRenderingMode(.hierarchical) }
         }
     }
 

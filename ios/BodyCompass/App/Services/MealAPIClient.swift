@@ -47,6 +47,10 @@ struct MealAPIClient {
         let confidence: Double?
         let likelyMistakes: [String]?
         let recommendation: String?
+        let greenSigns: [String]?
+        let redFlags: [String]?
+        let improvements: [String]?
+        let nextAction: String?
 
         func model() -> MealProviderEstimate {
             MealProviderEstimate(
@@ -69,7 +73,11 @@ struct MealAPIClient {
                 fatGrams: fatGrams,
                 confidence: confidence,
                 likelyMistakes: likelyMistakes,
-                recommendation: recommendation
+                recommendation: recommendation,
+                greenSigns: greenSigns,
+                redFlags: redFlags,
+                improvements: improvements,
+                nextAction: nextAction
             )
         }
     }
@@ -83,6 +91,10 @@ struct MealAPIClient {
         let confidence: Double
         let likelyMistakes: [String]
         let recommendation: String
+        let greenSigns: [String]?
+        let redFlags: [String]?
+        let improvements: [String]?
+        let nextAction: String?
 
         func model() throws -> MealAnalysis {
             guard caloriesRange.count == 2 else { throw ClientError.invalidResponse }
@@ -94,7 +106,11 @@ struct MealAPIClient {
                 fatGrams: fatGrams,
                 confidence: confidence,
                 likelyMistakes: likelyMistakes,
-                recommendation: recommendation
+                recommendation: recommendation,
+                greenSigns: greenSigns,
+                redFlags: redFlags,
+                improvements: improvements,
+                nextAction: nextAction
             )
         }
     }

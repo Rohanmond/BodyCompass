@@ -35,6 +35,8 @@
 - confidence
 - likelyMistakes
 - recommendation
+- greenSigns and redFlags
+- improvements and one nextAction
 
 `MealProviderEstimate` / `MealAnalysisBundle`
 

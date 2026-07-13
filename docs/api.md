@@ -48,7 +48,7 @@ JPEG, PNG, and WebP are accepted. Decoded images are limited to 8 MB and the JSO
 - `gemini`
 - `reconciled`
 
-Each successful estimate contains a title, calorie range, macros, confidence, likely mistakes, recommendation, and provider mode (`live` or `mock`). A failed provider returns `mode: "error"`; the reconciled result remains available when the other provider succeeds.
+Each successful estimate contains a title, calorie range, macros, confidence, likely mistakes, recommendation, green signs, red flags, concrete improvements, one next action, and provider mode (`live` or `mock`). These fields turn the estimate into a decision: what is helping, what may slow the goal, what to reduce/add/swap/measure, and what to do next. A failed provider returns `mode: "error"`; the reconciled result remains available when the other provider succeeds.
 
 ## `POST /api/chat`
 

@@ -298,8 +298,9 @@ Implemented so far:
 - Typed iOS meal API client with loading and error states.
 - Backend uses real OpenAI Responses and Gemini generateContent vision calls when keys are configured, with deterministic mocks otherwise.
 - Independent provider estimates, reconciliation, and one-provider fallback.
+- Actionable interpretation with green signs, red signs, what to reduce/add/swap/measure, and one next action.
 - Editable calories/macros before save.
-- Local meal history with protected image files and deletion.
+- Local photo-free meal-result history and deletion.
 
 Deliverables:
 
@@ -311,6 +312,7 @@ Done when:
 
 - User can log a meal photo.
 - App shows OpenAI, Gemini, and combined estimates.
+- App explains what the estimate means and provides a practical adjustment instead of calories alone.
 - User can correct the final calories/macros.
 - Corrected meal is saved to history.
 

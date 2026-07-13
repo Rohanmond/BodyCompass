@@ -59,6 +59,35 @@ struct MetricCard: View {
     }
 }
 
+struct AnalysisPrivacyNotice: View {
+    let subject: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: "hand.raised.fill")
+                .foregroundStyle(Theme.accent)
+                .frame(width: 28, height: 28)
+                .background(Theme.accent.opacity(0.14))
+                .clipShape(Circle())
+            VStack(alignment: .leading, spacing: 3) {
+                Text("Photo not saved")
+                    .font(.subheadline.bold())
+                Text("Your \(subject) photo is sent to the configured AI providers for this analysis, then discarded. BodyCompass does not add it to history or backup.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(Theme.accent.opacity(0.08))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+        .overlay {
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(Theme.accent.opacity(0.28), lineWidth: 1)
+        }
+    }
+}
+
 extension View {
     func keyboardDismissible() -> some View {
         modifier(KeyboardDismissModifier())

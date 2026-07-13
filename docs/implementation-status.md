@@ -45,6 +45,8 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 - Added app-wide keyboard dismissal and refreshed the daily-use UI: priority-first Today hierarchy, varied metric colors, clearer HealthKit date windows, adherence progress, a visual goal summary, and improved Meals/Coach presentation. Simulator and signed-iPhone builds pass.
 - Verified real HealthKit snapshot backup and the Debug-only 10-second notification banner/sound delivery on the signed iPhone.
 - Verified live OpenAI and Gemini meal analysis, reconciliation, one-provider meal fallback, and contextual Coach responses. Provider transport now retries bounded 429/503 failures; Gemini defaults to the current `gemini-3.1-flash-lite` model.
+- Expanded meal and progress analysis into actionable coaching: prominent no-photo-storage notices, green/red signals, concrete improvements, and one next action. Both live meal providers return the expanded schema.
+- Built, signed, installed, and launched the actionable-analysis UI on the user's physical iPhone 17 Pro.
 - Created a Personal Team development certificate and provisioning profiles, then built, installed, trusted, and launched BodyCompass successfully on the user's physical iPhone 17 Pro. Xcode physical-Watch discovery remains deferred.
 
 ## Verified

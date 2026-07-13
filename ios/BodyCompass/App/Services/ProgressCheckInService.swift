@@ -31,6 +31,8 @@ struct ProgressAnalysis: Codable, Equatable {
     var limitations: [String]
     var suggestions: [String]
     var nextWeekAction: String
+    var positiveSignals: [String]?
+    var warningSignals: [String]?
 }
 
 struct ProgressProviderEstimate: Codable, Equatable {
@@ -193,6 +195,8 @@ struct ProgressAPIClient {
         let limitations: [String]?
         let suggestions: [String]?
         let nextWeekAction: String?
+        let positiveSignals: [String]?
+        let warningSignals: [String]?
 
         func model() -> ProgressProviderEstimate {
             ProgressProviderEstimate(provider: provider, mode: mode, analysis: try? analysis(), error: error)
@@ -209,7 +213,9 @@ struct ProgressAPIClient {
                 visibleChanges: visibleChanges,
                 limitations: limitations,
                 suggestions: suggestions,
-                nextWeekAction: nextWeekAction
+                nextWeekAction: nextWeekAction,
+                positiveSignals: positiveSignals,
+                warningSignals: warningSignals
             )
         }
     }
@@ -221,6 +227,8 @@ struct ProgressAPIClient {
         let limitations: [String]
         let suggestions: [String]
         let nextWeekAction: String
+        let positiveSignals: [String]?
+        let warningSignals: [String]?
 
         func model() throws -> ProgressAnalysis {
             guard bodyFatRange.count == 2 else { throw ClientError.invalidResponse }
@@ -231,7 +239,9 @@ struct ProgressAPIClient {
                 visibleChanges: visibleChanges,
                 limitations: limitations,
                 suggestions: suggestions,
-                nextWeekAction: nextWeekAction
+                nextWeekAction: nextWeekAction,
+                positiveSignals: positiveSignals,
+                warningSignals: warningSignals
             )
         }
     }

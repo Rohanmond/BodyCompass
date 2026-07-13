@@ -121,7 +121,11 @@ function mockProvider(provider, kind, payload, mode = "mock") {
       fatGrams: 22,
       confidence: 0.68,
       likelyMistakes: ["Confirm cooking oil", "Confirm portion size"],
-      recommendation: `Based on ${provider}, this meal can fit the cut if protein stays high and oil is controlled.`
+      recommendation: `Based on ${provider}, this meal can fit the cut if protein stays high and oil is controlled.`,
+      greenSigns: ["Contains a meaningful protein serving", "Includes a balanced carbohydrate source"],
+      redFlags: ["Hidden oil or sauce could materially raise calories"],
+      improvements: ["Measure added oil", "Add vegetables or fruit for volume and fiber"],
+      nextAction: "Keep the protein portion, halve calorie-dense sauce, and log the corrected serving."
     };
   }
 
@@ -136,7 +140,9 @@ function mockProvider(provider, kind, payload, mode = "mock") {
       visibleChanges: ["Current visual baseline recorded without retaining the photos"],
       limitations: ["Photo estimates vary with lighting, posture, hydration, and camera distance"],
       suggestions: ["Keep capture conditions consistent next week", "Use weight trend alongside the visual range"],
-      nextWeekAction: "Hold the current plan for one week and compare the trend under the same conditions."
+      nextWeekAction: "Hold the current plan for one week and compare the trend under the same conditions.",
+      positiveSignals: ["All three standardized angles were supplied"],
+      warningSignals: ["Visual body-fat estimates remain sensitive to lighting, posture, and hydration"]
     };
   }
 
@@ -172,7 +178,11 @@ function reconcileMeal(openai, gemini) {
       fatGrams: estimate.fatGrams,
       confidence: Math.min(estimate.confidence, 0.55),
       likelyMistakes: [...estimate.likelyMistakes, `${missing} estimate unavailable`],
-      recommendation: `${estimate.recommendation} Review portions because only one provider responded.`
+      recommendation: `${estimate.recommendation} Review portions because only one provider responded.`,
+      greenSigns: estimate.greenSigns ?? [],
+      redFlags: uniqueLimited([...(estimate.redFlags ?? []), "Only one AI provider responded"], 4),
+      improvements: estimate.improvements ?? [],
+      nextAction: estimate.nextAction ?? "Verify the portion and adjust the next meal if needed."
     };
   }
 
@@ -189,7 +199,13 @@ function reconcileMeal(openai, gemini) {
     fatGrams: Math.round((openai.fatGrams + gemini.fatGrams) / 2),
     confidence: Math.min(openai.confidence, gemini.confidence),
     likelyMistakes: [...new Set([...openai.likelyMistakes, ...gemini.likelyMistakes])],
-    recommendation: "Use this as an estimate, then correct calories if you know exact portions."
+    recommendation: "Use this estimate to make one practical adjustment, then correct calories if you know exact portions.",
+    greenSigns: uniqueLimited([...(openai.greenSigns ?? []), ...(gemini.greenSigns ?? [])], 4),
+    redFlags: uniqueLimited([...(openai.redFlags ?? []), ...(gemini.redFlags ?? [])], 4),
+    improvements: uniqueLimited([...(openai.improvements ?? []), ...(gemini.improvements ?? [])], 4),
+    nextAction: openai.nextAction === gemini.nextAction
+      ? openai.nextAction
+      : (openai.nextAction || gemini.nextAction || "Use the estimate to plan the rest of today's meals.")
   };
 }
 
@@ -226,7 +242,9 @@ function reconcileProgress(openai, gemini) {
     return {
       ...result,
       confidence: Math.min(estimate.confidence, 0.5),
-      limitations: [...estimate.limitations, "Only one provider returned an estimate"]
+      limitations: [...estimate.limitations, "Only one provider returned an estimate"],
+      positiveSignals: estimate.positiveSignals ?? [],
+      warningSignals: uniqueLimited([...(estimate.warningSignals ?? []), "Only one AI provider responded"], 4)
     };
   }
 
@@ -243,6 +261,8 @@ function reconcileProgress(openai, gemini) {
     visibleChanges: uniqueLimited([...openai.visibleChanges, ...gemini.visibleChanges], 6),
     limitations: uniqueLimited([...openai.limitations, ...gemini.limitations], 6),
     suggestions: uniqueLimited([...openai.suggestions, ...gemini.suggestions], 5),
+    positiveSignals: uniqueLimited([...(openai.positiveSignals ?? []), ...(gemini.positiveSignals ?? [])], 4),
+    warningSignals: uniqueLimited([...(openai.warningSignals ?? []), ...(gemini.warningSignals ?? [])], 4),
     nextWeekAction: openai.nextWeekAction === gemini.nextWeekAction
       ? openai.nextWeekAction
       : `${openai.nextWeekAction} Cross-check: ${gemini.nextWeekAction}`
@@ -282,11 +302,16 @@ const mealSchema = {
     fatGrams: { type: "integer", minimum: 0 },
     confidence: { type: "number", minimum: 0, maximum: 1 },
     likelyMistakes: { type: "array", items: { type: "string" }, maxItems: 4 },
-    recommendation: { type: "string" }
+    recommendation: { type: "string" },
+    greenSigns: { type: "array", items: { type: "string" }, maxItems: 4 },
+    redFlags: { type: "array", items: { type: "string" }, maxItems: 4 },
+    improvements: { type: "array", items: { type: "string" }, maxItems: 4 },
+    nextAction: { type: "string" }
   },
   required: [
     "title", "caloriesRange", "proteinGrams", "carbsGrams", "fatGrams",
-    "confidence", "likelyMistakes", "recommendation"
+    "confidence", "likelyMistakes", "recommendation", "greenSigns",
+    "redFlags", "improvements", "nextAction"
   ]
 };
 
@@ -306,11 +331,13 @@ const progressSchema = {
     visibleChanges: { type: "array", items: { type: "string" }, maxItems: 6 },
     limitations: { type: "array", items: { type: "string" }, maxItems: 6 },
     suggestions: { type: "array", items: { type: "string" }, maxItems: 5 },
-    nextWeekAction: { type: "string" }
+    nextWeekAction: { type: "string" },
+    positiveSignals: { type: "array", items: { type: "string" }, maxItems: 4 },
+    warningSignals: { type: "array", items: { type: "string" }, maxItems: 4 }
   },
   required: [
     "bodyFatRange", "confidence", "imageQuality", "visibleChanges",
-    "limitations", "suggestions", "nextWeekAction"
+    "limitations", "suggestions", "nextWeekAction", "positiveSignals", "warningSignals"
   ]
 };
 
@@ -321,6 +348,10 @@ function mealInputParts(payload, provider) {
     "This is an estimate, not medical advice. Do not identify people or infer health conditions.",
     `User notes: ${payload.notes?.trim() || "None"}`,
     `Context: target calories ${context.targetCalories ?? "unknown"}, target protein ${context.targetProteinGrams ?? "unknown"}g.`,
+    "Explain what the calorie estimate means for the user's fat-loss goal.",
+    "Green signs should identify useful protein, fiber, produce, portion balance, or preparation choices actually visible or stated.",
+    "Red flags should identify actionable issues such as low protein, hidden fats/sauces, sugary drinks, low produce/fiber, very large portions, or major uncertainty. Do not moralize food.",
+    "Improvements must say what to reduce, swap, add, or measure. End with one specific next action for this meal or the rest of today.",
     "Return only the requested structured nutrition result."
   ].join("\n");
 
@@ -404,6 +435,8 @@ function progressInputParts(payload, provider) {
     "Do not identify the person, judge attractiveness, or infer unrelated sensitive traits.",
     "Treat lighting, pose, hydration, camera angle, and distance as meaningful limitations.",
     "Do not claim visual week-over-week change because prior photos are not retained; use saved range and health trends only as context.",
+    "Return positive signals as cautious, observable signs that support progress or a reliable check-in.",
+    "Return warning signals for poor comparability, adverse trend context, or reasons not to trust the estimate; never judge appearance.",
     "If framing or quality is inadequate, mark imageQuality unsuitable, lower confidence, and explain why.",
     `User trend context JSON: ${context}`,
     "Current photos follow in front, side, back order and must be treated as transient analysis inputs."
@@ -442,7 +475,9 @@ function normalizeProgressResult(provider, result) {
     visibleChanges: uniqueLimited(Array.isArray(result.visibleChanges) ? result.visibleChanges : [], 6),
     limitations: uniqueLimited(Array.isArray(result.limitations) ? result.limitations : [], 6),
     suggestions: uniqueLimited(Array.isArray(result.suggestions) ? result.suggestions : [], 5),
-    nextWeekAction: String(result.nextWeekAction || "Repeat the check-in under the same conditions next week.")
+    nextWeekAction: String(result.nextWeekAction || "Repeat the check-in under the same conditions next week."),
+    positiveSignals: uniqueLimited(Array.isArray(result.positiveSignals) ? result.positiveSignals : [], 4),
+    warningSignals: uniqueLimited(Array.isArray(result.warningSignals) ? result.warningSignals : [], 4)
   };
 }
 
@@ -504,7 +539,11 @@ function normalizeMealResult(provider, result) {
     likelyMistakes: Array.isArray(result.likelyMistakes)
       ? result.likelyMistakes.slice(0, 4).map(String)
       : [],
-    recommendation: String(result.recommendation || "Confirm portions before saving.")
+    recommendation: String(result.recommendation || "Confirm portions before saving."),
+    greenSigns: uniqueLimited(Array.isArray(result.greenSigns) ? result.greenSigns : [], 4),
+    redFlags: uniqueLimited(Array.isArray(result.redFlags) ? result.redFlags : [], 4),
+    improvements: uniqueLimited(Array.isArray(result.improvements) ? result.improvements : [], 4),
+    nextAction: String(result.nextAction || "Verify the portion and use the estimate to plan the rest of today.")
   };
 }
 
