@@ -177,7 +177,6 @@ All routes below use the authenticated private user:
 - `POST /api/auth/email/verify` is public and exchanges a valid challenge for a 30-day session.
 - `GET /api/auth/me`
 - `POST /api/auth/logout`
-- `GET /api/usage`
 
 - `PUT /api/profile`
 - `PUT /api/schedule`
@@ -190,7 +189,7 @@ All routes below use the authenticated private user:
 
 Accepted meal/progress save routes persist metadata in SQLite and reject photo fields. Analysis endpoints use photos transiently and remain non-persistent. Exports contain no image bytes. Startup migration purges legacy photo files and database references.
 
-Production OTP delivery uses Resend and fails closed when `RESEND_API_KEY` is absent. The sending address must use a verified domain. AI usage resets at 00:00 UTC and defaults to 10 meal, 30 Coach, and 3 progress actions per user per day.
+Production OTP delivery uses Resend and fails closed when `RESEND_API_KEY` is absent. The sending address must use a verified domain. Authenticated AI actions have no BodyCompass daily quota; provider billing and upstream rate limits still apply.
 
 ## `GET /api/training/routine` (Planned)
 

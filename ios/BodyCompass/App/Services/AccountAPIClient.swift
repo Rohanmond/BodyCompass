@@ -27,24 +27,6 @@ struct EmailCodeChallenge: Decodable, Equatable {
     let developmentCode: String?
 }
 
-struct AIUsageSummary: Decodable, Equatable {
-    struct Allowance: Decodable, Equatable {
-        let used: Int
-        let limit: Int
-        let remaining: Int
-    }
-
-    struct Usage: Decodable, Equatable {
-        let meal: Allowance
-        let chat: Allowance
-        let progress: Allowance
-    }
-
-    let day: String
-    let resetsAt: String
-    let usage: Usage
-}
-
 struct AuthenticationAPIClient {
     private struct EmailCodeRequest: Encodable { let email: String }
     private struct EmailCodeVerification: Encodable {
@@ -88,15 +70,6 @@ struct AuthenticationAPIClient {
         let _: EmptyResponse? = try? await send(
             path: "api/auth/logout",
             method: "POST",
-            body: Optional<String>.none,
-            authorized: true
-        )
-    }
-
-    func usage() async throws -> AIUsageSummary {
-        try await send(
-            path: "api/usage",
-            method: "GET",
             body: Optional<String>.none,
             authorized: true
         )
@@ -162,10 +135,6 @@ final class AuthenticationStore: ObservableObject {
     func verifyEmailCode(challengeId: String, code: String) async throws {
         let user = try await client.verifyEmailCode(challengeId: challengeId, code: code)
         state = .signedIn(user)
-    }
-
-    func usage() async throws -> AIUsageSummary {
-        try await client.usage()
     }
 
     func signOut() async {

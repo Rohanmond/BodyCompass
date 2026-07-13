@@ -104,6 +104,5 @@ The request requires transient `currentPhotos` with unique `front`, `side`, and 
 - `POST /api/progress-check-ins/save` and `DELETE /api/progress-check-ins`: save/delete accepted result metadata only. Save requests containing photos are rejected.
 - `GET /api/data/export`: exports account JSON without photo contents because photos are never retained.
 - `DELETE /api/data`: deletes all database rows. The JSON body must contain `{ "confirmation": "DELETE MY BODYCOMPASS DATA" }`.
-- `GET /api/usage`: returns the signed-in user's meal, Coach, and progress AI use, limits, remaining actions, and next UTC reset.
 
 Meal and progress analysis routes process uploads in memory without persisting them. Explicit post-review save routes write accepted results and metadata only. Startup migration removes legacy local/server photo files and references from earlier builds.

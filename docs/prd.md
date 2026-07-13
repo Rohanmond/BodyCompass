@@ -203,7 +203,7 @@ The app should treat this as an editable starting plan, not a permanent prescrip
 
 - User can open the app and see the five main tabs.
 - User can request an email code, verify or create an account, relaunch with a validated session, sign out, and delete their account.
-- Each user receives clearly displayed daily AI allowances; invalid requests do not consume an allowance and a dual-provider comparison counts as one app action.
+- Authenticated users can run meal, Coach, and progress analysis without an app-level daily quota; provider billing and upstream availability still apply.
 - Two accounts cannot read, overwrite, export, or delete one another's records.
 - User can calculate a 12% body-fat timeline from profile inputs.
 - Backend returns mock AI meal/chat responses without API keys.

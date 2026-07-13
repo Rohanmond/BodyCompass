@@ -4,11 +4,11 @@ Read `ai/HANDOFF.md` before starting. This brief intentionally covers only the n
 
 ## Completed Software Phase
 
-Phase 8 SQLite persistence, photo-free multi-user accounts, local-first backup, export, deletion, passwordless email OTP, and per-user AI quotas are implemented. Railway HTTPS, durable `/data`, and production Resend OTP are live and signed-iPhone verified. The production database was intentionally reset to an empty state on July 14, 2026.
+Phase 8 SQLite persistence, photo-free multi-user accounts, local-first backup, export, deletion, passwordless email OTP, and unrestricted authenticated AI access are implemented. Railway HTTPS, durable `/data`, and production Resend OTP are live and signed-iPhone verified. The production database was intentionally reset to an empty state on July 14, 2026.
 
 ## Best Next Phase
 
-Run a clean-account signed-iPhone pass: OTP, blank onboarding, backup, export, AI allowance/live AI, sign out/re-entry, and account deletion. Then complete the Phase 9D host restore drill and paired Watch validation.
+Run a clean-account signed-iPhone pass: OTP, blank onboarding, backup, export, unrestricted live AI, sign out/re-entry, and account deletion. Then complete the Phase 9D host restore drill and paired Watch validation.
 
 ## Safety And Privacy
 

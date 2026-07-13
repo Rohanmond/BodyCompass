@@ -18,7 +18,7 @@ Last audited: July 14, 2026.
 - Phase 5 meal logging: camera/library capture, transient compressed JPEG upload, typed iOS API client, live-or-mock OpenAI and Gemini meal adapters, resilient reconciliation, editable nutrition confirmation, and photo-free result history.
 - Phase 6 Coach Chat: typed transport, bounded app context, live-or-mock OpenAI and Gemini adapters, safety classification, local conversation history, one next action, and validated confirmed-only routine proposals.
 - Phase 7 weekly review and photos: persisted health history, native trends, weekly summaries, recalculated goal projection, standardized transient three-angle analysis, photo-free result history, dual-provider visual ranges, correction/rejection, and deletion.
-- Phase 8 persistence/accounts: passwordless six-digit email OTP, hashed expiring challenges and sessions, verified-address account creation, per-user SQLite isolation, no-photo persistence enforcement, local-first iOS backup, Keychain session, photo-free JSON export, and per-user daily AI quotas.
+- Phase 8 persistence/accounts: passwordless six-digit email OTP, hashed expiring challenges and sessions, verified-address account creation, per-user SQLite isolation, no-photo persistence enforcement, local-first iOS backup, Keychain session, photo-free JSON export, and unrestricted authenticated AI access.
 - Phase 9C live AI and signed-iPhone meal/progress camera plus Coach confirmation validation.
 - Phase 9D production configuration, health probes, non-root container, checksum-verified backup/restore tooling, and a live Railway Southeast Asia service with durable SQLite storage.
 - SwiftUI app shell with five tabs.

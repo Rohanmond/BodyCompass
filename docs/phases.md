@@ -23,7 +23,7 @@ Implemented:
 - Phase 5 meal logging: camera/library capture, compressed transient upload, dual-provider analysis, correction, and photo-free result history.
 - Phase 6 Coach Chat: contextual dual-provider answers, safety routing, local history, and validated confirmed-only routine proposals.
 - Phase 7 weekly review: persisted health trends, native charts, weekly adherence/nutrition/training summaries, trend-aware goal projection, and standardized private progress-photo analysis.
-- Phase 8 passwordless accounts are live: email OTP challenges, verified-address account creation, hashed sessions, per-user storage, daily AI limits, production Resend delivery, and signed-device verification are complete.
+- Phase 8 passwordless accounts are live: email OTP challenges, verified-address account creation, hashed sessions, per-user storage, unrestricted authenticated AI access, production Resend delivery, and signed-device verification are complete.
 
 Partially implemented:
 - Phase 4W implementation is simulator-build verified, including WorkoutKit handoff, completed-workout import, and recovery-aware coaching; paired-device validation remains.
@@ -420,7 +420,7 @@ Implemented:
 - Root Email/Code flow with AutoFill, launch-time session validation, sign out, account-switch local-data protection, and per-user server ownership.
 - Exact-confirmation account deletion under Today → Settings → Account & Privacy that deletes server and local BodyCompass records while leaving Apple Health untouched.
 - Automated restart, no-photo persistence, export, idempotency, auth, and deletion tests plus authenticated HTTP smoke testing.
-- Server-enforced per-user daily AI allowances with configurable meal, Coach, and progress limits plus an in-app remaining-usage view.
+- Authenticated meal, Coach, and progress analysis without an app-level daily quota.
 
 Done when:
 
@@ -428,7 +428,7 @@ Done when:
 - User can delete meal/check-in result records and health logs; photos never enter history.
 - API keys remain server-side only.
 
-Phase 8 done status: multi-user identity, production OTP verification, data isolation, and AI quotas are implemented and signed-iPhone verified. Post-reset clean-account and friend-device beta testing remain release work.
+Phase 8 done status: multi-user identity, production OTP verification, data isolation, and unrestricted authenticated AI access are implemented and signed-iPhone verified. Post-reset clean-account and friend-device beta testing remain release work.
 
 ## Phase 9: Polish and Beta
 

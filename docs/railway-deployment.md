@@ -42,9 +42,6 @@ OPENAI_MODEL=gpt-5.4
 GEMINI_API_KEY=<new Gemini key>
 GEMINI_MODEL=gemini-3.1-flash-lite
 RAILWAY_RUN_UID=0
-BODYCOMPASS_DAILY_MEAL_AI_LIMIT=10
-BODYCOMPASS_DAILY_CHAT_AI_LIMIT=30
-BODYCOMPASS_DAILY_PROGRESS_AI_LIMIT=3
 ```
 
 Do not set `PORT`; Railway injects it. Generate the server-only storage secret locally with:

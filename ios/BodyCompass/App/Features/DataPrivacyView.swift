@@ -29,7 +29,7 @@ struct SettingsView: View {
                     Label {
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Account & privacy")
-                            Text("Backup, AI allowance, export, and sign out")
+                            Text("Backup, export, deletion, and sign out")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                         }
@@ -68,7 +68,6 @@ struct DataPrivacyView: View {
     @State private var isWorking = false
     @State private var showDeleteConfirmation = false
     @State private var message: String?
-    @State private var usage: AIUsageSummary?
 
     var body: some View {
         List {
@@ -88,19 +87,6 @@ struct DataPrivacyView: View {
                 LabeledContent("Backup status") { syncLabel }
                 Button { retryBackup() } label: { Label("Retry backup", systemImage: "arrow.clockwise") }
                     .disabled(isWorking)
-            }
-
-            Section("Daily AI allowance") {
-                if let usage {
-                    allowanceRow("Meal analyses", icon: "fork.knife", allowance: usage.usage.meal)
-                    allowanceRow("Coach messages", icon: "bubble.left.and.bubble.right", allowance: usage.usage.chat)
-                    allowanceRow("Progress analyses", icon: "figure.arms.open", allowance: usage.usage.progress)
-                    Text("Allowances reset daily at 00:00 UTC. One request counts once even though BodyCompass compares both AI providers.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                } else {
-                    Button { loadUsage() } label: { Label("Load AI allowance", systemImage: "sparkles") }
-                }
             }
 
             Section("Export") {
@@ -135,33 +121,11 @@ struct DataPrivacyView: View {
             }
         }
         .navigationTitle("Data & Privacy")
-        .task { await refreshUsage() }
         .confirmationDialog("Delete your BodyCompass account?", isPresented: $showDeleteConfirmation, titleVisibility: .visible) {
             Button("Delete account and data", role: .destructive) { deleteEverything() }
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("This cannot be undone. It does not remove data stored by Apple Health.")
-        }
-    }
-
-    private func allowanceRow(_ title: String, icon: String, allowance: AIUsageSummary.Allowance) -> some View {
-        LabeledContent {
-            Text("\(allowance.remaining) of \(allowance.limit) left")
-                .foregroundStyle(allowance.remaining == 0 ? Theme.warning : .secondary)
-        } label: {
-            Label(title, systemImage: icon)
-        }
-    }
-
-    private func loadUsage() {
-        Task { await refreshUsage() }
-    }
-
-    private func refreshUsage() async {
-        do {
-            usage = try await authentication.usage()
-        } catch {
-            usage = nil
         }
     }
 

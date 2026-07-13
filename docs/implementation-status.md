@@ -18,7 +18,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 | Phase 5: Meal Photo Logging | Complete; signed-device verified | Camera/library capture, transient upload, dual-provider comparison/fallback, actionable coaching, correction, photo-free history, and deletion work on the signed iPhone. |
 | Phase 6: Coach Chat | Complete; signed-device verified | Contextual dual-provider chat, safety routing, provider comparison, and confirmed-only routine proposals work; Confirm/Edit/Reject remains required. |
 | Phase 7: Weekly Review and Photos | Complete; signed-device verified | Trends, weekly summaries, transient three-angle analysis, broad non-medical ranges, correction/rejection, comparison, photo-free history, and deletion work on the signed iPhone. |
-| Phase 8: Persistence and Accounts | Complete; production OTP verified | Six-digit Resend email OTP, verified-address account creation, hashed challenges/sessions, per-user SQLite isolation, Keychain sessions, export, sign out, deletion, and per-user daily AI limits are live. |
+| Phase 8: Persistence and Accounts | Complete; production OTP verified | Six-digit Resend email OTP, verified-address account creation, hashed challenges/sessions, per-user SQLite isolation, Keychain sessions, export, sign out, deletion, and unrestricted authenticated AI access are live. |
 | Phase 9: Polish and Beta | In progress; Phase 9C complete and Phase 9D hosted | Signed launch, primary HealthKit, backup, reminders, OTP, and all Phase 9C live AI/camera flows pass. The Railway backend is online with durable storage; clean-account checks, restore-drill, Watch/permission, seven-day beta, and TestFlight gates remain. |
 | Phase 10: Future Ideas | Not started | Post-MVP enhancements remain intentionally deferred. |
 
@@ -41,7 +41,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 - Completed Phase 7 weekly review: persisted 180-day health snapshots, native weight/body-fat charts, seven-day adherence/nutrition/training summaries, trend-aware 12% projection, and a standardized front/side/back check-in flow.
 - Changed progress privacy so capture photos are discarded after analysis; history keeps editable/rejectable ranges, limitations, recommendations, and prior result comparison only.
 - Upgraded Phase 8 to passwordless multi-user accounts: six-digit email OTP with expiry, one-time consumption, attempt/resend throttling, verified-address account creation, hashed 30-day sessions, Keychain storage, sign out, account-switch isolation, and account deletion. Legacy password routes remain temporarily for installed-build migration only.
-- Added per-user daily AI limits (10 meal, 30 Coach, and 3 progress analyses by default), a usage API, and an in-app allowance view. Invalid requests do not consume quota and each dual-provider action counts once.
+- Removed BodyCompass daily AI quotas for the owner-use release; authenticated meal, Coach, and progress actions remain subject only to provider billing and upstream rate limits.
 - Implemented Phase 9 code-side polish: iPhone/Watch icons, privacy manifests, local-first backup recovery, accessible metrics and trends, a 12% chart target, automated preflight, and a physical-device/TestFlight checklist.
 - Added app-wide keyboard dismissal and refreshed the daily-use UI: priority-first Today hierarchy, varied metric colors, clearer HealthKit date windows, adherence progress, a visual goal summary, and improved Meals/Coach presentation. Simulator and signed-iPhone builds pass.
 - Verified real HealthKit snapshot backup and the Debug-only 10-second notification banner/sound delivery on the signed iPhone.
@@ -73,6 +73,6 @@ Verification rerun: July 14, 2026.
 
 - Follow `docs/apple-watch-setup.md` to validate WorkoutKit permission, iPhone scheduling, Watch handoff, Apple Workout capture, HealthKit import, offline queueing, and exact-once manual-log merge.
 - Complete the remaining partial/denied HealthKit permission checks on the signed iPhone.
-- Create a fresh owner account through email OTP, complete blank-field onboarding, then verify backup, export, AI allowance, live AI, sign out/re-entry, and deletion on the signed iPhone.
+- Create a fresh owner account through email OTP, complete blank-field onboarding, then verify backup, export, unrestricted live AI, sign out/re-entry, and deletion on the signed iPhone.
 - Run the host-level production backup/restore drill before marking Phase 9D complete.
 - Run `./scripts/release-preflight.sh --build`, then complete the signed-device, Series 10, seven-day personal beta, and TestFlight gates in `docs/beta-checklist.md`.

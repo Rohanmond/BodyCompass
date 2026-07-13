@@ -8,7 +8,7 @@ Use this file as the authoritative starting point for Claude, ChatGPT, Gemini, C
 
 - Repository: `Rohanmond/BodyCompass`
 - Primary branch: `main`
-- Primary implementation state: Phases 0-8 and Phase 9C complete; passwordless production OTP and server-enforced AI quotas are live; restore, permission/Watch, beta, and TestFlight gates remain
+- Primary implementation state: Phases 0-8 and Phase 9C complete; passwordless production OTP and unrestricted authenticated AI access are live; restore, permission/Watch, beta, and TestFlight gates remain
 - iOS deployment target: iOS 17
 - App: native SwiftUI under `ios/BodyCompass`
 - Shared logic: Swift package target `BodyCompassCore`
@@ -133,9 +133,9 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 - `auth_accounts` stores normalized unique email and display name. `auth_email_codes` stores only HMAC hashes of random six-digit challenges with ten-minute expiry, five-attempt limits, one-time consumption, and a per-address resend cooldown. `auth_sessions` stores only SHA-256 hashes of random 30-day session tokens.
 - Email-code request/verification are public and throttled; verification creates the account when needed and proves email ownership. All other `/api/*` routes require a valid account session and use its user ID for row ownership. Sign out revokes the current session.
 - The iOS root owns the two-step Email/Code flow, supports one-time-code AutoFill, and validates sessions at launch. The opaque session lives in Keychain and is automatically attached to every API client; no server credential is shown to users.
-- `ai_usage` enforces configurable per-user UTC-day limits at the server boundary (defaults: 10 meal, 30 Coach, 3 progress). Each dual-provider app action counts once, and Data & Privacy displays the remaining allowance.
-- Account switches clear prior local app/training/progress state before syncing. Today → Settings → Account & Privacy shows account/backup state, AI allowance, sign out, photo-free export, and complete account deletion. Apple Health is never deleted.
-- SQLite restart, photo-free export, idempotency, OTP replay rejection, quota isolation, account lifecycle, deletion, and iOS/Watch compilation are verified. Production Resend OTP and signed-iPhone use are verified; the host restore drill and friend-device checks remain.
+- BodyCompass does not impose daily AI quotas for the owner-use release. Meal, Coach, and progress actions remain authenticated and subject to provider billing and upstream rate limits.
+- Account switches clear prior local app/training/progress state before syncing. Today → Settings → Account & Privacy shows account/backup state, sign out, photo-free export, and complete account deletion. Apple Health is never deleted.
+- SQLite restart, photo-free export, idempotency, OTP replay rejection, account isolation/lifecycle, deletion, and iOS/Watch compilation are verified. Production Resend OTP and signed-iPhone use are verified; the host restore drill and friend-device checks remain.
 
 ### Phase 9: Polish and Beta Preparation
 

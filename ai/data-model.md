@@ -103,11 +103,6 @@
 - SHA-256 token hash, never the raw bearer token
 - userId, expiry, and created timestamp
 
-`ai_usage`
-
-- userId, UTC day, and analysis kind (meal, chat, progress)
-- consumed units and updated timestamp
-
 `profiles`
 
 - userId

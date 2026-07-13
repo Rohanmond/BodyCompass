@@ -33,7 +33,7 @@ Responsibilities:
 - Display AI comparison and reconciled recommendations.
 - Persist Coach exchanges locally and validate AI routine instructions before creating pending proposals.
 - Request and verify passwordless email codes, then keep only the opaque session in Keychain.
-- Display server-enforced per-user daily AI allowances.
+- Provide authenticated AI analysis without a BodyCompass daily allowance.
 
 Current app tabs:
 
@@ -81,7 +81,7 @@ Responsibilities:
 - Accept health snapshots and future persisted logs.
 - Persist accepted result metadata in SQLite; never persist meal or progress photos.
 - Authenticate users through one-time email codes, scope every record to the session user, export their data, and delete relational records.
-- Enforce configurable per-user meal, Coach, and progress AI limits before provider calls.
+- Keep provider billing and upstream rate-limit failures visible without imposing an app-level daily quota.
 - Calculate or mirror goal projections for API clients.
 - Expose liveness/readiness probes, validate production configuration, and shut down cleanly.
 

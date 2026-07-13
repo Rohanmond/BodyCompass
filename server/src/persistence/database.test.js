@@ -60,15 +60,3 @@ test("repeated sync replaces metadata idempotently without retaining photos", as
   store.close();
   await rm(root, { recursive: true, force: true });
 });
-
-test("daily AI usage is isolated by user and rejects work above the limit", async () => {
-  const root = await mkdtemp(join(tmpdir(), "bodycompass-usage-"));
-  const store = new BodyCompassStore({ databasePath: join(root, "db.sqlite"), imageDirectory: join(root, "images"), storageSecret: "secret" });
-  assert.equal(store.consumeAIUsage("user-a", "meal", 2, "2026-07-14").allowed, true);
-  assert.equal(store.consumeAIUsage("user-a", "meal", 2, "2026-07-14").remaining, 0);
-  assert.equal(store.consumeAIUsage("user-a", "meal", 2, "2026-07-14").allowed, false);
-  assert.equal(store.consumeAIUsage("user-b", "meal", 2, "2026-07-14").allowed, true);
-  assert.equal(store.consumeAIUsage("user-a", "chat", 1, "2026-07-14").allowed, true);
-  store.close();
-  await rm(root, { recursive: true, force: true });
-});

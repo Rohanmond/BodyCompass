@@ -45,14 +45,7 @@ export class BodyCompassStore {
         consumed_at TEXT,
         created_at TEXT NOT NULL
       );
-      CREATE TABLE IF NOT EXISTS ai_usage (
-        user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
-        day TEXT NOT NULL,
-        kind TEXT NOT NULL,
-        units INTEGER NOT NULL,
-        updated_at TEXT NOT NULL,
-        PRIMARY KEY(user_id, day, kind)
-      );
+      DROP TABLE IF EXISTS ai_usage;
       CREATE TABLE IF NOT EXISTS profiles (
         user_id TEXT PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
         payload TEXT NOT NULL,
@@ -213,22 +206,6 @@ export class BodyCompassStore {
     const now = new Date().toISOString();
     this.db.prepare("UPDATE auth_accounts SET email_verified_at = COALESCE(email_verified_at, ?), updated_at = ? WHERE user_id = ?")
       .run(now, now, userId);
-  }
-
-  consumeAIUsage(userId, kind, limit, day = new Date().toISOString().slice(0, 10)) {
-    this.ensureUser(userId);
-    const now = new Date().toISOString();
-    this.db.prepare(`INSERT INTO ai_usage (user_id, day, kind, units, updated_at) VALUES (?, ?, ?, 0, ?)
-      ON CONFLICT(user_id, day, kind) DO NOTHING`).run(userId, day, kind, now);
-    const changed = this.db.prepare(`UPDATE ai_usage SET units = units + 1, updated_at = ?
-      WHERE user_id = ? AND day = ? AND kind = ? AND units < ?`).run(now, userId, day, kind, limit).changes;
-    const row = this.db.prepare("SELECT units FROM ai_usage WHERE user_id = ? AND day = ? AND kind = ?")
-      .get(userId, day, kind);
-    return { allowed: changed === 1, used: row?.units ?? 0, limit, remaining: Math.max(0, limit - (row?.units ?? 0)), day };
-  }
-
-  aiUsage(userId, day = new Date().toISOString().slice(0, 10)) {
-    return this.db.prepare("SELECT kind, units FROM ai_usage WHERE user_id = ? AND day = ?").all(userId, day);
   }
 
   saveProfile(userId, payload) {

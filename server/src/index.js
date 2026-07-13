@@ -20,7 +20,6 @@ import { authenticate } from "./lib/auth.js";
 import { currentAccount, login, logout, register, requestEmailCode, verifyEmailCode } from "./routes/auth.js";
 import { assertValidConfig } from "./lib/config.js";
 import { closePersistenceStore, persistenceStore } from "./persistence/database.js";
-import { usageSummary } from "./lib/aiQuota.js";
 
 try {
   process.loadEnvFile?.(".env");
@@ -41,7 +40,6 @@ const routes = {
   "POST /api/auth/email/verify": verifyEmailCode,
   "GET /api/auth/me": currentAccount,
   "POST /api/auth/logout": logout,
-  "GET /api/usage": usageSummary,
   "POST /api/meals/analyze": analyzeMeal,
   "POST /api/chat": createChatAnswer,
   "POST /api/goal/projection": createGoalProjection,
