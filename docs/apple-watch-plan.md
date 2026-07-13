@@ -2,28 +2,28 @@
 
 ## Product Goal
 
-Make BodyCompass useful while the user is actively lifting or swimming without requiring constant iPhone interaction. Apple Watch should show the current prescription, capture live workout data, provide discreet haptics, log performance, and sync the completed session back to the existing training system.
+Make BodyCompass useful for planning, launching, and reviewing lifting and swimming while Apple Workout owns every active workout and sensor stream.
 
-Status: in progress. W1 and W2 are implemented and simulator-build verified. Real-device validation and W3-W5 remain.
+Status: in progress. WorkoutKit handoff for strength/swimming and basic HealthKit result import are implemented and simulator-build verified. Real-device validation and recovery-aware coaching remain.
 
 ## Recommended Architecture
 
-Use a BodyCompass watchOS companion app for strength sessions and BodyCompass-specific logging. Run active sessions with HealthKit workout sessions and a live workout builder so watchOS can collect workout data and keep the experience active during the session.
+Apple Workout is the only active workout owner for both strength and swimming. BodyCompass creates a WorkoutKit plan, schedules it from iPhone or opens it from Watch, then imports the completed HealthKit workout using the BodyCompass session UUID stored as the WorkoutPlan ID.
 
-Use WorkoutKit where it fits, especially for scheduling compatible swimming or interval plans into Apple's Workout app. Use Watch Connectivity for durable routine/log synchronization and offline delivery. Use HealthKit workout mirroring for an active BodyCompass workout that needs live iPhone controls and metrics.
+Use Watch Connectivity only for BodyCompass routine context and manual set/swim details. BodyCompass does not start a parallel `HKWorkoutSession` and does not mirror Apple Workout's lifecycle.
 
 The Watch must remain usable when the iPhone is unavailable. Queue logs locally and reconcile them when connectivity returns.
 
 ## Watch Strength Experience
 
-The active strength screen should show only what is needed in motion:
+The Apple Workout plan should show the supported workout steps and native metrics. The BodyCompass Watch companion retains:
 
 - current exercise and set number,
 - target rep range and RIR/RPE,
 - previous performance for context,
 - rest timer,
-- current heart rate, elapsed time, and active energy,
-- large Complete Set, Skip, Substitute, Pause, and End controls.
+- substitutions, pain severity, and rest haptics,
+- manual set/load/reps/RIR confirmation when needed.
 
 After a set, the user can confirm reps, load, and effort. Use the Digital Crown or simple steppers for quick numeric editing. Play optional haptics when rest is nearly complete and complete.
 
@@ -40,20 +40,11 @@ For swimming days:
 - clearly explain that water can interrupt heart-rate readings,
 - import the completed HealthKit workout into the BodyCompass training log.
 
-WorkoutKit should be evaluated first for scheduling compatible swim/interval plans into Apple's Workout app. A custom BodyCompass workout session is appropriate when BodyCompass needs its own live screens or set/session controls.
+The user chooses Pool or Open Water when sending the plan. Apple Workout owns pool length, Water Lock, laps, distance, heart rate, energy, and workout controls.
 
 ## Live iPhone and Watch Behavior
 
-When both apps are active:
-
-- starting on either supported device starts or opens the Watch workout,
-- pause, resume, and end state stay synchronized,
-- iPhone shows a larger mirrored workout dashboard,
-- iPhone can send Skip, Substitute, Extend Rest, and session-note actions,
-- Watch set/swim logs appear on iPhone with conflict-safe identifiers,
-- a disconnect never discards a completed set or workout.
-
-Use HealthKit workout mirroring for the workout lifecycle and live workout data. Use Watch Connectivity for routine versions, setup context, pending logs, and background/offline synchronization.
+The iPhone schedules plans through `WorkoutScheduler`; the Watch companion opens a plan through `openInWorkoutApp()`. Apple Workout owns start, pause, resume, end, and native metrics. BodyCompass imports completed results and reconciles manual logs by UUID.
 
 ## Coaching Rules During a Workout
 
@@ -93,29 +84,29 @@ Status: implemented and simulator-build verified; paired-device validation pendi
 
 ### W2: Strength Workout MVP
 
-Status: implemented and simulator-build verified; physical-device validation remains. The Watch includes pause-aware elapsed time, prior performance, substitutions, pain severity, optional haptics, stable offline set numbering, end confirmation, and a saved-workout summary.
+Status: superseded by the confirmed Apple Workout-only decision. The manual strength logging work remains; the custom BodyCompass `HKWorkoutSession` lifecycle has been removed.
 
-- Start, pause, resume, and end a HealthKit workout session.
-- Show current exercise, prescription, heart rate, time, and energy.
+- Open a BodyCompass strength plan in Apple Workout.
+- Let Apple Workout own heart rate, time, energy, and lifecycle controls.
 - Log sets, reps, load, effort, substitutions, and pain notes.
 - Add rest timer and optional haptics.
 
-### W3: Swimming and WorkoutKit
+### W3: Apple Workout and WorkoutKit Handoff
 
-Status: not started. The Watch currently supports durable manual swim logging only.
+Status: implemented and simulator-build verified; paired-device validation pending.
 
-- Map compatible swim plans to WorkoutKit.
-- Sync or open scheduled workouts in Apple's Workout app where supported.
-- Import completed swimming workout metrics into BodyCompass.
-- Add BodyCompass custom swim UI only for requirements WorkoutKit cannot cover.
+- Map strength and swim sessions to stable-ID WorkoutKit plans.
+- Use structured strength steps when WorkoutKit reports support; otherwise fall back to open Traditional Strength Training.
+- Schedule plans from iPhone and open them from the Watch companion.
+- Choose Pool or Open Water per swim; leave pool length to Apple Workout.
 
-### W4: Mirrored iPhone Experience
+### W4: Completed Workout Import
 
-Status: not started.
+Status: basic implementation complete and simulator-build verified; paired-device validation pending.
 
-- Mirror active session state and metrics to iPhone.
-- Add bidirectional pause, resume, end, and session actions.
-- Reconcile offline logs without duplication.
+- Match completed HealthKit workouts to BodyCompass sessions by WorkoutPlan UUID.
+- Import duration, active energy, and swimming distance when available.
+- Keep BodyCompass set/load/reps/RIR logs separate and reconcile without duplication.
 
 ### W5: Recovery-Aware Suggestions
 
@@ -128,11 +119,11 @@ Status: not started.
 ## Acceptance Criteria
 
 - Today's routine reaches Watch and remains available without iPhone connectivity.
-- A strength workout can be completed and saved from Watch.
+- A strength or swim plan opens in Apple Workout without starting a parallel BodyCompass workout.
 - Set logs sync exactly once and survive disconnect/reconnect.
 - Rest haptics can be disabled.
 - A swim workout imports available HealthKit metrics without treating missing heart rate as failure.
-- iPhone and Watch agree on workout lifecycle state during mirrored sessions.
+- A completed Apple workout maps back to the correct BodyCompass session UUID.
 - No live data or AI suggestion silently changes the active routine.
 - Real-device tests pass on the user's paired iPhone and Apple Watch.
 
@@ -142,11 +133,11 @@ Status: not started.
 - watchOS 26.1,
 - iPhone iOS 26.5.
 
-## Information Still Needed for W3
+## Confirmed Workout Ownership
 
-- pool versus open-water swimming,
-- preferred pool length,
-- whether BodyCompass should run the workout itself or primarily schedule into Apple's Workout app.
+- Apple Workout always owns strength and swimming workouts.
+- BodyCompass uses WorkoutKit for planning/scheduling/opening and HealthKit for completed metrics.
+- Pool/Open Water is selected for each swim. Apple Workout owns pool length.
 
 Framework availability must be checked against those OS versions before choosing deployment targets.
 
@@ -154,8 +145,6 @@ Beginner setup and paired-device test steps: `docs/apple-watch-setup.md`.
 
 ## Official Apple References
 
-- HealthKit workout sessions: https://developer.apple.com/documentation/healthkit/running-workout-sessions
-- Multidevice workout mirroring: https://developer.apple.com/documentation/healthkit/building-a-multidevice-workout-app
 - WorkoutKit: https://developer.apple.com/documentation/workoutkit
 - Watch Connectivity: https://developer.apple.com/documentation/watchconnectivity
 - Workout design guidance: https://developer.apple.com/design/human-interface-guidelines/workouts

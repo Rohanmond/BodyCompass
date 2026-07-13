@@ -11,6 +11,7 @@ final class HealthKitService: @unchecked Sendable {
         HKQuantityType(.bodyMass),
         HKQuantityType(.bodyFatPercentage),
         HKQuantityType(.activeEnergyBurned),
+        HKQuantityType(.distanceSwimming),
         HKQuantityType(.stepCount),
         HKQuantityType(.restingHeartRate),
         HKObjectType.workoutType(),

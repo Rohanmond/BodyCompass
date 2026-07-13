@@ -39,15 +39,15 @@ Current app tabs:
 - History
 - Coach
 
-## Apple Watch Companion (In Progress)
+## Apple Watch and Apple Workout (In Progress)
 
-- HealthKit workout session and live workout builder own the active Watch workout.
-- HealthKit workout mirroring synchronizes active lifecycle and metrics with iPhone.
+- Apple Workout exclusively owns active strength/swimming lifecycle and sensor metrics.
+- WorkoutKit creates, schedules, and opens BodyCompass plans in Apple Workout.
 - Watch Connectivity transfers routine versions, setup context, queued logs, and background updates.
-- WorkoutKit schedules compatible swimming and interval plans into Apple's Workout app.
+- HealthKit maps completed Apple workouts back by WorkoutPlan/session UUID.
 - Watch remains functional offline and reconciles logs idempotently after reconnecting.
 
-Implemented now: Watch Connectivity transfers the latest active routine and recent strength history through application context; Watch persists both and queues strength/swim logs locally; iPhone merges logs by UUID and sends durable acknowledgements. Acknowledged Watch history remains separate from pending delivery so set numbering and previous-performance context survive reconnects. A Watch HealthKit strength session supplies heart rate, active energy, and pause-aware elapsed time. WorkoutKit and HealthKit workout mirroring are still planned boundaries, not current behavior.
+Implemented now: Watch Connectivity transfers routine/history and durable manual logs. WorkoutKit maps strength and Pool/Open Water swims, schedules from iPhone, and opens Apple Workout from Watch. Structured strength uses a runtime-supported custom plan or open Traditional Strength Training fallback. Completed HealthKit workouts match the BodyCompass session UUID and expose duration, energy, and swimming distance. BodyCompass no longer starts a parallel workout session or mirrors lifecycle.
 
 ## Swift Core
 

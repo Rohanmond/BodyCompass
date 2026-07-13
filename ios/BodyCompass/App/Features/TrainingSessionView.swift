@@ -6,6 +6,7 @@ import BodyCompassCore
 /// What to do today: prescriptions, progression hints, and set-by-set logging.
 struct TrainingSessionView: View {
     @EnvironmentObject private var training: TrainingStore
+    @StateObject private var workoutKit = WorkoutKitService()
 
     let date: Date
 
@@ -47,6 +48,9 @@ struct TrainingSessionView: View {
         }
         .sheet(item: $loggingSwim) { session in
             SwimLogSheet(date: date, session: session)
+        }
+        .task(id: HealthKitService.dayKey(for: date)) {
+            await workoutKit.refreshCompleted(sessions: day.sessions, on: date)
         }
     }
 
@@ -118,6 +122,8 @@ struct TrainingSessionView: View {
                     .foregroundStyle(.secondary)
             }
 
+            appleWorkoutControls(session)
+
             switch session.kind {
             case .strength:
                 if session.exercises.isEmpty {
@@ -140,6 +146,84 @@ struct TrainingSessionView: View {
         .padding()
         .background(Theme.surface)
         .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    @ViewBuilder
+    private func appleWorkoutControls(_ session: TrainingSession) -> some View {
+        if session.kind == .strength {
+            Button {
+                Task { await workoutKit.schedule(session: session, on: date) }
+            } label: {
+                workoutKitLabel(for: session, defaultTitle: "Add to Apple Workout")
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(isWorkoutKitUnavailable(session.id))
+        } else if session.kind == .swimming {
+            Menu {
+                ForEach(BodyCompassSwimLocation.allCases) { location in
+                    Button(location.displayName) {
+                        Task {
+                            await workoutKit.schedule(
+                                session: session,
+                                on: date,
+                                swimLocation: location
+                            )
+                        }
+                    }
+                }
+            } label: {
+                workoutKitLabel(for: session, defaultTitle: "Add swim to Apple Workout")
+            }
+            .buttonStyle(.borderedProminent)
+            .disabled(isWorkoutKitUnavailable(session.id))
+        }
+
+        if case .failed(let message) = workoutKit.state(for: session.id) {
+            Label(message, systemImage: "exclamationmark.triangle")
+                .font(.caption)
+                .foregroundStyle(Theme.warning)
+        }
+
+        if let imported = workoutKit.completed[session.id] {
+            HStack(spacing: 10) {
+                Label("\(imported.durationMinutes) min", systemImage: "checkmark.circle.fill")
+                if let energy = imported.activeEnergyKcal {
+                    Label("\(Int(energy)) kcal", systemImage: "flame")
+                }
+                if let distance = imported.distanceMeters, distance > 0 {
+                    Label("\(Int(distance)) m", systemImage: "figure.pool.swim")
+                }
+            }
+            .font(.caption.bold())
+            .foregroundStyle(Theme.accent)
+        }
+    }
+
+    private func workoutKitLabel(for session: TrainingSession, defaultTitle: String) -> some View {
+        let state = workoutKit.state(for: session.id)
+        let title: String
+        let icon: String
+        switch state {
+        case .idle, .failed:
+            title = defaultTitle
+            icon = "applewatch"
+        case .authorizing:
+            title = "Requesting access"
+            icon = "lock.open"
+        case .scheduling:
+            title = "Scheduling"
+            icon = "arrow.triangle.2.circlepath"
+        case .scheduled:
+            title = "Added to Apple Workout"
+            icon = "checkmark.circle.fill"
+        }
+        return Label(title, systemImage: icon)
+            .font(.caption.bold())
+    }
+
+    private func isWorkoutKitUnavailable(_ sessionID: UUID) -> Bool {
+        let state = workoutKit.state(for: sessionID)
+        return state == .authorizing || state == .scheduling || state == .scheduled
     }
 
     private func exerciseCard(_ exercise: ExercisePrescription, in session: TrainingSession) -> some View {

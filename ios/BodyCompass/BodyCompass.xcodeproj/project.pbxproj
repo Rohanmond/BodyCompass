@@ -34,9 +34,12 @@
 		7B0000000000000000000007 /* TrainingEditorViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0000000000000000000007 /* TrainingEditorViews.swift */; };
 		7B0000000000000000000008 /* RoutineProposalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0000000000000000000008 /* RoutineProposalView.swift */; };
 		9B0000000000000000000001 /* PhoneWatchSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0000000000000000000001 /* PhoneWatchSyncService.swift */; };
+		AA0000000000000000000001 /* WorkoutPlanFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0000000000000000000001 /* WorkoutPlanFactory.swift */; };
+		AA0000000000000000000002 /* WorkoutKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AB0000000000000000000002 /* WorkoutKitService.swift */; };
+		AA0000000000000000000003 /* WorkoutPlanFactory.swift in Watch Sources */ = {isa = PBXBuildFile; fileRef = AB0000000000000000000001 /* WorkoutPlanFactory.swift */; };
 		9B0000000000000000000002 /* BodyCompassWatchApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0000000000000000000002 /* BodyCompassWatchApp.swift */; };
 		9B0000000000000000000003 /* WatchRoutineStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0000000000000000000003 /* WatchRoutineStore.swift */; };
-		9B0000000000000000000004 /* WatchWorkoutManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0000000000000000000004 /* WatchWorkoutManager.swift */; };
+		9B0000000000000000000004 /* WatchWorkoutLauncher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0000000000000000000004 /* WatchWorkoutLauncher.swift */; };
 		9B0000000000000000000005 /* WatchRootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A0000000000000000000005 /* WatchRootView.swift */; };
 		9B0000000000000000000006 /* TrainingRoutine.swift in Watch Sources */ = {isa = PBXBuildFile; fileRef = 7A0000000000000000000001 /* TrainingRoutine.swift */; };
 		9B0000000000000000000007 /* TrainingSeed.swift in Watch Sources */ = {isa = PBXBuildFile; fileRef = 7A0000000000000000000002 /* TrainingSeed.swift */; };
@@ -102,9 +105,11 @@
 		7A0000000000000000000007 /* TrainingEditorViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingEditorViews.swift; sourceTree = "<group>"; };
 		7A0000000000000000000008 /* RoutineProposalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutineProposalView.swift; sourceTree = "<group>"; };
 		9A0000000000000000000001 /* PhoneWatchSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneWatchSyncService.swift; sourceTree = "<group>"; };
+		AB0000000000000000000001 /* WorkoutPlanFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutPlanFactory.swift; sourceTree = "<group>"; };
+		AB0000000000000000000002 /* WorkoutKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WorkoutKitService.swift; sourceTree = "<group>"; };
 		9A0000000000000000000002 /* BodyCompassWatchApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BodyCompassWatchApp.swift; sourceTree = "<group>"; };
 		9A0000000000000000000003 /* WatchRoutineStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchRoutineStore.swift; sourceTree = "<group>"; };
-		9A0000000000000000000004 /* WatchWorkoutManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchWorkoutManager.swift; sourceTree = "<group>"; };
+		9A0000000000000000000004 /* WatchWorkoutLauncher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchWorkoutLauncher.swift; sourceTree = "<group>"; };
 		9A0000000000000000000005 /* WatchRootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchRootView.swift; sourceTree = "<group>"; };
 		9A0000000000000000000006 /* Watch Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		9A0000000000000000000007 /* BodyCompassWatch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BodyCompassWatch.entitlements; sourceTree = "<group>"; };
@@ -189,6 +194,8 @@
 				211A805EEE4449608136F410 /* HealthKitService.swift */,
 				B1B2C3D4E5F60718293A4B5C /* ReminderService.swift */,
 				9A0000000000000000000001 /* PhoneWatchSyncService.swift */,
+				AB0000000000000000000001 /* WorkoutPlanFactory.swift */,
+				AB0000000000000000000002 /* WorkoutKitService.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -198,7 +205,7 @@
 			children = (
 				9A0000000000000000000002 /* BodyCompassWatchApp.swift */,
 				9A0000000000000000000003 /* WatchRoutineStore.swift */,
-				9A0000000000000000000004 /* WatchWorkoutManager.swift */,
+				9A0000000000000000000004 /* WatchWorkoutLauncher.swift */,
 				9A0000000000000000000005 /* WatchRootView.swift */,
 				9A0000000000000000000006 /* Watch Info.plist */,
 				9A0000000000000000000007 /* BodyCompassWatch.entitlements */,
@@ -366,6 +373,8 @@
 				7B0000000000000000000007 /* TrainingEditorViews.swift in Sources */,
 				7B0000000000000000000008 /* RoutineProposalView.swift in Sources */,
 				9B0000000000000000000001 /* PhoneWatchSyncService.swift in Sources */,
+				AA0000000000000000000001 /* WorkoutPlanFactory.swift in Sources */,
+				AA0000000000000000000002 /* WorkoutKitService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -375,7 +384,8 @@
 			files = (
 				9B0000000000000000000002 /* BodyCompassWatchApp.swift in Sources */,
 				9B0000000000000000000003 /* WatchRoutineStore.swift in Sources */,
-				9B0000000000000000000004 /* WatchWorkoutManager.swift in Sources */,
+				9B0000000000000000000004 /* WatchWorkoutLauncher.swift in Sources */,
+				AA0000000000000000000003 /* WorkoutPlanFactory.swift in Watch Sources */,
 				9B0000000000000000000005 /* WatchRootView.swift in Sources */,
 				9B0000000000000000000006 /* TrainingRoutine.swift in Watch Sources */,
 				9B0000000000000000000007 /* TrainingSeed.swift in Watch Sources */,

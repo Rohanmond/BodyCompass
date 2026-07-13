@@ -14,7 +14,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 | Phase 2: Profile and Goal Setup | Complete | First-run onboarding, profile editing, local persistence, and live 12% projection are implemented. |
 | Phase 3: HealthKit Daily Sync | Implemented; device check pending | Permission flow, daily metric queries, and manual fallback entries compile; actual Apple Health permissions and data require a signed iPhone run. |
 | Phase 4: Schedule and Training Plan | Complete (simulator-verified) | Daily schedule, adherence, next action, and reminders plus the full structured training program: seeded weekly split, setup questionnaire, exercise prescriptions, set/swim logging, deterministic progression, versioned editing with rollback, one-day rest exceptions, and a mock coach proposal Confirm/Edit/Reject flow. |
-| Phase 4W: Apple Watch Companion | In progress | W1 and W2 compile: durable sync/history plus a complete strength flow with HealthKit metrics, elapsed time, prior values, substitutions, pain notes, rest/haptics, and summary. Physical-device validation and W3-W5 remain. |
+| Phase 4W: Apple Watch Companion | In progress | Apple Workout now owns strength/swimming. WorkoutKit scheduling/opening, durable manual logs, and basic HealthKit result import compile. Physical-device validation and recovery coaching remain. |
 | Phase 5: Meal Photo Logging | Partial | UI and mock dual-provider response exist; photo upload and real AI calls are missing. |
 | Phase 6: Coach Chat | Partial | Chat UI and mock endpoint exist; real contextual provider calls are missing. |
 | Phase 7: Weekly Review and Photos | Partial | History placeholder exists. Weekly progress-photo capture, comparison, and AI body-fat range analysis are planned but not built. |
@@ -32,8 +32,9 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 - Added the weekly routine screen, today's session screen (reachable from Today), day/exercise editors with substitution swapping, version history with rollback, one-day rest exceptions, and strength/swim logging sheets.
 - Added a mock Coach proposal flow with reasons, recovery impact, before/after diff, staleness detection, and Confirm/Edit/Reject; proposals never activate without explicit confirmation and are refused without setup context.
 - Added an embedded watchOS companion target with a shared scheme, HealthKit workout capability, cached routine sync, and durable UUID-based Watch log delivery/acknowledgement.
-- Added the first Watch strength experience: today's session list, HealthKit start/pause/resume/end, live heart rate and energy, load/reps/RIR logging, rest countdown, and haptics. Manual offline swim logging bridges to the planned WorkoutKit phase.
-- Completed W2 with recent-history sync, stable acknowledged set history, previous-performance prefilling, substitutions, pain severity, pause-aware elapsed time, optional haptics, end confirmation, and a saved-workout summary.
+- Retained the useful W2 manual layer: recent-history sync, stable acknowledged set history, previous-performance prefilling, substitutions, pain severity, rest timers, and optional haptics. The former custom HealthKit lifecycle/metrics UI was superseded and removed.
+- Replaced the custom BodyCompass HealthKit workout lifecycle with WorkoutKit plans for strength and swimming. iPhone schedules; Watch opens Apple Workout; structured strength falls back safely when unsupported.
+- Added Pool/Open Water selection at handoff time and completed-workout matching by session UUID with duration, energy, and swimming distance display.
 
 ## Verified
 
@@ -48,7 +49,6 @@ Verification rerun: July 13, 2026.
 ## Next
 
 - On a signed iPhone run, confirm the notification-permission prompt, reminder delivery, and real HealthKit reads.
-- Follow `docs/apple-watch-setup.md` to validate routine sync, HealthKit workout saving, live metrics, offline queueing, and exact-once merge on the paired Series 10 and iPhone.
-- Before W3, confirm pool/open-water mode, pool length, and whether swimming should primarily use BodyCompass or WorkoutKit in Apple's Workout app.
+- Follow `docs/apple-watch-setup.md` to validate WorkoutKit permission, iPhone scheduling, Watch handoff, Apple Workout capture, HealthKit import, offline queueing, and exact-once manual-log merge.
 - Phase 5: camera/photo picker, meal upload, typed API client, and correction persistence.
 - Phase 6: real provider chat with profile/health/meal/training context, reusing the existing proposal confirmation contract.

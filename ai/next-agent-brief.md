@@ -4,29 +4,28 @@ Read `ai/HANDOFF.md` before starting. This brief intentionally covers only the n
 
 ## Best Next Phase
 
-Validate Phase 4W W1-W2 on the paired devices, then scope W3 swimming.
+Validate the Apple Workout-only Phase 4W path on the paired devices.
 
 ## Recommended Scope
 
 On the user's paired Apple Watch Series 10 (watchOS 26.1) and iPhone (iOS 26.5):
 
 - follow `docs/apple-watch-setup.md` and resolve signing/device-only issues,
-- verify routine sync, offline routine display, strength workout saving, live heart rate/energy, and exact-once queued-log merge,
+- verify routine sync, WorkoutKit authorization, iPhone scheduling, Watch handoff, Apple Workout capture, HealthKit result import, and exact-once queued-log merge,
 - add focused pure-model checks for any new sync reconciliation logic.
 
 ## Suggested Implementation
 
-- Keep Watch screens glanceable with large controls.
+- Keep Apple Workout as the exclusive active-session owner.
 - Keep Watch logs locally until an iPhone acknowledgement arrives.
 - Merge by stable UUID; retransmission must never duplicate a set or swim.
 - Do not infer reps or prescribe load changes from heart rate.
-- Do not start W3 until pool/open-water mode, pool length, and WorkoutKit preference are known.
+- Ask Pool/Open Water at handoff time; do not add a BodyCompass pool-length preference.
 - Keep simulator-build success separate from physical-device validation in status docs.
 
 ## Do Not Expand This Slice Into
 
-- WorkoutKit swimming before requirements are confirmed,
-- HealthKit workout mirroring before W1-W2 are device-verified,
+- custom BodyCompass `HKWorkoutSession` ownership or workout mirroring,
 - AI recovery coaching,
 - meal/photo or database work,
 - silent Coach changes to the active routine.

@@ -8,7 +8,7 @@ Use this file as the authoritative starting point for Claude, ChatGPT, Gemini, C
 
 - Repository: `Rohanmond/BodyCompass`
 - Primary branch: `main`
-- Primary implementation state: Phases 0-4 complete; Phase 4W W1-W2 implemented and simulator-build verified
+- Primary implementation state: Phases 0-4 complete; Phase 4W Apple Workout handoff and basic result import simulator-build verified
 - iOS deployment target: iOS 17
 - App: native SwiftUI under `ios/BodyCompass`
 - Shared logic: Swift package target `BodyCompassCore`
@@ -68,15 +68,18 @@ The generic daily task schedule and the weekly strength/swimming program are bot
 
 Remaining Phase 4 niceties (deferred): date-range pauses, one-tap move/copy between days, and UI for non-rest one-day exceptions (the core `TrainingDayException` already supports arbitrary replacement sessions).
 
-### Phase 4W: Apple Watch Foundation
+### Phase 4W: Apple Watch and Apple Workout
 
 - Device baseline: Apple Watch Series 10 on watchOS 26.1 paired with iPhone on iOS 26.5.
-- The iPhone target embeds a `BodyCompass Watch App` target with a shared scheme, HealthKit entitlement, workout-processing mode, and shared pure training DTO source membership.
+- The iPhone target embeds a `BodyCompass Watch App` target with a shared scheme and shared training DTO/WorkoutKit plan source membership.
 - `PhoneWatchSyncService` sends the active routine via application context, receives queued Watch logs, merges them through `TrainingStore`, and acknowledges their stable UUIDs.
 - `WatchRoutineStore` persists the latest routine and pending strength/swim logs so today's plan and completed logs survive disconnects and relaunches.
-- Watch UI shows today's sessions. Strength supports HealthKit start/pause/resume/end, live heart rate/energy, pause-aware elapsed time, previous-performance prefilling, substitutions, load/reps/RIR, pain severity, rest countdown, optional haptics, end confirmation, and a saved-workout summary. Swimming is manual offline logging only.
+- Confirmed product rule: Apple Workout always owns active strength and swimming workouts. BodyCompass never starts a parallel `HKWorkoutSession`.
+- `WorkoutPlanFactory` maps strength and swimming sessions to stable-ID WorkoutKit plans. Strength uses structured custom steps when runtime-supported and otherwise falls back to open Traditional Strength Training. Swimming asks Pool/Open Water per handoff; Apple owns pool length.
+- iPhone `WorkoutKitService` requests scheduling authorization, schedules plans, and matches completed HealthKit workouts by plan/session UUID to show duration, energy, and swimming distance.
+- Watch `WatchWorkoutLauncher` opens plans in Apple Workout. The companion still provides previous-performance prefilling, substitutions, load/reps/RIR, pain severity, rest timers, optional haptics, and durable offline manual logs.
 - Recent iPhone strength history is included in application context. Watch keeps acknowledged history separate from pending delivery, preserving stable set numbers and prior values through reconnects.
-- W1 and W2 compile for the generic watchOS Simulator SDK. No claim of physical-device connectivity, HealthKit capture, or signing verification has been made.
+- The Apple Workout migration compiles for iOS and generic watchOS Simulator SDKs. No claim of physical WorkoutKit scheduling/opening, HealthKit result matching, connectivity, or signing verification has been made.
 
 ## Partially Implemented
 
@@ -99,7 +102,7 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 
 ## Not Implemented
 
-- Remaining Phase 4W: physical W1/W2 validation, WorkoutKit swimming/import, workout mirroring, and recovery-aware suggestions. See `docs/apple-watch-plan.md`.
+- Remaining Phase 4W: physical WorkoutKit/HealthKit validation and recovery-aware suggestions. See `docs/apple-watch-plan.md`.
 - Real OpenAI and Gemini API calls.
 - Typed iOS backend client.
 - Database, authentication, or private object storage.
@@ -109,12 +112,13 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 
 ## Recommended Next Work
 
-The user explicitly prioritized Apple Watch. Validate Phase 4W W1-W2, then prepare W3:
+The user explicitly chose Apple Workout ownership for both strength and swimming. Validate that path next:
 
 1. Follow `docs/apple-watch-setup.md` on the paired Series 10 and iPhone.
-2. Verify latest-routine delivery, offline display, HealthKit workout saving/live metrics, reconnect delivery, and UUID deduplication.
-3. Fix device-only signing or connectivity issues without weakening offline durability.
-4. Ask for pool/open-water mode, pool length, and custom BodyCompass versus WorkoutKit preference before W3.
+2. Verify WorkoutKit authorization, iPhone scheduling, Watch `openInWorkoutApp()`, structured-strength support/fallback, and Pool/Open Water handoff.
+3. Complete workouts in Apple Workout and verify UUID-linked duration, energy, and swimming distance import.
+4. Verify reconnect delivery and UUID deduplication for separate BodyCompass set logs.
+5. Fix device-only signing or connectivity issues without reintroducing a custom active workout session.
 
 Phase 6 (Coach) should reuse the existing `RoutineChangeProposal` confirmation contract when providers start generating routine changes — the Confirm/Edit/Reject flow and staleness handling are already built.
 

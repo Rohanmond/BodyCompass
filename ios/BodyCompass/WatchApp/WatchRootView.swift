@@ -3,7 +3,6 @@ import WatchKit
 
 struct WatchRootView: View {
     @EnvironmentObject private var store: WatchRoutineStore
-    @EnvironmentObject private var workout: WatchWorkoutManager
     @AppStorage("bodycompass.watch.hapticsEnabled") private var hapticsEnabled = true
 
     var body: some View {
@@ -56,32 +55,14 @@ struct WatchRootView: View {
 }
 
 struct WatchStrengthSessionView: View {
-    @EnvironmentObject private var workout: WatchWorkoutManager
+    @EnvironmentObject private var workoutLauncher: WatchWorkoutLauncher
     @EnvironmentObject private var store: WatchRoutineStore
     let session: TrainingSession
-    @State private var confirmsEnd = false
 
     var body: some View {
         List {
             Section {
-                workoutControls
-                if workout.state == .running || workout.state == .paused {
-                    TimelineView(.periodic(from: .now, by: 1)) { context in
-                        VStack(alignment: .leading, spacing: 4) {
-                            Label(watchDuration(workout.elapsedTime(at: context.date)), systemImage: "timer")
-                                .monospacedDigit()
-                            HStack {
-                                Label("\(Int(workout.heartRate))", systemImage: "heart.fill")
-                                    .foregroundStyle(.red)
-                                Spacer()
-                                Label("\(Int(workout.activeEnergy))", systemImage: "flame.fill")
-                                    .foregroundStyle(.orange)
-                            }
-                        }
-                        .font(.caption)
-                    }
-                }
-
+                appleWorkoutButton
                 Text("\(store.sessionSetCount(sessionID: session.id, date: dateKey)) sets logged")
                     .font(.caption2)
                     .foregroundStyle(.secondary)
@@ -109,54 +90,26 @@ struct WatchStrengthSessionView: View {
             }
         }
         .navigationTitle(session.title)
-        .confirmationDialog("End and save this workout?", isPresented: $confirmsEnd) {
-            Button("End Workout", role: .destructive) { workout.end() }
-            Button("Keep Training", role: .cancel) {}
-        }
     }
 
     @ViewBuilder
-    private var workoutControls: some View {
-        switch workout.state {
-        case .idle:
+    private var appleWorkoutButton: some View {
+        switch workoutLauncher.state(for: session.id) {
+        case .idle, .opened:
             Button {
-                workout.startStrength()
+                Task { await workoutLauncher.open(session: session) }
             } label: {
-                Label("Start Workout", systemImage: "play.fill")
+                Label("Open in Apple Workout", systemImage: "figure.strengthtraining.traditional")
             }
             .tint(.green)
-        case .authorizing:
-            HStack { ProgressView(); Text("Connecting Health") }
-        case .running, .paused:
-            HStack {
-                Button { workout.togglePause() } label: {
-                    Image(systemName: workout.state == .paused ? "play.fill" : "pause.fill")
-                }
-                .tint(.yellow)
-                Button { confirmsEnd = true } label: {
-                    Image(systemName: "stop.fill")
-                }
-                .tint(.red)
-            }
-        case .ending:
-            HStack { ProgressView(); Text("Saving") }
-        case .completed(let summary):
-            VStack(alignment: .leading, spacing: 5) {
-                Label("Workout saved", systemImage: "checkmark.circle.fill")
-                    .foregroundStyle(.green)
-                Text("\(watchDuration(summary.duration)) · \(Int(summary.activeEnergy)) kcal")
-                    .font(.caption)
-                if summary.finalHeartRate > 0 {
-                    Text("Final heart rate: \(Int(summary.finalHeartRate)) bpm")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                }
-                Button("Done") { workout.reset() }
-            }
+        case .opening:
+            HStack { ProgressView(); Text("Opening Workout") }
         case .failed(let message):
             VStack(alignment: .leading) {
                 Text(message).font(.caption).foregroundStyle(.red)
-                Button("Reset") { workout.reset() }
+                Button("Try Again") {
+                    Task { await workoutLauncher.open(session: session) }
+                }
             }
         }
     }
@@ -329,6 +282,7 @@ struct WatchExerciseView: View {
 
 struct WatchSwimLogView: View {
     @EnvironmentObject private var store: WatchRoutineStore
+    @EnvironmentObject private var workoutLauncher: WatchWorkoutLauncher
     @Environment(\.dismiss) private var dismiss
     @AppStorage("bodycompass.watch.hapticsEnabled") private var hapticsEnabled = true
 
@@ -345,30 +299,50 @@ struct WatchSwimLogView: View {
 
     var body: some View {
         List {
-            Text("Live swimming and WorkoutKit arrive in W3. You can log this swim offline now.")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            Stepper("\(minutes) min", value: $minutes, in: 5...180, step: 5)
-            Stepper("\(distanceMeters) m", value: $distanceMeters, in: 0...20_000, step: 50)
-            Picker("Effort", selection: $intensity) {
-                ForEach(SwimIntensity.allCases, id: \.rawValue) { value in
-                    Text(value.displayName).tag(value)
+            Section("Apple Workout") {
+                Button {
+                    Task { await workoutLauncher.open(session: session, swimLocation: .pool) }
+                } label: {
+                    Label("Pool Swim", systemImage: "figure.pool.swim")
+                }
+                Button {
+                    Task { await workoutLauncher.open(session: session, swimLocation: .openWater) }
+                } label: {
+                    Label("Open Water", systemImage: "water.waves")
+                }
+                if workoutLauncher.state(for: session.id) == .opening {
+                    ProgressView("Opening Workout")
+                }
+                if case .failed(let message) = workoutLauncher.state(for: session.id) {
+                    Text(message)
+                        .font(.caption)
+                        .foregroundStyle(.red)
                 }
             }
-            Button("Save Swim") {
-                store.queue(SwimSessionLog(
-                    date: dateKey,
-                    sessionID: session.id,
-                    minutes: minutes,
-                    distanceMeters: distanceMeters == 0 ? nil : distanceMeters,
-                    intensity: intensity
-                ))
-                if hapticsEnabled {
-                    WKInterfaceDevice.current().play(.success)
+
+            Section("Manual Log") {
+                Stepper("\(minutes) min", value: $minutes, in: 5...180, step: 5)
+                Stepper("\(distanceMeters) m", value: $distanceMeters, in: 0...20_000, step: 50)
+                Picker("Effort", selection: $intensity) {
+                    ForEach(SwimIntensity.allCases, id: \.rawValue) { value in
+                        Text(value.displayName).tag(value)
+                    }
                 }
-                dismiss()
+                Button("Save Swim") {
+                    store.queue(SwimSessionLog(
+                        date: dateKey,
+                        sessionID: session.id,
+                        minutes: minutes,
+                        distanceMeters: distanceMeters == 0 ? nil : distanceMeters,
+                        intensity: intensity
+                    ))
+                    if hapticsEnabled {
+                        WKInterfaceDevice.current().play(.success)
+                    }
+                    dismiss()
+                }
+                .tint(.blue)
             }
-            .tint(.blue)
         }
         .navigationTitle(session.title)
     }
@@ -383,9 +357,4 @@ private func watchDateKey() -> String {
     formatter.formatOptions = [.withFullDate]
     formatter.timeZone = .current
     return formatter.string(from: Date())
-}
-
-private func watchDuration(_ interval: TimeInterval) -> String {
-    let seconds = max(0, Int(interval))
-    return String(format: "%02d:%02d", seconds / 60, seconds % 60)
 }

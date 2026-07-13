@@ -62,7 +62,7 @@ The initial target user is a focused adult fitness user who:
 - Simple local notifications for schedule reminders.
 - Privacy controls for deleting meal images and logs.
 - Apple Watch companion for active strength/swimming guidance, live workout metrics, quick logging, rest haptics, and offline sync.
-- WorkoutKit scheduling for compatible swimming and interval plans.
+- WorkoutKit scheduling/opening for all strength and swimming sessions; Apple Workout always owns active workout capture.
 
 ### Out of Scope for MVP
 
@@ -116,8 +116,8 @@ Manual changes do not require Coach confirmation. Confirmation is required only 
 ### Apple Watch Workout
 
 1. Today's prescribed session syncs to Apple Watch and remains available offline.
-2. User starts a BodyCompass workout or a compatible WorkoutKit plan.
-3. Watch shows the current exercise or interval, targets, live metrics, and large workout controls.
+2. BodyCompass schedules or opens the plan in Apple Workout through WorkoutKit.
+3. Apple Workout owns live metrics and workout controls; BodyCompass retains prescriptions and manual strength details.
 4. User confirms sets, reps, load, effort, substitutions, or swimming work with minimal interaction.
 5. Rest and interval haptics provide optional prompts.
 6. Completed HealthKit metrics and BodyCompass logs sync back exactly once.

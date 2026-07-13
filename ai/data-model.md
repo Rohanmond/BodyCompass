@@ -160,10 +160,11 @@
 
 - workout/session UUID shared across Watch and iPhone
 - routine and training-day version identifiers
-- workout lifecycle state and last update timestamp
-- origin device and sync revision
+- WorkoutKit schedule/open state and selected swimming location
+- origin device and sync revision for BodyCompass logs
 - queued set/swim log identifiers
 - HealthKit workout UUID after save
+- imported duration, active energy, and swimming distance
 - sync status, conflict state, and retry metadata
 
 `progress_check_ins`

@@ -27,23 +27,24 @@ Xcode installs the iPhone companion and Watch app together. The first device bui
 
 1. Open BodyCompass on iPhone and finish training setup so the weekly routine contains detailed exercises.
 2. Open BodyCompass on Apple Watch. Today's routine should appear.
-3. Open a strength session and tap **Start Workout**.
-4. Grant Health permission for workouts, heart rate, and active energy.
-5. Log one test set, pause and resume once, then end the workout.
-6. Reopen the iPhone app and confirm the set appears in today's training log.
-7. Turn off Bluetooth or move the phone away, log another set on Watch, reconnect, and confirm it syncs once without duplication.
+3. On iPhone, open a strength session and tap **Add to Apple Workout**; grant Workout scheduling permission.
+4. On Watch, open BodyCompass, choose the strength session, and tap **Open in Apple Workout**.
+5. Complete and end the workout in Apple's Workout app.
+6. Reopen the iPhone session and confirm duration and energy appear under the matching session.
+7. Log one BodyCompass test set and confirm it appears in today's training log.
+8. Turn off Bluetooth or move the phone away, log another set on Watch, reconnect, and confirm it syncs once without duplication.
 
 ## What Works in This Build
 
 - Today's strength/swim plan caches on Watch and remains visible offline.
-- Strength workouts start, pause, resume, and save through HealthKit.
-- Heart rate and active energy update during the strength workout.
+- Strength and swimming plans schedule/open in Apple Workout through WorkoutKit.
+- Apple Workout owns start, pause, resume, end, heart rate, energy, and swimming metrics.
 - Load, reps, and RIR can be logged with rest countdowns and haptics.
 - Previous performance syncs from iPhone and prefills the next working values.
-- Substitutions, pain severity, elapsed time, optional haptics, end confirmation, and a saved-workout summary are available.
+- Substitutions, pain severity, and optional haptics are available in BodyCompass; Apple Workout supplies elapsed time and the workout summary.
 - Strength and manual swim logs queue offline and sync idempotently to iPhone.
 
-Live swimming through WorkoutKit, iPhone workout mirroring, and recovery-aware suggestions are not implemented yet.
+Recovery-aware suggestions are not implemented yet. WorkoutKit and completed-workout import still require paired-device validation.
 
 ## Troubleshooting
 
