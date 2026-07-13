@@ -25,6 +25,14 @@
 		E32A5F6E499946E6AB520A20 /* GoalProjection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0496068A1A154719B34DF1DE /* GoalProjection.swift */; };
 		CF620A74A25649D498F2816F /* MealAnalysis.swift in Sources */ = {isa = PBXBuildFile; fileRef = C97F2A19AD344594B96EF1B4 /* MealAnalysis.swift */; };
 		F20A34B291A44A238A7B0041 /* OnboardingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8C15E7D22BE4B5E9A62DF10 /* OnboardingView.swift */; };
+		7B0000000000000000000001 /* TrainingRoutine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0000000000000000000001 /* TrainingRoutine.swift */; };
+		7B0000000000000000000002 /* TrainingSeed.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0000000000000000000002 /* TrainingSeed.swift */; };
+		7B0000000000000000000003 /* TrainingLogs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0000000000000000000003 /* TrainingLogs.swift */; };
+		7B0000000000000000000004 /* TrainingStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0000000000000000000004 /* TrainingStore.swift */; };
+		7B0000000000000000000005 /* TrainingWeekView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0000000000000000000005 /* TrainingWeekView.swift */; };
+		7B0000000000000000000006 /* TrainingSessionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0000000000000000000006 /* TrainingSessionView.swift */; };
+		7B0000000000000000000007 /* TrainingEditorViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0000000000000000000007 /* TrainingEditorViews.swift */; };
+		7B0000000000000000000008 /* RoutineProposalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A0000000000000000000008 /* RoutineProposalView.swift */; };
 		8C1B8501AC0441C9987C575C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 08B7464CBFA64999BF9A4C0A /* Assets.xcassets */; };
 /* End PBXBuildFile section */
 
@@ -51,6 +59,14 @@
 		46CFA48E5F8F4BBF894A3F95 /* BodyCompass.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BodyCompass.entitlements; sourceTree = "<group>"; };
 		AE32B164E769415AAAE52C96 /* BodyCompass.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BodyCompass.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A8C15E7D22BE4B5E9A62DF10 /* OnboardingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingView.swift; sourceTree = "<group>"; };
+		7A0000000000000000000001 /* TrainingRoutine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingRoutine.swift; sourceTree = "<group>"; };
+		7A0000000000000000000002 /* TrainingSeed.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingSeed.swift; sourceTree = "<group>"; };
+		7A0000000000000000000003 /* TrainingLogs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingLogs.swift; sourceTree = "<group>"; };
+		7A0000000000000000000004 /* TrainingStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingStore.swift; sourceTree = "<group>"; };
+		7A0000000000000000000005 /* TrainingWeekView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingWeekView.swift; sourceTree = "<group>"; };
+		7A0000000000000000000006 /* TrainingSessionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingSessionView.swift; sourceTree = "<group>"; };
+		7A0000000000000000000007 /* TrainingEditorViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrainingEditorViews.swift; sourceTree = "<group>"; };
+		7A0000000000000000000008 /* RoutineProposalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutineProposalView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,6 +93,7 @@
 			isa = PBXGroup;
 			children = (
 				104976314DCC4BE696608BB6 /* AppStore.swift */,
+				7A0000000000000000000004 /* TrainingStore.swift */,
 				D489589B99744533BC61F82C /* BodyCompassApp.swift */,
 				CB9A8FF6D38440A087540C82 /* RootView.swift */,
 				E19FB870D78A44B09B1E4706 /* Info.plist */,
@@ -107,6 +124,10 @@
 				C95C2DBC81D24B87A9B949E8 /* TodayView.swift */,
 				A8C15E7D22BE4B5E9A62DF10 /* OnboardingView.swift */,
 				C1B2C3D4E5F60718293A4B5C /* ScheduleEditorView.swift */,
+				7A0000000000000000000005 /* TrainingWeekView.swift */,
+				7A0000000000000000000006 /* TrainingSessionView.swift */,
+				7A0000000000000000000007 /* TrainingEditorViews.swift */,
+				7A0000000000000000000008 /* RoutineProposalView.swift */,
 			);
 			path = Features;
 			sourceTree = "<group>";
@@ -136,6 +157,9 @@
 				0496068A1A154719B34DF1DE /* GoalProjection.swift */,
 				C97F2A19AD344594B96EF1B4 /* MealAnalysis.swift */,
 				A1B2C3D4E5F60718293A4B5C /* DailySchedule.swift */,
+				7A0000000000000000000001 /* TrainingRoutine.swift */,
+				7A0000000000000000000002 /* TrainingSeed.swift */,
+				7A0000000000000000000003 /* TrainingLogs.swift */,
 			);
 			path = Sources/BodyCompassCore;
 			sourceTree = "<group>";
@@ -235,6 +259,14 @@
 				A1B2C3D4E5F60718293A4B5D /* DailySchedule.swift in Sources */,
 				B1B2C3D4E5F60718293A4B5D /* ReminderService.swift in Sources */,
 				C1B2C3D4E5F60718293A4B5D /* ScheduleEditorView.swift in Sources */,
+				7B0000000000000000000001 /* TrainingRoutine.swift in Sources */,
+				7B0000000000000000000002 /* TrainingSeed.swift in Sources */,
+				7B0000000000000000000003 /* TrainingLogs.swift in Sources */,
+				7B0000000000000000000004 /* TrainingStore.swift in Sources */,
+				7B0000000000000000000005 /* TrainingWeekView.swift in Sources */,
+				7B0000000000000000000006 /* TrainingSessionView.swift in Sources */,
+				7B0000000000000000000007 /* TrainingEditorViews.swift in Sources */,
+				7B0000000000000000000008 /* RoutineProposalView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

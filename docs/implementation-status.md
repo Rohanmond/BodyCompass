@@ -13,7 +13,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 | Phase 1: Real iOS Project | Complete | The SwiftUI app builds successfully for the iOS Simulator. |
 | Phase 2: Profile and Goal Setup | Complete | First-run onboarding, profile editing, local persistence, and live 12% projection are implemented. |
 | Phase 3: HealthKit Daily Sync | Implemented; device check pending | Permission flow, daily metric queries, and manual fallback entries compile; actual Apple Health permissions and data require a signed iPhone run. |
-| Phase 4: Schedule and Training Plan | Partial | Daily schedule, adherence, next action, and reminder code are implemented. Editable weekly programming, exercise prescriptions, progression logs, version history, and coach-confirmed routine updates are planned but not built. |
+| Phase 4: Schedule and Training Plan | Complete (simulator-verified) | Daily schedule, adherence, next action, and reminders plus the full structured training program: seeded weekly split, setup questionnaire, exercise prescriptions, set/swim logging, deterministic progression, versioned editing with rollback, one-day rest exceptions, and a mock coach proposal Confirm/Edit/Reject flow. |
 | Phase 5: Meal Photo Logging | Partial | UI and mock dual-provider response exist; photo upload and real AI calls are missing. |
 | Phase 6: Coach Chat | Partial | Chat UI and mock endpoint exist; real contextual provider calls are missing. |
 | Phase 7: Weekly Review and Photos | Partial | History placeholder exists. Weekly progress-photo capture, comparison, and AI body-fat range analysis are planned but not built. |
@@ -23,25 +23,25 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 
 ## Latest Completed Work
 
-- Added HealthKit queries for steps, active energy, workouts, sleep, weight, body fat, and resting heart rate.
-- Added independent metric reads, permission states, pull-to-refresh, and persistent manual overrides for partial or denied HealthKit access.
-- Built an editable daily schedule (add, edit, delete, reorder) in a dedicated editor screen, with per-task categories and optional reminder times.
-- Added tap-to-complete tracking on the Today screen, persisted per day in `UserDefaults`.
-- Added a daily adherence score and a rolling 7-day average backed by persisted `DayAdherenceRecord` history, with an automatic daily completion roll.
-- Rewrote the next best action to rank training, protein, steps, sleep, and remaining tasks using real HealthKit metrics and meal protein.
-- Added optional local reminders via UserNotifications with a master toggle and per-task times.
-- Moved schedule/adherence/next-best-action into `BodyCompassCore` as pure logic and covered it in `BodyCompassCoreCheck`.
+- Added pure structured-training models to `BodyCompassCore`: routines, days, sessions, exercise prescriptions, set/swim logs, one-day exceptions, versions, validation, day-level diffing, edit-review warnings, and coach change proposals.
+- Added a deterministic conservative double-progression advisor (baseline → add reps → add ~2.5% load, minimum 1 kg; pain notes force a caution state) covered by `BodyCompassCoreCheck` assertions.
+- Seeded the exact weekly split (Mon chest+triceps, Tue back+biceps + swim, Wed legs, Thu swim, Fri upper body, Sat arms + swim, Sun swim) with no invented starting weights; it persists across relaunch.
+- Added a training setup questionnaire (experience, equipment, limitations, swim duration/intensity) that gates detailed prescription generation.
+- Added `TrainingStore` with local persistence for versions, setup, exceptions, logs, and proposals.
+- Added the weekly routine screen, today's session screen (reachable from Today), day/exercise editors with substitution swapping, version history with rollback, one-day rest exceptions, and strength/swim logging sheets.
+- Added a mock Coach proposal flow with reasons, recovery impact, before/after diff, staleness detection, and Confirm/Edit/Reject; proposals never activate without explicit confirmation and are refused without setup context.
 
 ## Verified
 
-- `swift run BodyCompassCoreCheck` passes, including new adherence and next-best-action assertions.
+- `swift run BodyCompassCoreCheck` passes, including the new training model, validation, exception, diff, progression, and proposal assertions.
 - `npm test` passes with three backend tests.
-- The BodyCompass Xcode target builds successfully for the iOS Simulator.
-- HealthKit data access and reminder delivery are not verifiable in this build-only audit and remain real-device checks.
+- The BodyCompass Xcode target builds successfully for the iOS Simulator with the eight new Swift files attached.
+- HealthKit data access and reminder delivery are not verifiable in a build-only check and remain real-device items.
 
 Verification rerun: July 13, 2026.
 
 ## Next
 
-- On a signed iPhone run, confirm the notification-permission prompt and that reminders fire at their set times.
-- Continue Phase 4 with the seeded weekly split, workout/session models, set and rep logging, and coach proposal confirmation workflow.
+- On a signed iPhone run, confirm the notification-permission prompt, reminder delivery, and real HealthKit reads.
+- Phase 5: camera/photo picker, meal upload, typed API client, and correction persistence.
+- Phase 6: real provider chat with profile/health/meal/training context, reusing the existing proposal confirmation contract.

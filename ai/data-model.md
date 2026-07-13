@@ -36,6 +36,21 @@
 - likelyMistakes
 - recommendation
 
+`TrainingRoutine` (implemented in `BodyCompassCore`, persisted as versions in `UserDefaults`)
+
+- id, version, source (seed, user, coach), changeSummary, createdAt
+- days: seven `TrainingDay` values (weekday + sessions)
+- `TrainingSession`: title, kind (strength, swimming, recovery), muscleGroups, exercises, swimPlan, notes
+- `ExercisePrescription`: name, warmUp, workingSets, repRange, targetRIR, restSeconds, techniqueNotes, substitutions — never a starting load
+
+`TrainingDayException` — date key, replacement sessions (empty = rest), note; applied on top of the routine without mutating it
+
+`ExerciseSetLog` / `SwimSessionLog` — logged load/reps/RIR/pain and duration/distance/intensity per date
+
+`RoutineChangeProposal` — baseVersion, proposedDays, reasons, expectedBenefit, recoveryImpact, status (pending, confirmed, rejected); only explicit confirmation creates a new routine version
+
+`TrainingSetup` — experience, equipment, limitations, swim minutes/intensity; collected before detailed prescriptions are generated
+
 ## Future Persistent Entities
 
 `users`

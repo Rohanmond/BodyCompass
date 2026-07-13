@@ -55,35 +55,20 @@ This verifies compilation and existing automated checks. It does not verify real
 - Goal projection tests.
 - Mock dual-provider meal and chat responses.
 
-## Partially Implemented
-
 ### Phase 4: Structured Training
 
-The generic daily task schedule is implemented. The weekly strength/swimming program is not.
+The generic daily task schedule and the weekly strength/swimming program are both implemented and simulator-build verified.
 
-Required starting split:
+- Pure models in `Sources/BodyCompassCore/TrainingRoutine.swift`, `TrainingSeed.swift`, and `TrainingLogs.swift`: routines, days, sessions, prescriptions, set/swim logs, one-day exceptions, versions, validation, day-level diffing, edit-review warnings, proposals, and a deterministic conservative double-progression advisor. All covered by `BodyCompassCoreCheck`.
+- The exact starting split is seeded and survives relaunch (Mon chest+triceps, Tue back+biceps then swimming, Wed legs, Thu swimming, Fri upper body, Sat arms then swimming, Sun swimming).
+- A setup questionnaire (experience, equipment, limitations, swim duration/intensity) gates detailed prescription generation; no starting weights are ever invented.
+- `App/TrainingStore.swift` owns persistence (UserDefaults) for versions, setup, exceptions, logs, and the pending proposal.
+- Screens: `TrainingWeekView` (week, history, rollback, proposal entry), `TrainingSessionView` (today's prescriptions, progression hints, set/swim logging, rest-day exceptions), `TrainingEditorViews` (setup questionnaire, day editor, exercise editor with substitution swapping), `RoutineProposalView` (before/after diff, Confirm/Edit/Reject, staleness handling). Today tab links to session and week.
+- Manual edits validate, warn on material volume increases or losing the only rest day, and activate directly as a new version. Coach proposals stay pending until explicit confirmation; a proposal built against an older version is stale and cannot be applied; proposals are refused entirely when setup context is missing.
 
-| Day | Session |
-| --- | --- |
-| Monday | Chest + triceps |
-| Tuesday | Back + biceps, then swimming |
-| Wednesday | Legs |
-| Thursday | Swimming |
-| Friday | Upper body |
-| Saturday | Arms, then swimming |
-| Sunday | Swimming |
+Remaining Phase 4 niceties (deferred): date-range pauses, one-tap move/copy between days, and UI for non-rest one-day exceptions (the core `TrainingDayException` already supports arbitrary replacement sessions).
 
-Still required:
-
-- separate versioned training-routine models,
-- detailed exercises, warm-ups, sets, rep ranges, RIR/RPE, rest, substitutions, and progression rules,
-- strength set and swimming-session logs,
-- manual weekly editing and one-day exceptions,
-- routine history and rollback,
-- Coach proposals with Confirm, Edit, or Reject,
-- safeguards for fatigue, pain, equipment, experience, and swimming load.
-
-Manual user edits can activate directly after review. Coach-generated changes must remain pending until explicit confirmation.
+## Partially Implemented
 
 ### Phase 5: Meals
 
@@ -113,30 +98,31 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 
 ## Recommended Next Work
 
-Continue Phase 4 in small verified milestones:
+Phase 4 is complete. Continue with Phase 5 (Meals) in small verified milestones:
 
-1. Add pure `BodyCompassCore` models for routines, days, sessions, prescriptions, logs, exceptions, versions, and pending proposals.
-2. Add tests to `BodyCompassCoreCheck`, including routine validation and conservative double progression.
-3. Seed the exact weekly split above without inventing fixed starting weights.
-4. Collect training experience, available equipment, limitations/injuries, and swimming duration/intensity before generating detailed prescriptions.
-5. Add a weekly routine screen and today's session screen, reachable from Today.
-6. Add manual editing, one-day exceptions, local persistence, version history, and rollback.
-7. Add workout logging and progression suggestions.
-8. Add a mock structured Coach proposal flow with before/after diff and Confirm/Edit/Reject. Real providers belong to Phase 6.
+1. Add a camera/photo picker to the Meal Log screen (PhotosPicker first; camera needs a real device).
+2. Add a typed iOS API client for the backend meal-analysis endpoint.
+3. Send the photo plus portion notes to the backend; keep mock providers working without API keys.
+4. Show OpenAI, Gemini, and reconciled estimates; let the user correct the final values.
+5. Persist corrected meals locally and show meal history.
 
-Keep the generic daily task schedule and structured training routine separate. The former tracks habits; the latter owns programming, performance, and progression.
+Phase 6 (Coach) should reuse the existing `RoutineChangeProposal` confirmation contract when providers start generating routine changes — the Confirm/Edit/Reject flow and staleness handling are already built.
+
+Keep the generic daily task schedule and structured training routine separate. The former tracks habits (`AppStore`); the latter owns programming, performance, and progression (`TrainingStore`).
 
 ## Completion Criteria for Structured Training
 
-- The seeded split survives app relaunch.
-- User can view exactly what to do today.
+All met in the July 13, 2026 implementation:
+
+- The seeded split survives app relaunch (persisted routine versions).
+- User can view exactly what to do today (`TrainingSessionView` from Today).
 - Strength prescriptions include sets, rep ranges, effort, rest, and substitutions.
 - User can log load, reps, and effort; swimming supports duration, distance, and intensity.
-- Manual edits create a new version and can be rolled back.
-- A one-day move does not mutate the repeating routine.
-- Progression suggestions are deterministic and tested.
-- Coach cannot activate a proposal without confirmation.
-- Invalid routines and unsafe/missing-context proposals produce clear UI states.
+- Manual edits create a new version and can be rolled back (restore copies forward).
+- A one-day exception does not mutate the repeating routine.
+- Progression suggestions are deterministic and tested in `BodyCompassCoreCheck`.
+- Coach cannot activate a proposal without confirmation; stale proposals cannot apply.
+- Invalid routines produce validation alerts; missing-setup proposals are refused with an explanation.
 - Swift check, backend tests, and Xcode Simulator build pass.
 
 ## Non-Negotiable Product Rules

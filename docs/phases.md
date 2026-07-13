@@ -18,8 +18,10 @@ Implemented:
 - Phase 2 onboarding, profile persistence, profile editing, and live goal recalculation are implemented.
 - Phase 3 HealthKit permission flow, real daily metric queries, manual fallback entries, and Today-screen refresh are implemented.
 
+- Phase 4 structured training: seeded weekly split, setup questionnaire, exercise prescriptions, set/swim logging, deterministic progression, versioned manual editing with rollback, one-day rest exceptions, and a mock coach proposal Confirm/Edit/Reject flow.
+
 Partially implemented:
-- Phase 4 still needs the weekly training plan, exercise prescriptions, performance logging, progression, and coach confirmation workflow.
+- Phase 4 extras still open: date-range session pauses, one-tap move/copy of a session to another day, richer one-day exceptions in the UI (core model already supports arbitrary replacement sessions), and real Coach-generated proposals (Phase 6).
 - Phase 5 and Phase 6 have backend mock provider flows and UI placeholders, but not real photo upload, real provider API calls, or persistence.
 - Phase 7 has a History tab placeholder, but not real weekly analytics or progress-photo analysis yet.
 - Phase 1 still needs you to open Xcode locally and choose signing for real-device runs.
@@ -170,7 +172,7 @@ Phase 3 done status: implementation complete and simulator target builds; confir
 
 Goal: make the app a daily accountability system.
 
-Status: partially implemented. Daily schedule and adherence are build-verified; structured training plans and coach-confirmed updates are not implemented.
+Status: implemented and simulator-build verified. Daily schedule, adherence, and the structured weekly training program (seeded split, prescriptions, logging, progression, versions, rollback, one-day exceptions, and mock coach proposals) are all built. Real Coach-generated proposals arrive with Phase 6.
 
 Implemented in this phase:
 
@@ -183,19 +185,25 @@ Implemented in this phase:
 - Optional local reminders (UserNotifications) with a master toggle and a per-task reminder time.
 - Pure schedule/adherence/next-best-action logic in `BodyCompassCore`, exercised by `BodyCompassCoreCheck`.
 
-Training plan still to implement:
+Structured training implemented in this phase:
 
-- Seed the user's Monday-to-Sunday chest/triceps, back/biceps, legs, swimming, upper-body, and arms/swimming split.
-- Add a weekly routine view and a detailed session screen.
-- Add a weekly routine editor for adding, removing, copying, moving, and reordering sessions.
-- Allow direct exercise, set, rep-range, effort, rest-time, and substitution editing.
-- Support one-day exceptions separately from changes to the repeating routine.
-- Store exercises, warm-ups, working sets, rep ranges, target RIR/RPE, rest time, substitutions, and coaching notes.
-- Log completed load, reps, effort, pain/limitations, and swimming duration/intensity.
-- Suggest double-progression changes from recent performance without automatically applying them.
-- Let Coach return a structured routine-change proposal with reasons, recovery impact, and a before/after diff.
-- Require Confirm, Edit, or Reject before changing the active routine.
-- Version routines so a confirmed change can be reviewed or rolled back.
+- Pure training models in `BodyCompassCore` (`TrainingRoutine.swift`, `TrainingSeed.swift`, `TrainingLogs.swift`): routines, days, sessions, prescriptions, logs, exceptions, versions, proposals, validation, diffing, and progression — all covered by `BodyCompassCoreCheck`.
+- Seeded Monday-to-Sunday chest/triceps, back/biceps + swim, legs, swim, upper-body, arms + swim, swim split, persisted across relaunch.
+- A setup questionnaire (experience, equipment, limitations, swim duration/intensity) that gates detailed prescriptions; the app never invents starting weights.
+- Weekly routine screen (`TrainingWeekView`) and today's session screen (`TrainingSessionView`), reachable from the Today tab.
+- Day editor with session rename/type/add/remove, exercise add/remove/reorder, and per-exercise sets, rep range, RIR, rest, warm-up, technique notes, and substitution swapping.
+- Pre-save review warnings when an edit materially increases weekly volume or removes the only rest day; validation errors block invalid routines with clear messages.
+- One-day rest exceptions that never mutate the repeating routine, with one-tap restore.
+- Set-by-set strength logging (load, reps, RIR, pain notes) and swim logging (duration, distance, intensity).
+- Deterministic conservative double progression: establish baseline → add reps → add load (2.5%, min 1 kg), with pain notes forcing a caution state.
+- Routine versions with history and rollback (restores copy forward as a new version).
+- Mock Coach proposal flow with reasons, recovery impact, exact before/after diff, staleness detection, and Confirm/Edit/Reject. Nothing activates without explicit confirmation, and proposals are refused when setup context is missing.
+
+Still open (deferred, not blockers):
+
+- Date-range session pauses and one-tap move/copy of a session to another day.
+- UI for one-day exceptions beyond "rest today" (the core model already supports arbitrary replacement sessions).
+- Real Coach-generated proposals via providers (Phase 6 wiring; the confirmation contract is already in place).
 
 Deliverables:
 
@@ -214,7 +222,7 @@ Done when:
 - User can manually change the weekly schedule and restore an earlier version.
 - Coach cannot modify the active routine until the user confirms the proposal.
 
-Phase 4 done status: daily schedule foundation is complete; training programming and coach approval workflow remain.
+Phase 4 done status: complete and simulator-build verified. Real-device notification and HealthKit checks remain global open items.
 
 ## Phase 5: Meal Photo Logging
 

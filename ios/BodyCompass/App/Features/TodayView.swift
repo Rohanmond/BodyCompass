@@ -2,6 +2,7 @@ import SwiftUI
 
 struct TodayView: View {
     @EnvironmentObject private var store: AppStore
+    @EnvironmentObject private var training: TrainingStore
     @State private var showingManualEntry = false
 
     var body: some View {
@@ -34,6 +35,8 @@ struct TodayView: View {
                     }
 
                     adherenceCard
+
+                    trainingCard
 
                     HStack {
                         SectionHeader(title: "Schedule")
@@ -105,6 +108,68 @@ struct TodayView: View {
                 ManualEntrySheet()
             }
         }
+    }
+
+    // Today's structured session from the weekly program — separate from the
+    // generic habit schedule below, which tracks daily accountability.
+    private var trainingCard: some View {
+        let day = training.effectiveDay()
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                SectionHeader(title: "Today's training")
+                Spacer()
+                NavigationLink {
+                    TrainingWeekView()
+                } label: {
+                    Text("Week")
+                        .font(.subheadline)
+                }
+            }
+
+            NavigationLink {
+                TrainingSessionView()
+            } label: {
+                HStack(spacing: 12) {
+                    Image(systemName: day.sessions.first?.kind.systemImage ?? "leaf")
+                        .font(.title3)
+                        .foregroundStyle(Theme.accent)
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text(day.sessions.isEmpty ? "Rest day" : day.sessions.map(\.title).joined(separator: " + "))
+                            .font(.headline)
+                            .foregroundStyle(.primary)
+                        Text(trainingCaption(for: day))
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.caption)
+                        .foregroundStyle(.tertiary)
+                }
+                .padding()
+                .background(Theme.surface)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+            }
+            .buttonStyle(.plain)
+
+            if training.needsSetup {
+                Text("Set up your program on the Week screen to get exact sets, reps, and effort targets.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+
+    private func trainingCaption(for day: EffectiveTrainingDay) -> String {
+        if day.isException { return "Changed just for today" }
+        if day.sessions.isEmpty { return "Recovery is part of the plan" }
+        let strength = day.sessions.filter { $0.kind == .strength }.flatMap(\.exercises).count
+        let swims = day.sessions.filter { $0.kind == .swimming }
+        var parts: [String] = []
+        if strength > 0 { parts.append("\(strength) exercises") }
+        if let plan = swims.first?.swimPlan { parts.append("\(plan.targetMinutes) min swim") }
+        else if !swims.isEmpty { parts.append("swim") }
+        return parts.isEmpty ? "Tap for details" : parts.joined(separator: " · ")
     }
 
     private var adherenceCard: some View {
