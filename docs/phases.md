@@ -440,6 +440,78 @@ Implemented:
 - A repeatable release preflight for metadata, icons, backend tests, Swift core checks, and both simulator builds.
 - Beginner-friendly signed-device, Series 10, live-provider, seven-day beta, and TestFlight checklist in `docs/beta-checklist.md`.
 
+### Remaining Phase 9 Execution Stages
+
+Complete these stages in order. They are release gates, not missing simulator implementation.
+
+#### Phase 9A: Signed Device Setup
+
+Status: pending user action in Xcode.
+
+- Select the Apple Developer team for the BodyCompass iPhone and Watch targets.
+- Confirm unique bundle identifiers and automatic signing.
+- Install and launch BodyCompass on the signed iPhone and paired Apple Watch Series 10.
+
+Done when both apps install, launch, and can request their required permissions without a signing or entitlement error.
+
+#### Phase 9B: Apple Device Validation
+
+Status: pending physical-device testing.
+
+- Validate full, partial, and denied HealthKit permission states and real health metrics.
+- Validate local schedule notification permission and delivery.
+- Validate WorkoutKit scheduling and handoff to Apple's Workout app for strength, pool swimming, and open-water swimming.
+- Confirm completed workouts import into the intended BodyCompass session with available duration, energy, distance, heart-rate, and recovery context.
+- Disconnect and reconnect the devices; confirm queued manual logs survive and merge exactly once.
+
+Done when the signed iPhone and paired Watch pass `docs/apple-watch-setup.md` without data loss, duplicate logs, or a release-blocking Apple integration issue.
+
+#### Phase 9C: Live AI and Camera Validation
+
+Status: pending physical-camera and live-provider testing.
+
+- Configure OpenAI and Gemini credentials on the backend only.
+- Test a clear meal photo, a poor-quality meal photo, corrections, deletion, and one-provider fallback.
+- Test Coach Chat and confirm routine changes still require Confirm/Edit/Reject.
+- Test a standardized front/side/back progress check-in, correction/rejection, comparison, and deletion.
+- Confirm AI body-fat output remains a broad non-medical range with confidence and limitations.
+
+Done when both providers, each single-provider fallback, and all physical-camera flows work without exposing API keys in the apps.
+
+#### Phase 9D: Production Backend Deployment
+
+Status: pending deployment and operations work.
+
+- Deploy the Node backend behind HTTPS.
+- Configure stable API and storage secrets outside source control.
+- Attach durable storage for SQLite and encrypted private images.
+- Back up the production data volume and complete a restore drill.
+- Verify authenticated iPhone backup, export, and deletion against the deployed service.
+
+Done when the service survives a restart and a tested backup can restore the database and encrypted image vault.
+
+#### Phase 9E: Seven-Day Personal Beta
+
+Status: pending completion of Phases 9A-9D.
+
+- Use Health sync, schedules, meals, Coach, training, and Apple Watch workouts every day for seven days.
+- Complete the weekly review and standardized progress-photo check-in.
+- Check for crashes, lost or duplicate entries, incorrect day rollover, accessibility problems, and confusing offline states.
+- Record release-blocking defects as GitHub issues and fix all critical issues.
+
+Done when seven consecutive days finish without an unresolved critical issue.
+
+#### Phase 9F: Internal TestFlight Release
+
+Status: pending successful personal beta.
+
+- Increment the build number, archive the app, and validate the archive in Xcode Organizer.
+- Complete App Store Connect privacy answers and support information.
+- Upload an internal TestFlight build and install it cleanly on the iPhone and Watch.
+- Recheck launch, permissions, Watch installation, core tracking, backup, export, and deletion from the distributed build.
+
+Done when the internal TestFlight build passes the clean-install smoke test on the user's devices.
+
 Deliverables:
 
 - Error states.
@@ -464,6 +536,9 @@ Only consider these after the MVP loop works:
 
 Status: not implemented.
 
+- Date-range pauses for training sessions.
+- One-tap move or copy of a workout to another day.
+- Richer one-day schedule exceptions beyond resting for the day.
 - Nutrition database barcode/search integration.
 - Streaks and habit analytics.
 - Subscription/payment model.

@@ -19,7 +19,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 | Phase 6: Coach Chat | Complete (simulator-verified) | Contextual dual-provider chat, local history, safety routing, provider comparison, and validated confirmed-only routine proposals are implemented. Live-key validation remains. |
 | Phase 7: Weekly Review and Photos | Complete (simulator-build verified) | Persisted HealthKit trends, weekly adherence/nutrition/training review, recalculated projection, standardized three-angle check-ins, protected local photos, comparison, dual-AI range analysis, correction/rejection, and deletion are implemented. Live-key and physical-camera checks remain. |
 | Phase 8: Persistence and Accounts | Complete (simulator-build verified) | SQLite persistence, private single-user bearer auth, encrypted non-public image storage, local-first iOS backup, Keychain token, JSON export, and server/device deletion are implemented. Production deployment/restore checks remain. |
-| Phase 9: Polish and Beta | In progress; simulator-verified | Icons, privacy manifests, offline backup recovery, accessibility summaries, improved charts, preflight automation, and the beta/TestFlight checklist are implemented and both targets build. Signed-device, seven-day, and TestFlight verification remain. |
+| Phase 9: Polish and Beta | In progress; simulator-verified | Code-side polish is complete. The remaining ordered gates are 9A signing, 9B Apple device validation, 9C live AI/camera validation, 9D production deployment, 9E seven-day beta, and 9F internal TestFlight. |
 | Phase 10: Future Ideas | Not started | Post-MVP enhancements remain intentionally deferred. |
 
 ## Latest Completed Work
@@ -56,6 +56,7 @@ Verification rerun: July 13, 2026.
 
 ## Next
 
+- Follow the ordered Phase 9A-9F execution stages in `docs/phases.md`; start with signing both targets and installing them on the paired devices.
 - On a signed iPhone run, confirm the notification-permission prompt, reminder delivery, and real HealthKit reads.
 - Follow `docs/apple-watch-setup.md` to validate WorkoutKit permission, iPhone scheduling, Watch handoff, Apple Workout capture, HealthKit import, offline queueing, and exact-once manual-log merge.
 - Validate Phase 5 on a physical iPhone camera and with both provider API keys; mock mode remains available without keys.

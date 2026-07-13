@@ -144,11 +144,14 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 
 Run the Phase 9 beta gates next:
 
-1. Run `./scripts/release-preflight.sh --build`.
-2. Follow `docs/beta-checklist.md` on the signed iPhone and paired Series 10.
-3. Verify WorkoutKit authorization, Apple Workout handoff/import, reconnect delivery, camera, notifications, and real HealthKit reads.
-4. Validate both live AI providers and the one-provider fallback.
-5. Complete the seven-day personal beta before treating Phase 9 as complete.
+1. Complete Phase 9A signing and install both targets on the paired devices.
+2. Complete Phase 9B Apple device validation using `docs/apple-watch-setup.md`.
+3. Complete Phase 9C live AI and physical-camera validation.
+4. Complete Phase 9D HTTPS deployment and a backup/restore drill.
+5. Complete the Phase 9E seven-day personal beta.
+6. Complete the Phase 9F internal TestFlight clean-install smoke test.
+
+The detailed status, requirements, and completion criteria for Phase 9A-9F are in `docs/phases.md`. Run `./scripts/release-preflight.sh --build` before device testing and again before archiving.
 
 Phase 6 Coach instructions now reuse the existing `RoutineChangeProposal` confirmation contract; preserve Confirm/Edit/Reject and staleness handling in future changes.
 
