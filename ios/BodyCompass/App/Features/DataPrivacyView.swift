@@ -14,8 +14,17 @@ struct DataPrivacyView: View {
         List {
             Section("Private server") {
                 LabeledContent("Backup status") { syncLabel }
-                SecureField("Bearer token (optional for local server)", text: $token)
-                    .textContentType(.password)
+                HStack(spacing: 12) {
+                    SecureField("Bearer token", text: $token)
+                        .textContentType(.password)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                    PasteButton(payloadType: String.self) { values in
+                        token = values.first?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+                    }
+                    .labelStyle(.iconOnly)
+                    .accessibilityLabel("Paste server token")
+                }
                 Button("Save server token") {
                     ServerCredentialStore.token = token.trimmingCharacters(in: .whitespacesAndNewlines)
                     retryBackup()

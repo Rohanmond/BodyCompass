@@ -98,10 +98,6 @@ private struct KeyboardDismissModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .scrollDismissesKeyboard(.interactively)
-            .simultaneousGesture(
-                TapGesture().onEnded { dismissKeyboard() },
-                including: .gesture
-            )
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
                     Spacer()
