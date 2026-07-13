@@ -40,6 +40,9 @@ struct MealLogView: View {
                             .foregroundStyle(.secondary)
                     }
                     photoInput
+                    Label("Sent to the configured AI providers for analysis, then discarded. The photo is not saved in BodyCompass history or backup.", systemImage: "hand.raised")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
 
                     TextField("Portion, cooking oil, sauces, restaurant or home", text: $notes, axis: .vertical)
                         .lineLimit(3...5)
@@ -81,13 +84,12 @@ struct MealLogView: View {
                 .ignoresSafeArea()
             }
             .sheet(isPresented: $isShowingCorrection) {
-                if let analysis, let imageData {
+                if let analysis {
                     NutritionCorrectionView(analysis: analysis.reconciled) { accepted in
                         store.saveMeal(
                             estimates: analysis,
                             accepted: accepted,
-                            notes: notes,
-                            imageData: imageData
+                            notes: notes
                         )
                         resetDraft()
                     }
@@ -223,14 +225,6 @@ struct MealLogView: View {
         } else {
             ForEach(store.mealHistory) { meal in
                 HStack(alignment: .top, spacing: 12) {
-                    if let data = store.mealImageData(for: meal), let thumbnail = UIImage(data: data) {
-                        Image(uiImage: thumbnail)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(width: 72, height: 72)
-                            .clipped()
-                            .clipShape(RoundedRectangle(cornerRadius: 6))
-                    }
                     VStack(alignment: .leading, spacing: 4) {
                         Text(meal.accepted.title).font(.headline)
                         Text(meal.createdAt, style: .date).font(.caption).foregroundStyle(.secondary)

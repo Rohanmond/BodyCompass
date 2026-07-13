@@ -175,10 +175,10 @@ All routes below use the authenticated private user:
 - `DELETE /api/meals` with `{ "id": "..." }`
 - `POST /api/progress-check-ins/save`
 - `DELETE /api/progress-check-ins` with `{ "id": "..." }`
-- `GET /api/data/export?includeImages=false`
+- `GET /api/data/export`
 - `DELETE /api/data` with exact confirmation text
 
-Accepted meal/progress save routes persist metadata in SQLite and image bytes in the encrypted private vault. Analysis endpoints remain non-persistent. Exports omit image bytes unless explicitly requested. Account deletion cascades relational data and removes encrypted files.
+Accepted meal/progress save routes persist metadata in SQLite and reject photo fields. Analysis endpoints use photos transiently and remain non-persistent. Exports contain no image bytes. Startup migration purges legacy photo files and database references.
 
 ## `GET /api/training/routine` (Planned)
 

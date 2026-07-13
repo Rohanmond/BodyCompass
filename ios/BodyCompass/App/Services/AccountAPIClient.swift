@@ -26,13 +26,6 @@ struct AccountAPIClient {
         let notes: String
         let estimates: MealAnalysisBundle
         let accepted: MealAnalysis
-        let imageBase64: String?
-        let imageMimeType: String?
-    }
-    private struct ProgressPhoto: Encodable {
-        let pose: String
-        let imageBase64: String
-        let imageMimeType = "image/jpeg"
     }
     private struct ProgressRequest: Encodable {
         let id: String
@@ -40,7 +33,6 @@ struct AccountAPIClient {
         let analysis: ProgressAnalysisBundle
         let acceptedRange: BodyFatEstimateRange?
         let wasRejected: Bool
-        let photos: [ProgressPhoto]
     }
     private struct IdentifierRequest: Encodable { let id: String }
     private struct DeleteRequest: Encodable { let confirmation = "DELETE MY BODYCOMPASS DATA" }
@@ -65,15 +57,13 @@ struct AccountAPIClient {
         _ = try await send(path: "api/health-snapshots", method: "POST", body: snapshot)
     }
 
-    func saveMeal(_ meal: LoggedMeal, imageData: Data?) async throws {
+    func saveMeal(_ meal: LoggedMeal) async throws {
         _ = try await send(path: "api/meals/save", method: "POST", body: MealRequest(
             id: meal.id.uuidString,
             createdAt: meal.createdAt,
             notes: meal.notes,
             estimates: meal.estimates,
-            accepted: meal.accepted,
-            imageBase64: imageData?.base64EncodedString(),
-            imageMimeType: imageData == nil ? nil : "image/jpeg"
+            accepted: meal.accepted
         ))
     }
 
@@ -81,17 +71,13 @@ struct AccountAPIClient {
         _ = try await send(path: "api/meals", method: "DELETE", body: IdentifierRequest(id: id.uuidString))
     }
 
-    func saveProgressCheckIn(_ checkIn: ProgressCheckIn, images: [ProgressPose: Data]) async throws {
-        let photos = ProgressPose.allCases.compactMap { pose in
-            images[pose].map { ProgressPhoto(pose: pose.rawValue, imageBase64: $0.base64EncodedString()) }
-        }
+    func saveProgressCheckIn(_ checkIn: ProgressCheckIn) async throws {
         _ = try await send(path: "api/progress-check-ins/save", method: "POST", body: ProgressRequest(
             id: checkIn.id.uuidString,
             capturedAt: checkIn.date,
             analysis: checkIn.analysis,
             acceptedRange: checkIn.acceptedRange,
-            wasRejected: checkIn.wasRejected,
-            photos: photos
+            wasRejected: checkIn.wasRejected
         ))
     }
 
@@ -99,8 +85,8 @@ struct AccountAPIClient {
         _ = try await send(path: "api/progress-check-ins", method: "DELETE", body: IdentifierRequest(id: id.uuidString))
     }
 
-    func exportData(includeImages: Bool) async throws -> Data {
-        try await send(path: "api/data/export?includeImages=\(includeImages)", method: "GET", body: Optional<String>.none)
+    func exportData() async throws -> Data {
+        try await send(path: "api/data/export", method: "GET", body: Optional<String>.none)
     }
 
     func deleteAllServerData() async throws {

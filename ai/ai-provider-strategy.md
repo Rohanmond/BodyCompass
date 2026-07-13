@@ -54,7 +54,7 @@ For each standardized weekly check-in, providers should return:
 
 - a broad body-fat percentage range,
 - confidence and image-quality limitations,
-- visible change compared with prior comparable photos,
+- current visual notes plus comparison against prior saved ranges and health trends,
 - areas where no reliable conclusion can be made,
 - suggestions grounded in weight, adherence, activity, and sleep trends,
 - one next-week action.

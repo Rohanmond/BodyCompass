@@ -22,10 +22,10 @@ Phase 8 persistence variables:
 
 - `BODYCOMPASS_API_TOKEN`: optional in local development and required in production. Enter the same value under Goal → Data & Privacy in the app.
 - `BODYCOMPASS_USER_ID`: stable private account identifier; defaults to `local-owner`.
-- `BODYCOMPASS_STORAGE_SECRET`: encryption secret for private meal and progress images; required in production and must remain stable across restarts.
-- `BODYCOMPASS_DATA_DIR`: SQLite and encrypted-file directory; defaults to `server/server-data` and is ignored by Git.
+- `BODYCOMPASS_STORAGE_SECRET`: legacy cleanup compatibility only; new builds do not retain meal or progress photos.
+- `BODYCOMPASS_DATA_DIR`: SQLite directory; defaults to `server/server-data` and is ignored by Git.
 
-Back up both the SQLite files and encrypted image directory together. Losing or changing `BODYCOMPASS_STORAGE_SECRET` makes existing server images unreadable. API keys and storage secrets stay only in `server/.env`; the app stores only the optional bearer token in Keychain.
+Back up the SQLite files. Meal and progress photos are analysis-only and are excluded from history, backup, and export. API keys stay only in `server/.env`; the app stores only the optional bearer token in Keychain.
 
 ## iOS
 

@@ -46,15 +46,9 @@ struct ProgressAnalysisBundle: Codable, Equatable {
     var reconciled: ProgressAnalysis
 }
 
-struct ProgressPhotoReference: Codable, Equatable {
-    var pose: ProgressPose
-    var filename: String
-}
-
 struct ProgressCheckIn: Codable, Identifiable, Equatable {
     var id: UUID
     var date: Date
-    var photos: [ProgressPhotoReference]
     var analysis: ProgressAnalysisBundle
     var acceptedRange: BodyFatEstimateRange?
     var wasRejected: Bool
@@ -63,7 +57,6 @@ struct ProgressCheckIn: Codable, Identifiable, Equatable {
 @MainActor
 final class ProgressCheckInStore: ObservableObject {
     private let defaults: UserDefaults
-    private let storage = ProgressPhotoStore()
     private let accountAPI = AccountAPIClient()
     private let key = "bodycompass.progressCheckIns"
 
@@ -75,27 +68,18 @@ final class ProgressCheckInStore: ObservableObject {
            let saved = try? JSONDecoder().decode([ProgressCheckIn].self, from: data) {
             checkIns = saved.sorted { $0.date > $1.date }
         }
+        ProgressPhotoStore.deleteLegacyImages()
+        persist()
         Task { await syncAll() }
     }
 
     var latest: ProgressCheckIn? { checkIns.first }
 
-    func save(images: [ProgressPose: Data], analysis: ProgressAnalysisBundle, acceptedRange: BodyFatEstimateRange?, rejected: Bool) throws {
+    func save(analysis: ProgressAnalysisBundle, acceptedRange: BodyFatEstimateRange?, rejected: Bool) {
         let id = UUID()
-        var references: [ProgressPhotoReference] = []
-        do {
-            for pose in ProgressPose.allCases {
-                guard let data = images[pose] else { continue }
-                references.append(ProgressPhotoReference(pose: pose, filename: try storage.save(data, id: id, pose: pose)))
-            }
-        } catch {
-            references.forEach { storage.delete($0.filename) }
-            throw error
-        }
         let checkIn = ProgressCheckIn(
             id: id,
             date: Date(),
-            photos: references,
             analysis: analysis,
             acceptedRange: acceptedRange,
             wasRejected: rejected
@@ -105,7 +89,7 @@ final class ProgressCheckInStore: ObservableObject {
             delete(checkIns[checkIns.count - 1])
         }
         persist()
-        Task { try? await accountAPI.saveProgressCheckIn(checkIn, images: images) }
+        Task { try? await accountAPI.saveProgressCheckIn(checkIn) }
     }
 
     func update(_ checkIn: ProgressCheckIn, acceptedRange: BodyFatEstimateRange?, rejected: Bool) {
@@ -114,61 +98,40 @@ final class ProgressCheckInStore: ObservableObject {
         checkIns[index].wasRejected = rejected
         persist()
         let updated = checkIns[index]
-        let images = imageDictionary(for: updated)
-        Task { try? await accountAPI.saveProgressCheckIn(updated, images: images) }
+        Task { try? await accountAPI.saveProgressCheckIn(updated) }
     }
 
     func delete(_ checkIn: ProgressCheckIn) {
-        checkIn.photos.forEach { storage.delete($0.filename) }
         checkIns.removeAll { $0.id == checkIn.id }
         persist()
         Task { try? await accountAPI.deleteProgressCheckIn(id: checkIn.id) }
     }
 
     func deleteAllLocalData() {
-        checkIns.flatMap(\.photos).forEach { storage.delete($0.filename) }
+        ProgressPhotoStore.deleteLegacyImages()
         checkIns = []
         defaults.removeObject(forKey: key)
     }
 
     func syncAll() async {
         for checkIn in checkIns {
-            try? await accountAPI.saveProgressCheckIn(checkIn, images: imageDictionary(for: checkIn))
+            try? await accountAPI.saveProgressCheckIn(checkIn)
         }
-    }
-
-    func imageData(for checkIn: ProgressCheckIn, pose: ProgressPose) -> Data? {
-        guard let filename = checkIn.photos.first(where: { $0.pose == pose })?.filename else { return nil }
-        return storage.data(for: filename)
     }
 
     private func persist() {
         if let data = try? JSONEncoder().encode(checkIns) { defaults.set(data, forKey: key) }
     }
 
-    private func imageDictionary(for checkIn: ProgressCheckIn) -> [ProgressPose: Data] {
-        Dictionary(uniqueKeysWithValues: ProgressPose.allCases.compactMap { pose in
-            imageData(for: checkIn, pose: pose).map { (pose, $0) }
-        })
-    }
 }
 
 private struct ProgressPhotoStore {
-    private var directory: URL {
+    static func deleteLegacyImages() {
+        let fileManager = FileManager.default
         let root = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-        return root.appendingPathComponent("BodyCompass/ProgressPhotos", isDirectory: true)
+        let directory = root.appendingPathComponent("BodyCompass/ProgressPhotos", isDirectory: true)
+        try? fileManager.removeItem(at: directory)
     }
-
-    func save(_ data: Data, id: UUID, pose: ProgressPose) throws -> String {
-        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-        let filename = "\(id.uuidString)-\(pose.rawValue).jpg"
-        let url = directory.appendingPathComponent(filename)
-        try data.write(to: url, options: [.atomic, .completeFileProtection])
-        return filename
-    }
-
-    func data(for filename: String) -> Data? { try? Data(contentsOf: directory.appendingPathComponent(filename)) }
-    func delete(_ filename: String) { try? FileManager.default.removeItem(at: directory.appendingPathComponent(filename)) }
 }
 
 struct ProgressAPIClient {
@@ -211,7 +174,6 @@ struct ProgressAPIClient {
     }
     private struct Request: Encodable {
         let currentPhotos: [Photo]
-        let previousPhotos: [Photo]
         let confirmations: Confirmations
         let context: Context
     }
@@ -283,20 +245,16 @@ struct ProgressAPIClient {
     }
 
     @MainActor
-    func analyze(current: [ProgressPose: Data], previous: [ProgressPose: Data], app: AppStore, previousRange: BodyFatEstimateRange?) async throws -> ProgressAnalysisBundle {
+    func analyze(current: [ProgressPose: Data], app: AppStore, previousRange: BodyFatEstimateRange?) async throws -> ProgressAnalysisBundle {
         guard let url = baseURL?.appendingPathComponent("api/progress-check-ins/analyze") else { throw ClientError.invalidURL }
         let currentPhotos = ProgressPose.allCases.compactMap { pose in
             current[pose].map { Photo(pose: pose.rawValue, imageBase64: $0.base64EncodedString()) }
-        }
-        let previousPhotos = ProgressPose.allCases.compactMap { pose in
-            previous[pose].map { Photo(pose: pose.rawValue, imageBase64: $0.base64EncodedString()) }
         }
         let health = app.healthHistory.sorted { $0.date > $1.date }.prefix(14).map {
             HealthContext(date: $0.date, weightKg: $0.weightKg, bodyFatPercentage: $0.bodyFatPercentage, steps: $0.steps, sleepHours: $0.sleepHours)
         }
         let payload = Request(
             currentPhotos: currentPhotos,
-            previousPhotos: previousPhotos,
             confirmations: Confirmations(),
             context: Context(
                 currentWeightKg: app.today.weightKg ?? app.profile.weightKg,

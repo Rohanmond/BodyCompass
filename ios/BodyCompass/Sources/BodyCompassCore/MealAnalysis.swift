@@ -64,7 +64,6 @@ public struct LoggedMeal: Codable, Equatable, Identifiable, Sendable {
     public var id: UUID
     public var createdAt: Date
     public var notes: String
-    public var imageFilename: String?
     public var estimates: MealAnalysisBundle
     public var accepted: MealAnalysis
 
@@ -72,14 +71,12 @@ public struct LoggedMeal: Codable, Equatable, Identifiable, Sendable {
         id: UUID = UUID(),
         createdAt: Date = Date(),
         notes: String,
-        imageFilename: String? = nil,
         estimates: MealAnalysisBundle,
         accepted: MealAnalysis
     ) {
         self.id = id
         self.createdAt = createdAt
         self.notes = notes
-        self.imageFilename = imageFilename
         self.estimates = estimates
         self.accepted = accepted
     }

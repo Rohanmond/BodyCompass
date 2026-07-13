@@ -4,7 +4,7 @@ Source of truth for detailed phase status: `docs/phases.md`.
 Human-readable quick summary: `docs/implementation-status.md`.
 Authoritative cross-model handoff: `ai/HANDOFF.md`.
 
-Last audited: July 13, 2026.
+Last audited: July 14, 2026.
 
 ## Implemented
 
@@ -15,10 +15,10 @@ Last audited: July 13, 2026.
 - Phase 4 daily schedule, persisted completion, adherence history, next-best-action logic, and reminders.
 - Phase 4 structured training: pure core models (routines, days, sessions, prescriptions, logs, exceptions, versions, proposals), seeded weekly split, setup questionnaire gating detailed prescriptions, weekly routine and today's-session screens, day/exercise editing with new versions and rollback, one-day rest exceptions, set/swim logging, deterministic conservative double progression, and a mock coach proposal Confirm/Edit/Reject flow.
 - Phase 4W W1: embedded watchOS target/shared scheme, HealthKit capability, latest-routine application-context sync, persistent Watch cache, durable strength/swim queues, UUID-idempotent iPhone merge, and acknowledgement cleanup.
-- Phase 5 meal logging: camera/library capture, compressed JPEG upload, typed iOS API client, live-or-mock OpenAI and Gemini meal adapters, resilient reconciliation, editable nutrition confirmation, protected local photo history, and deletion.
+- Phase 5 meal logging: camera/library capture, transient compressed JPEG upload, typed iOS API client, live-or-mock OpenAI and Gemini meal adapters, resilient reconciliation, editable nutrition confirmation, and photo-free result history.
 - Phase 6 Coach Chat: typed transport, bounded app context, live-or-mock OpenAI and Gemini adapters, safety classification, local conversation history, one next action, and validated confirmed-only routine proposals.
-- Phase 7 weekly review and photos: persisted health history, native trends, weekly summaries, recalculated goal projection, standardized three-angle capture, protected local storage, comparison, dual-provider visual ranges, correction/rejection, and deletion.
-- Phase 8 persistence/accounts: SQLite schema and restart durability, private single-user bearer auth, AES-256-GCM image vault, local-first iOS backup, Keychain token, JSON export, and complete server/device deletion.
+- Phase 7 weekly review and photos: persisted health history, native trends, weekly summaries, recalculated goal projection, standardized transient three-angle analysis, photo-free result history, dual-provider visual ranges, correction/rejection, and deletion.
+- Phase 8 persistence/accounts: SQLite metadata durability, private single-user bearer auth, no-photo persistence enforcement, legacy-photo cleanup, local-first iOS backup, Keychain token, and photo-free JSON export.
 - SwiftUI app shell with five tabs.
 - Swift core goal projection logic.
 - Xcode simulator build verification.

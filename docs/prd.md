@@ -60,7 +60,7 @@ The initial target user is a focused adult fitness user who:
 - User correction flow for meal estimates.
 - Weekly projection recalculation from real trend data.
 - Simple local notifications for schedule reminders.
-- Privacy controls for deleting meal images and logs.
+- Analysis-only meal photos that are discarded instead of added to history.
 - Apple Watch companion for active strength/swimming guidance, live workout metrics, quick logging, rest haptics, and offline sync.
 - WorkoutKit scheduling/opening for all strength and swimming sessions; Apple Workout always owns active workout capture.
 
@@ -169,10 +169,10 @@ Manual changes do not require Coach confirmation. Confirmation is required only 
 ## 9. Privacy Requirements
 
 - API keys must never be stored in the iOS app.
-- Health data, meal images, and progress photos must be deletable.
+- Meal and progress photos must be transient analysis inputs and never retained in BodyCompass history or backup.
 - Progress-photo upload is optional and requires explicit consent.
 - Remove image metadata before upload and allow face-free framing.
-- Progress photos must use private object storage with short-lived access URLs and a configurable retention policy.
+- Progress photos must be sent only in the analysis request, never written to app or backend history storage, and discarded from app memory after the result is accepted or rejected.
 - HealthKit permissions must be requested clearly and only for needed data.
 - User data should not be used for training unless the user explicitly opts in.
 

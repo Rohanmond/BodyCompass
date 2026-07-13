@@ -20,7 +20,7 @@ struct HistoryView: View {
                     TrendChart(title: "Weight", unit: "kg", color: Theme.accent, values: chartValues(\.weightKg))
                     TrendChart(title: "Body fat", unit: "%", color: Theme.warning, values: chartValues(\.bodyFatPercentage), target: 12)
                     progressSection
-                    Text("Visual estimates are broad, non-medical ranges. Weight trend and consistent photos matter more than any single result.")
+                    Text("Photos are used only for analysis and are never added to history. Visual estimates remain broad, non-medical ranges.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
@@ -93,8 +93,10 @@ struct HistoryView: View {
                         ProgressCheckInDetailView(checkIn: checkIn, previous: previous(to: checkIn), store: checkIns)
                     } label: {
                         HStack(spacing: 12) {
-                            ProgressThumbnail(data: checkIns.imageData(for: checkIn, pose: .front))
-                                .frame(width: 62, height: 78)
+                            Image(systemName: "chart.line.uptrend.xyaxis")
+                                .font(.title2)
+                                .foregroundStyle(Theme.accent)
+                                .frame(width: 44)
                             VStack(alignment: .leading, spacing: 5) {
                                 Text(checkIn.date.formatted(date: .abbreviated, time: .omitted)).font(.headline)
                                 Text(checkIn.wasRejected ? "Estimate rejected" : (checkIn.acceptedRange ?? checkIn.analysis.reconciled.bodyFatRange).label)
@@ -246,6 +248,9 @@ private struct ProgressCaptureView: View {
             VStack(alignment: .leading, spacing: 18) {
                 Text("Use the same room, camera height, distance, posture, and relaxed pose each week.")
                     .font(.callout).foregroundStyle(.secondary)
+                Label("Photos are sent to the configured AI providers for this analysis only and are not saved to history or backup.", systemImage: "hand.raised")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 HStack(spacing: 8) {
                     photoSlot(.front, item: $frontItem)
                     photoSlot(.side, item: $sideItem)
@@ -305,7 +310,7 @@ private struct ProgressCaptureView: View {
                     Label(selected.imageQuality.capitalized, systemImage: selected.imageQuality == "good" ? "checkmark.circle" : "exclamationmark.triangle")
                         .font(.caption).foregroundStyle(selected.imageQuality == "good" ? Theme.accent : Theme.warning)
                 }
-                resultList("Visible change", selected.visibleChanges)
+                resultList("Visual notes", selected.visibleChanges)
                 resultList("Limits", selected.limitations)
                 resultList("Suggestions", selected.suggestions)
                 VStack(alignment: .leading, spacing: 4) { Text("Next week").font(.headline); Text(selected.nextWeekAction) }
@@ -358,10 +363,9 @@ private struct ProgressCaptureView: View {
     }
     private func analyze() {
         isAnalyzing = true; errorMessage = nil
-        let previous = store.latest.map { checkIn in Dictionary(uniqueKeysWithValues: ProgressPose.allCases.compactMap { pose in store.imageData(for: checkIn, pose: pose).map { (pose, $0) } }) } ?? [:]
         Task {
             do {
-                let result = try await ProgressAPIClient().analyze(current: imageData, previous: previous, app: app, previousRange: store.latest?.acceptedRange)
+                let result = try await ProgressAPIClient().analyze(current: imageData, app: app, previousRange: store.latest?.acceptedRange)
                 analysis = result
                 lower = result.reconciled.bodyFatRange.lower.formatted(.number.precision(.fractionLength(0...1)))
                 upper = result.reconciled.bodyFatRange.upper.formatted(.number.precision(.fractionLength(0...1)))
@@ -371,8 +375,10 @@ private struct ProgressCaptureView: View {
     }
     private func save(rejected: Bool) {
         guard let analysis else { return }
-        do { try store.save(images: imageData, analysis: analysis, acceptedRange: rejected ? nil : validRange, rejected: rejected); dismiss() }
-        catch { errorMessage = "Could not save this private check-in: \(error.localizedDescription)" }
+        store.save(analysis: analysis, acceptedRange: rejected ? nil : validRange, rejected: rejected)
+        images.removeAll()
+        imageData.removeAll()
+        dismiss()
     }
 }
 
@@ -385,32 +391,22 @@ private struct ProgressCheckInDetailView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 18) {
-                photoRow(title: "Current", checkIn: checkIn)
-                if let previous { photoRow(title: previous.date.formatted(date: .abbreviated, time: .omitted), checkIn: previous) }
                 VStack(alignment: .leading, spacing: 8) {
                     Text(checkIn.wasRejected ? "Estimate rejected" : (checkIn.acceptedRange ?? checkIn.analysis.reconciled.bodyFatRange).label).font(.title.bold())
                     Text(checkIn.analysis.reconciled.nextWeekAction)
                     ForEach(checkIn.analysis.reconciled.limitations, id: \.self) { Label($0, systemImage: "exclamationmark.triangle").font(.callout).foregroundStyle(.secondary) }
                 }
+                if let previous {
+                    LabeledContent("Previous check-in", value: (previous.acceptedRange ?? previous.analysis.reconciled.bodyFatRange).label)
+                }
+                Label("Capture photos were discarded after analysis.", systemImage: "hand.raised")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
                 Button("Delete check-in", role: .destructive) { store.delete(checkIn); dismiss() }.frame(maxWidth: .infinity)
             }.padding()
         }
         .navigationTitle(checkIn.date.formatted(date: .abbreviated, time: .omitted))
         .navigationBarTitleDisplayMode(.inline)
-    }
-    private func photoRow(title: String, checkIn: ProgressCheckIn) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            Text(title).font(.headline)
-            HStack(spacing: 6) { ForEach(ProgressPose.allCases) { pose in ProgressThumbnail(data: store.imageData(for: checkIn, pose: pose)).aspectRatio(0.72, contentMode: .fit) } }
-        }
-    }
-}
-
-private struct ProgressThumbnail: View {
-    let data: Data?
-    var body: some View {
-        Group { if let data, let image = UIImage(data: data) { Image(uiImage: image).resizable().scaledToFill() } else { ZStack { Theme.surface; Image(systemName: "photo") } } }
-            .clipShape(RoundedRectangle(cornerRadius: 6)).clipped()
     }
 }
 

@@ -80,18 +80,18 @@ The message is limited to 2,000 characters and the JSON body to 500 KB. The resp
 
 Accepts standardized weekly front, side, and back progress photos plus recent weight and health trends. Both AI providers return a non-clinical body-fat range, confidence, visible changes, limitations, and suggestions. The reconciled result emphasizes week-over-week direction instead of claiming an exact measurement.
 
-Progress photos must remain private, have metadata removed, and be deletable by the user.
+Progress photos must remain private, have metadata removed, and be discarded after analysis rather than persisted.
 
-The request requires `currentPhotos` with unique `front`, `side`, and `back` poses plus confirmations for morning capture, consistent lighting/distance, and full-body framing. `previousPhotos` and recent health context are optional. JPEG, PNG, and WebP are accepted; each decoded image is capped at 6 MB and all photos at 18 MB.
+The request requires transient `currentPhotos` with unique `front`, `side`, and `back` poses plus confirmations for morning capture, consistent lighting/distance, and full-body framing. Recent health context and the prior accepted result are optional; prior photos are not retained or resent. JPEG, PNG, and WebP are accepted; each decoded image is capped at 6 MB and all photos at 18 MB.
 
 ## Persistent Account Routes
 
 - `PUT /api/profile`: upserts the private user's profile.
 - `PUT /api/schedule`: replaces the current daily schedule (maximum 200 items).
 - `GET /api/health-snapshots`: returns up to 365 persisted daily snapshots.
-- `POST /api/meals/save` and `DELETE /api/meals`: save/delete accepted meal metadata and its encrypted private image.
-- `POST /api/progress-check-ins/save` and `DELETE /api/progress-check-ins`: save/delete accepted three-angle check-ins and encrypted images.
-- `GET /api/data/export?includeImages=false`: exports all account JSON. Set `includeImages=true` to include decrypted image bytes as base64.
-- `DELETE /api/data`: deletes all database rows and private images. The JSON body must contain `{ "confirmation": "DELETE MY BODYCOMPASS DATA" }`.
+- `POST /api/meals/save` and `DELETE /api/meals`: save/delete accepted meal metadata only. Save requests containing image fields are rejected.
+- `POST /api/progress-check-ins/save` and `DELETE /api/progress-check-ins`: save/delete accepted result metadata only. Save requests containing photos are rejected.
+- `GET /api/data/export`: exports account JSON without photo contents because photos are never retained.
+- `DELETE /api/data`: deletes all database rows. The JSON body must contain `{ "confirmation": "DELETE MY BODYCOMPASS DATA" }`.
 
-Meal and progress analysis routes process uploads without persisting them. Only explicit post-review save routes write accepted records. Private image filenames are random, encrypted with AES-256-GCM, and never exposed through a public/static route.
+Meal and progress analysis routes process uploads in memory without persisting them. Explicit post-review save routes write accepted results and metadata only. Startup migration removes legacy local/server photo files and references from earlier builds.

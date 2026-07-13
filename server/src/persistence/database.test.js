@@ -5,7 +5,7 @@ import { join } from "node:path";
 import test from "node:test";
 import { BodyCompassStore } from "./database.js";
 
-test("SQLite data and encrypted images survive reopening, export, and deletion", async () => {
+test("SQLite data survives reopening while analysis photos are discarded", async () => {
   const root = await mkdtemp(join(tmpdir(), "bodycompass-store-"));
   const options = {
     databasePath: join(root, "bodycompass.sqlite"),
@@ -30,14 +30,15 @@ test("SQLite data and encrypted images survive reopening, export, and deletion",
   store.close();
 
   store = new BodyCompassStore(options);
-  const exported = await store.exportUser("rohan", true);
+  const exported = await store.exportUser("rohan");
   assert.equal(exported.profile.name, "Rohan");
   assert.equal(exported.healthSnapshots[0].weightKg, 78.2);
-  assert.equal(exported.meals[0].imageBase64, photo);
-  assert.equal(exported.progressCheckIns[0].photos.length, 3);
+  assert.equal("imageBase64" in exported.meals[0], false);
+  assert.equal("hasImage" in exported.meals[0], false);
+  assert.equal("photos" in exported.progressCheckIns[0], false);
 
   await store.deleteUserData("rohan");
-  const empty = await store.exportUser("rohan", false);
+  const empty = await store.exportUser("rohan");
   assert.equal(empty.profile, null);
   assert.deepEqual(empty.meals, []);
   assert.deepEqual(empty.progressCheckIns, []);
@@ -45,17 +46,17 @@ test("SQLite data and encrypted images survive reopening, export, and deletion",
   await rm(root, { recursive: true, force: true });
 });
 
-test("repeated sync replaces encrypted records idempotently", async () => {
+test("repeated sync replaces metadata idempotently without retaining photos", async () => {
   const root = await mkdtemp(join(tmpdir(), "bodycompass-replace-"));
   const store = new BodyCompassStore({ databasePath: join(root, "db.sqlite"), imageDirectory: join(root, "images"), storageSecret: "secret" });
   const first = Buffer.from("first").toString("base64");
   const second = Buffer.from("second").toString("base64");
   await store.saveMeal("owner", { id: "same", accepted: { proteinGrams: 10 }, imageBase64: first, imageMimeType: "image/jpeg" });
   await store.saveMeal("owner", { id: "same", accepted: { proteinGrams: 20 }, imageBase64: second, imageMimeType: "image/jpeg" });
-  const exported = await store.exportUser("owner", true);
+  const exported = await store.exportUser("owner");
   assert.equal(exported.meals.length, 1);
   assert.equal(exported.meals[0].accepted.proteinGrams, 20);
-  assert.equal(exported.meals[0].imageBase64, second);
+  assert.equal("imageBase64" in exported.meals[0], false);
   store.close();
   await rm(root, { recursive: true, force: true });
 });

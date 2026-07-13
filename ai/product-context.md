@@ -10,7 +10,7 @@ The user wants:
 - daily accountability,
 - meal-photo calorie/macro estimates,
 - Apple Health history,
-- weekly morning progress-photo comparison,
+- weekly morning progress-photo analysis with photo-free result comparison,
 - daily schedule tracking,
 - a structured weekly strength/swimming plan with sets, reps, effort, rest, and progression,
 - coach-suggested routine updates that require confirmation,

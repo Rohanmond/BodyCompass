@@ -23,7 +23,7 @@ Local generated files may appear as `ios/BodyCompass/.swiftpm/` and `server/pnpm
 The following passed during the latest audit:
 
 - `swift run BodyCompassCoreCheck`
-- `npm test` with 28 passing backend tests
+- `npm test` with 30 passing backend tests
 - Xcode iOS and watchOS Simulator builds with `CODE_SIGNING_ALLOWED=NO`
 - Phase 9 release metadata/icon validation and the updated iPhone and standalone Watch simulator builds
 - W5 ready/recover/caution core scenarios and the updated iPhone plus standalone Watch builds
@@ -91,8 +91,8 @@ Remaining Phase 4 niceties (deferred): date-range pauses, one-tap move/copy betw
 - Camera and Photos picker inputs re-render selected images at a bounded size, which normalizes orientation and strips original metadata before JPEG upload.
 - `MealAPIClient` sends the image, notes, and protein target to the backend. The server caps JSON at 12 MB and decoded images at 8 MB.
 - OpenAI Responses and Gemini generateContent adapters request structured estimates. The defaults are `gpt-5.4` and `gemini-3.1-flash-lite`; provider transport retries temporary 429/503 responses with bounded backoff. Missing keys produce deterministic mock estimates; one-provider failure still yields a lower-confidence reconciliation.
-- The app shows Combined, ChatGPT, and Gemini results, supports calorie/macro correction, and stores accepted meals in `UserDefaults` with protected photos in private Application Support storage.
-- Deleting a meal deletes both its metadata and local image. Live notes-only dual-provider analysis and one-provider fallback are verified; physical-camera checks remain unverified.
+- The app shows Combined, ChatGPT, and Gemini results, supports calorie/macro correction, and stores accepted result metadata in `UserDefaults`. Meal photos are discarded and never enter history or backup.
+- Deleting a meal deletes its result metadata. Live notes-only dual-provider analysis and one-provider fallback are verified; physical-camera checks remain unverified.
 
 ### Phase 6: Coach
 
@@ -108,10 +108,10 @@ Remaining Phase 4 niceties (deferred): date-range pauses, one-tap move/copy betw
 - `AppStore` persists up to 180 daily HealthKit/manual snapshots and derives a trend-aware weekly goal projection.
 - History uses native Charts for weight and body fat plus seven-day adherence, protein, strength, and swimming summaries.
 - The weekly check-in requires front/side/back images and explicit morning, lighting/distance, and full-body confirmations.
-- Images are resized and re-rendered before upload; accepted JPEGs use complete file protection in private Application Support storage.
+- Images are resized and re-rendered before transient upload, then discarded after analysis instead of being added to history.
 - The backend validates bounded images and calls OpenAI and Gemini vision adapters, with deterministic mocks and one-provider fallback.
 - Results remain broad non-clinical ranges with quality, visible changes, limitations, suggestions, and one next-week action.
-- The user can correct or reject an estimate, compare with the prior check-in, and delete the saved photos and record.
+- The user can correct or reject an estimate, compare with the prior saved result and health trend, and delete the result record. No progress photos are retained.
 - Physical-camera and live-provider verification remain pending.
 
 Photo body-fat output must be a non-clinical range with confidence and limitations, never an exact measurement.
@@ -119,12 +119,12 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 ### Phase 8: Persistence and Private Account
 
 - `BodyCompassStore` uses Node's SQLite API with WAL, foreign keys, per-user records, and idempotent device synchronization.
-- Tables cover users, profiles, health snapshots, schedules, accepted meals, Coach exchanges, progress check-ins, and progress-photo references.
-- Meal/progress bytes are AES-256-GCM encrypted in a non-public file vault with random references and deletion/replacement cleanup.
-- Local development permits one private owner without a token. Configuring `BODYCOMPASS_API_TOKEN` requires constant-time bearer authentication; production also requires `BODYCOMPASS_STORAGE_SECRET`.
+- Tables cover users, profiles, health snapshots, schedules, accepted meals, Coach exchanges, and photo-free progress check-ins.
+- Meal/progress photos are analysis-only. Save routes reject photo fields, exports contain no images, and startup migration purges legacy vault files and references.
+- Local development permits one private owner without a token. Configuring `BODYCOMPASS_API_TOKEN` requires constant-time bearer authentication.
 - `AccountAPIClient` keeps device saves local-first and backs up profile, schedule, health, meals, and progress check-ins. Its bearer token lives in Keychain.
-- Goal → Data & Privacy shows backup state, configures the token, exports JSON with optional image contents, and deletes server plus local app data. Apple Health is never deleted.
-- SQLite restart, encrypted export, idempotency, auth, deletion, iOS/Watch compilation, and authenticated HTTP routes are verified. Production HTTPS and backup/restore remain operational work.
+- Goal → Data & Privacy shows backup state, configures the token, exports photo-free JSON, and deletes server plus local app data. Apple Health is never deleted.
+- SQLite restart, photo-free export, idempotency, auth, deletion, iOS/Watch compilation, and authenticated HTTP routes are verified. Production HTTPS and backup/restore remain operational work.
 
 ### Phase 9: Polish and Beta Preparation
 

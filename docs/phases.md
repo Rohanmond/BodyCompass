@@ -20,7 +20,7 @@ Implemented:
 
 - Phase 4 structured training: seeded weekly split, setup questionnaire, exercise prescriptions, set/swim logging, deterministic progression, versioned manual editing with rollback, one-day rest exceptions, and a mock coach proposal Confirm/Edit/Reject flow.
 - Phase 4W W1: watchOS target, HealthKit capability, routine cache, Watch Connectivity routine sync, and durable queued log sync.
-- Phase 5 meal logging: camera/library capture, compressed upload, dual-provider analysis, correction, protected local history, and deletion.
+- Phase 5 meal logging: camera/library capture, compressed transient upload, dual-provider analysis, correction, and photo-free result history.
 - Phase 6 Coach Chat: contextual dual-provider answers, safety routing, local history, and validated confirmed-only routine proposals.
 - Phase 7 weekly review: persisted health trends, native charts, weekly adherence/nutrition/training summaries, trend-aware goal projection, and standardized private progress-photo analysis.
 
@@ -362,7 +362,7 @@ Implemented so far:
 - The 12% projection recalculates from the latest body metrics and recent weight trend.
 - Front, side, and back photos can be selected or captured after morning, lighting/distance, and full-body confirmations.
 - Photos are resized and re-rendered as JPEG before upload, which strips source metadata.
-- Accepted photos use complete file protection in private Application Support storage and are deletable with their check-in.
+- Capture photos are discarded after analysis; check-in history retains only result metadata and trends.
 - The progress endpoint validates pose, type, base64, per-image size, total size, and capture confirmations.
 - OpenAI Responses and Gemini generateContent vision adapters return broad structured ranges, quality, changes, limitations, suggestions, and one next-week action; mock fallback works without keys.
 - Combined, ChatGPT, and Gemini tabs preserve independent failures. One provider can fail without losing the check-in.
@@ -387,7 +387,7 @@ Deliverables:
 Done when:
 
 - User can see why the timeline changed.
-- User can compare weekly photos and see a non-clinical estimate range without false precision.
+- User can compare weekly saved ranges and health trends without retaining photos or implying false precision.
 - Weekly review produces a next-week action plan.
 
 Phase 7 done status: all functional completion criteria are implemented. Physical-camera and live-key checks remain release verification; server-backed photo persistence belongs to Phase 8.
@@ -402,25 +402,25 @@ Deliverables:
 
 - Database schema for users, profiles, snapshots, meals, schedule items, and chats.
 - Basic auth or private single-user mode.
-- Private image storage for meal and progress photos.
+- Analysis-only photo handling with no image persistence.
 - Delete/export data controls.
 
 Implemented:
 
-- SQLite schema for private users, profiles, daily health snapshots, schedules, accepted meals, Coach exchanges, progress check-ins, and three-angle photo references.
+- SQLite schema for private users, profiles, daily health snapshots, schedules, accepted meals, Coach exchanges, and photo-free progress check-ins.
 - WAL mode, foreign keys, per-user ownership, idempotent daily snapshot and device-record synchronization, and persistence across process restart.
-- Private single-user mode for local development plus constant-time bearer-token authentication when configured; production refuses to start without API and storage secrets.
-- AES-256-GCM meal/progress image vault with random non-public filenames, restricted directory/file permissions, authenticated decryption, replacement cleanup, and deletion cleanup.
-- Local-first iOS backup for profile, health, schedule, accepted meals/photos, and progress check-ins/photos.
+- Private single-user mode for local development plus constant-time bearer-token authentication when configured.
+- Analysis photos are never written to iOS history, backend persistence, backup, or export; startup cleanup purges legacy files and database references.
+- Local-first iOS backup for profile, health, schedule, accepted meal results, and progress check-in results.
 - Bearer token stored in iOS Keychain, never in `UserDefaults` or source code.
-- JSON account export with optional decrypted base64 image contents.
-- Exact-confirmation server deletion and a Goal → Data & Privacy screen that deletes server data and local BodyCompass records/photos while leaving Apple Health untouched.
-- Automated restart, encryption/export, idempotency, auth, and deletion tests plus authenticated HTTP smoke testing.
+- JSON account export containing result metadata and no photo contents.
+- Exact-confirmation server deletion and a Goal → Data & Privacy screen that deletes server and local BodyCompass records while leaving Apple Health untouched.
+- Automated restart, no-photo persistence, export, idempotency, auth, and deletion tests plus authenticated HTTP smoke testing.
 
 Done when:
 
 - Data survives server restart.
-- User can delete meal images and health logs.
+- User can delete meal/check-in result records and health logs; photos never enter history.
 - API keys remain server-side only.
 
 Phase 8 done status: functional completion criteria are implemented. Cloud hosting, backup/restore operations, multi-user identity, and production HTTPS are deployment work, not claims made by this local MVP.
@@ -490,11 +490,11 @@ Status: pending deployment and operations work.
 
 - Deploy the Node backend behind HTTPS.
 - Configure stable API and storage secrets outside source control.
-- Attach durable storage for SQLite and encrypted private images.
+- Attach durable storage for SQLite result metadata.
 - Back up the production data volume and complete a restore drill.
 - Verify authenticated iPhone backup, export, and deletion against the deployed service.
 
-Done when the service survives a restart and a tested backup can restore the database and encrypted image vault.
+Done when the service survives a restart and a tested backup can restore the metadata database.
 
 #### Phase 9E: Seven-Day Personal Beta
 

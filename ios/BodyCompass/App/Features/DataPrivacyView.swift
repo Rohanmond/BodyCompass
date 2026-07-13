@@ -5,7 +5,6 @@ struct DataPrivacyView: View {
     @EnvironmentObject private var training: TrainingStore
     @StateObject private var checkIns = ProgressCheckInStore()
     @State private var token = ""
-    @State private var includeImages = false
     @State private var exportURL: URL?
     @State private var isWorking = false
     @State private var showDeleteConfirmation = false
@@ -26,7 +25,9 @@ struct DataPrivacyView: View {
             }
 
             Section("Export") {
-                Toggle("Include encrypted photo contents", isOn: $includeImages)
+                Text("Exports contain saved results and logs only. Meal and progress photos are never retained by BodyCompass.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 Button {
                     createExport()
                 } label: {
@@ -45,7 +46,7 @@ struct DataPrivacyView: View {
                     showDeleteConfirmation = true
                 }
                 .disabled(isWorking)
-                Text("Deletes server database records, encrypted server photos, local logs, and local meal/progress photos. Apple Health data is not deleted.")
+                Text("Deletes server database records and local logs. BodyCompass does not retain meal or progress photos. Apple Health data is not deleted.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
@@ -78,7 +79,7 @@ struct DataPrivacyView: View {
         message = nil
         Task {
             do {
-                let data = try await app.exportServerData(includeImages: includeImages)
+                let data = try await app.exportServerData()
                 let url = FileManager.default.temporaryDirectory.appendingPathComponent("BodyCompass-export.json")
                 try data.write(to: url, options: [.atomic, .completeFileProtection])
                 exportURL = url

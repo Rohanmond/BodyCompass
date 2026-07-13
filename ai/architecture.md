@@ -76,7 +76,7 @@ Responsibilities:
 - Create combined Coach answers with bounded user context and deterministic safety routing.
 - Validate and reconcile structured training-plan proposals without activating them.
 - Accept health snapshots and future persisted logs.
-- Persist private account data in SQLite and encrypt accepted meal/progress images outside the public web surface.
+- Persist accepted result metadata in SQLite; never persist meal or progress photos.
 - Authenticate the configured private owner, export their data, and delete relational records plus encrypted files.
 - Calculate or mirror goal projections for API clients.
 
@@ -87,8 +87,8 @@ Current backend is dependency-light Node using `node:http`. Add dependencies onl
 Current state:
 
 - SQLite persists users, profiles, health snapshots, schedules, accepted meals, Coach exchanges, and progress check-ins in WAL mode.
-- AES-256-GCM encrypted files persist accepted meal and progress photos under random non-public references.
-- iOS remains local-first with `UserDefaults` metadata and complete-file-protected Application Support photos, then asynchronously backs up accepted records.
+- Meal and progress photos exist only in the capture UI and transient provider-analysis request. They are not written to iOS history, SQLite, backup, or export.
+- iOS remains local-first with `UserDefaults` result metadata, then asynchronously backs up accepted records without images.
 - A bearer token is optional for local private mode, required in production, and stored in iOS Keychain.
 
 Future production work:
@@ -101,4 +101,4 @@ Future production work:
 
 Never put OpenAI or Gemini API keys in the iOS app. All provider calls must go through `server`.
 
-Progress photos are sensitive user data. Strip metadata before upload, avoid including the face where possible, never expose public URLs, and delete provider-bound temporary files after analysis.
+Progress photos are sensitive user data. Strip metadata before upload, avoid including the face where possible, never expose public URLs, and never persist them in BodyCompass history or backup.

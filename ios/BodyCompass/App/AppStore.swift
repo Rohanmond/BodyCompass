@@ -42,7 +42,6 @@ final class AppStore: ObservableObject {
     private let defaults: UserDefaults
     private let healthKit = HealthKitService()
     private let reminders = ReminderService()
-    private let mealImages = MealImageStore()
     private let accountAPI = AccountAPIClient()
 
     @Published private(set) var profile: BodyProfile
@@ -75,6 +74,10 @@ final class AppStore: ObservableObject {
         mealHistory = Self.loadMealHistory(from: defaults)
         healthHistory = Self.loadHealthHistory(from: defaults)
         schedule = Self.loadSchedule(from: defaults) ?? Self.defaultSchedule
+        MealImageStore.deleteLegacyImages()
+        if let data = try? JSONEncoder().encode(mealHistory) {
+            defaults.set(data, forKey: StorageKey.mealHistory)
+        }
         applyManualEntry()
         rollScheduleIfNeeded()
         recordTodayAdherence()
@@ -158,33 +161,25 @@ final class AppStore: ObservableObject {
     func saveMeal(
         estimates: MealAnalysisBundle,
         accepted: MealAnalysis,
-        notes: String,
-        imageData: Data
+        notes: String
     ) {
         let id = UUID()
-        let filename = try? mealImages.save(imageData, id: id)
         let meal = LoggedMeal(
             id: id,
             notes: notes.trimmingCharacters(in: .whitespacesAndNewlines),
-            imageFilename: filename,
             estimates: estimates,
             accepted: accepted
         )
         mealHistory.insert(meal, at: 0)
         mealHistory = Array(mealHistory.prefix(200))
         persistMealHistory()
-        Task { await backUp { try await self.accountAPI.saveMeal(meal, imageData: imageData) } }
+        Task { await backUp { try await self.accountAPI.saveMeal(meal) } }
     }
 
     func deleteMeal(_ meal: LoggedMeal) {
-        mealImages.delete(meal.imageFilename)
         mealHistory.removeAll { $0.id == meal.id }
         persistMealHistory()
         Task { await backUp { try await self.accountAPI.deleteMeal(id: meal.id) } }
-    }
-
-    func mealImageData(for meal: LoggedMeal) -> Data? {
-        mealImages.data(for: meal.imageFilename)
     }
 
     private func persistMealHistory() {
@@ -436,7 +431,7 @@ final class AppStore: ObservableObject {
     }
 
     func deleteAllLocalData() {
-        mealHistory.forEach { mealImages.delete($0.imageFilename) }
+        MealImageStore.deleteLegacyImages()
         defaults.dictionaryRepresentation().keys
             .filter { $0.hasPrefix("bodycompass.") }
             .forEach(defaults.removeObject(forKey:))
@@ -456,8 +451,8 @@ final class AppStore: ObservableObject {
         serverSync = .idle
     }
 
-    func exportServerData(includeImages: Bool) async throws -> Data {
-        try await accountAPI.exportData(includeImages: includeImages)
+    func exportServerData() async throws -> Data {
+        try await accountAPI.exportData()
     }
 
     func syncNow() async {
@@ -472,7 +467,7 @@ final class AppStore: ObservableObject {
                 try await self.accountAPI.saveHealthSnapshot(self.today)
             }
             for meal in self.mealHistory.prefix(200) {
-                try await self.accountAPI.saveMeal(meal, imageData: self.mealImages.data(for: meal.imageFilename))
+                try await self.accountAPI.saveMeal(meal)
             }
         }
     }

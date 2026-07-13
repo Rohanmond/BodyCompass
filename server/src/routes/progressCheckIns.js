@@ -13,8 +13,6 @@ export async function analyzeProgressCheckIn(request) {
 
   const currentError = validatePhotos(body.currentPhotos, true);
   if (currentError) return currentError;
-  const previousError = validatePhotos(body.previousPhotos ?? [], false);
-  if (previousError) return previousError;
 
   try {
     return { status: 200, body: await analyzeProgressWithProviders(body) };

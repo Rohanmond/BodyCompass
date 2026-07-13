@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdirSync } from "node:fs";
+import { mkdirSync, rmSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { DatabaseSync } from "node:sqlite";
 import { PrivateFileStore } from "./privateFiles.js";
@@ -71,6 +71,10 @@ export class BodyCompassStore {
       CREATE INDEX IF NOT EXISTS chats_user_created ON chats(user_id, created_at DESC);
       CREATE INDEX IF NOT EXISTS progress_user_created ON progress_check_ins(user_id, created_at DESC);
     `);
+    // Photos are analysis-only. Purge files and legacy references on every startup.
+    rmSync(this.files.directory, { recursive: true, force: true });
+    this.db.prepare("UPDATE meals SET image_ref = NULL WHERE image_ref IS NOT NULL").run();
+    this.db.prepare("DELETE FROM progress_photos").run();
   }
 
   ensureUser(userId) {
@@ -116,18 +120,11 @@ export class BodyCompassStore {
   async saveMeal(userId, { id = randomUUID(), imageBase64, imageMimeType, ...payload }) {
     this.ensureUser(userId);
     const previous = this.db.prepare("SELECT image_ref FROM meals WHERE id = ? AND user_id = ?").get(id, userId);
-    let imageRef = null;
-    if (imageBase64) imageRef = await this.files.save(Buffer.from(imageBase64, "base64"));
     const now = payload.createdAt || new Date().toISOString();
-    try {
-      this.db.prepare("INSERT OR REPLACE INTO meals (id, user_id, payload, image_ref, created_at) VALUES (?, ?, ?, ?, ?)")
-        .run(id, userId, JSON.stringify(payload), imageRef, now);
-    } catch (error) {
-      await this.files.delete(imageRef);
-      throw error;
-    }
-    if (previous?.image_ref && previous.image_ref !== imageRef) await this.files.delete(previous.image_ref);
-    return { id, ...payload, hasImage: Boolean(imageRef), createdAt: now };
+    this.db.prepare("INSERT OR REPLACE INTO meals (id, user_id, payload, image_ref, created_at) VALUES (?, ?, ?, NULL, ?)")
+      .run(id, userId, JSON.stringify(payload), now);
+    await this.files.delete(previous?.image_ref);
+    return { id, ...payload, createdAt: now };
   }
 
   async deleteMeal(userId, id) {
@@ -149,32 +146,13 @@ export class BodyCompassStore {
 
   async saveProgressCheckIn(userId, { id = randomUUID(), photos = [], ...payload }) {
     this.ensureUser(userId);
-    const refs = [];
     const oldRefs = this.db.prepare(`SELECT pp.image_ref FROM progress_photos pp
       JOIN progress_check_ins pc ON pc.id = pp.check_in_id WHERE pc.id = ? AND pc.user_id = ?`).all(id, userId);
-    try {
-      for (const photo of photos) {
-        refs.push({
-          pose: photo.pose,
-          mimeType: photo.imageMimeType,
-          imageRef: await this.files.save(Buffer.from(photo.imageBase64, "base64"))
-        });
-      }
-      const now = payload.capturedAt || new Date().toISOString();
-      this.db.exec("BEGIN IMMEDIATE");
-      this.db.prepare("DELETE FROM progress_check_ins WHERE id = ? AND user_id = ?").run(id, userId);
-      this.db.prepare("INSERT INTO progress_check_ins (id, user_id, payload, created_at) VALUES (?, ?, ?, ?)")
-        .run(id, userId, JSON.stringify(payload), now);
-      const statement = this.db.prepare("INSERT INTO progress_photos (check_in_id, pose, image_ref, mime_type) VALUES (?, ?, ?, ?)");
-      refs.forEach((photo) => statement.run(id, photo.pose, photo.imageRef, photo.mimeType));
-      this.db.exec("COMMIT");
-      await Promise.all(oldRefs.map((photo) => this.files.delete(photo.image_ref)));
-      return { id, ...payload, poses: refs.map((photo) => photo.pose), capturedAt: now };
-    } catch (error) {
-      try { this.db.exec("ROLLBACK"); } catch {}
-      await Promise.all(refs.map((photo) => this.files.delete(photo.imageRef)));
-      throw error;
-    }
+    const now = payload.capturedAt || new Date().toISOString();
+    this.db.prepare("INSERT OR REPLACE INTO progress_check_ins (id, user_id, payload, created_at) VALUES (?, ?, ?, ?)")
+      .run(id, userId, JSON.stringify(payload), now);
+    await Promise.all(oldRefs.map((photo) => this.files.delete(photo.image_ref)));
+    return { id, ...payload, capturedAt: now };
   }
 
   async deleteProgressCheckIn(userId, id) {
@@ -186,34 +164,25 @@ export class BodyCompassStore {
     return true;
   }
 
-  async exportUser(userId, includeImages = false) {
+  async exportUser(userId) {
     const profile = this.db.prepare("SELECT payload, updated_at FROM profiles WHERE user_id = ?").get(userId);
     const schedule = this.db.prepare("SELECT payload, updated_at FROM schedules WHERE user_id = ?").get(userId);
-    const meals = this.db.prepare("SELECT id, payload, image_ref, created_at FROM meals WHERE user_id = ? ORDER BY created_at").all(userId);
+    const meals = this.db.prepare("SELECT id, payload, created_at FROM meals WHERE user_id = ? ORDER BY created_at").all(userId);
     const chats = this.db.prepare("SELECT id, request_payload, response_payload, created_at FROM chats WHERE user_id = ? ORDER BY created_at").all(userId);
     const progress = this.db.prepare("SELECT id, payload, created_at FROM progress_check_ins WHERE user_id = ? ORDER BY created_at").all(userId);
-    for (const checkIn of progress) {
-      const photos = this.db.prepare("SELECT pose, image_ref, mime_type FROM progress_photos WHERE check_in_id = ? ORDER BY pose").all(checkIn.id);
-      checkIn.photos = await Promise.all(photos.map(async (photo) => ({
-        pose: photo.pose,
-        imageMimeType: photo.mime_type,
-        ...(includeImages ? { imageBase64: (await this.files.read(photo.image_ref)).toString("base64") } : { hasImage: true })
-      })));
-    }
     return {
       exportedAt: new Date().toISOString(),
       userId,
       profile: profile ? { ...JSON.parse(profile.payload), updatedAt: profile.updated_at } : null,
       healthSnapshots: this.listHealthSnapshots(userId),
       schedule: schedule ? { items: JSON.parse(schedule.payload), updatedAt: schedule.updated_at } : null,
-      meals: await Promise.all(meals.map(async (meal) => ({
+      meals: meals.map((meal) => ({
         id: meal.id,
         ...JSON.parse(meal.payload),
-        createdAt: meal.created_at,
-        ...(includeImages && meal.image_ref ? { imageBase64: (await this.files.read(meal.image_ref)).toString("base64") } : { hasImage: Boolean(meal.image_ref) })
-      }))),
+        createdAt: meal.created_at
+      })),
       chats: chats.map((chat) => ({ id: chat.id, request: JSON.parse(chat.request_payload), response: JSON.parse(chat.response_payload), createdAt: chat.created_at })),
-      progressCheckIns: progress.map((checkIn) => ({ id: checkIn.id, ...JSON.parse(checkIn.payload), capturedAt: checkIn.created_at, photos: checkIn.photos }))
+      progressCheckIns: progress.map((checkIn) => ({ id: checkIn.id, ...JSON.parse(checkIn.payload), capturedAt: checkIn.created_at }))
     };
   }
 

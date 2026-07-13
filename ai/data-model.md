@@ -44,9 +44,9 @@
 `LoggedMeal`
 
 - createdAt and notes
-- private local image filename
 - original provider bundle
 - separately accepted/corrected nutrition
+- no retained meal photo or photo reference
 
 `CoachExchange` / `CoachAnswerBundle`
 

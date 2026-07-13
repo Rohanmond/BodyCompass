@@ -133,9 +133,7 @@ function mockProvider(provider, kind, payload, mode = "mock") {
       bodyFatRange: [Math.max(5, currentBodyFat - 2), Math.min(45, currentBodyFat + 2)],
       confidence: 0.55,
       imageQuality: "limited",
-      visibleChanges: payload.previousPhotos?.length
-        ? ["Standardized photos are available for week-over-week comparison"]
-        : ["This is the first visual baseline"],
+      visibleChanges: ["Current visual baseline recorded without retaining the photos"],
       limitations: ["Photo estimates vary with lighting, posture, hydration, and camera distance"],
       suggestions: ["Keep capture conditions consistent next week", "Use weight trend alongside the visual range"],
       nextWeekAction: "Hold the current plan for one week and compare the trend under the same conditions."
@@ -405,14 +403,14 @@ function progressInputParts(payload, provider) {
     "Return a broad visual body-fat percentage range, never an exact measurement or diagnosis.",
     "Do not identify the person, judge attractiveness, or infer unrelated sensitive traits.",
     "Treat lighting, pose, hydration, camera angle, and distance as meaningful limitations.",
-    "Only describe week-over-week direction when current and previous photos are genuinely comparable.",
+    "Do not claim visual week-over-week change because prior photos are not retained; use saved range and health trends only as context.",
     "If framing or quality is inadequate, mark imageQuality unsuitable, lower confidence, and explain why.",
     `User trend context JSON: ${context}`,
-    "Current photos follow in front, side, back order. Previous photos, when supplied, follow afterward."
+    "Current photos follow in front, side, back order and must be treated as transient analysis inputs."
   ].join("\n");
   const parts = [provider === "openai" ? { type: "input_text", text: prompt } : { text: prompt }];
 
-  for (const photo of [...payload.currentPhotos, ...(payload.previousPhotos ?? [])]) {
+  for (const photo of payload.currentPhotos) {
     parts.push(provider === "openai"
       ? {
           type: "input_image",
