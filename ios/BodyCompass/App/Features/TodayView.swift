@@ -94,6 +94,16 @@ struct TodayView: View {
             .background(Theme.background)
             .navigationTitle("Today")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    NavigationLink {
+                        SettingsView()
+                    } label: {
+                        Image(systemName: "gearshape.fill")
+                    }
+                    .accessibilityLabel("Settings")
+                }
+            }
             .task { await store.refreshToday() }
             .refreshable { await store.refreshToday() }
             .sheet(isPresented: $showingManualEntry) {

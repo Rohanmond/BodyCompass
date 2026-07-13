@@ -9,7 +9,7 @@ struct OnboardingView: View {
     var body: some View {
         NavigationStack {
             ProfileFormView(
-                initialProfile: store.profile,
+                initialProfile: nil,
                 title: "Build Your Compass",
                 actionTitle: "See My Plan"
             ) { profile in
@@ -27,15 +27,15 @@ struct ProfileFormView: View {
     private let adherenceScore: Double
 
     @State private var name: String
-    @State private var age: Int
-    @State private var heightCm: Double
-    @State private var weightKg: Double
-    @State private var bodyFatPercentage: Double
-    @State private var targetBodyFatPercentage: Double
-    @State private var workoutTimePreference: WorkoutTimePreference
+    @State private var age: String
+    @State private var heightCm: String
+    @State private var weightKg: String
+    @State private var bodyFatPercentage: String
+    @State private var targetBodyFatPercentage: String
+    @State private var workoutTimePreference: WorkoutTimePreference?
 
     init(
-        initialProfile: BodyProfile,
+        initialProfile: BodyProfile?,
         title: String,
         actionTitle: String,
         onSave: @escaping (BodyProfile) -> Void
@@ -43,15 +43,15 @@ struct ProfileFormView: View {
         self.title = title
         self.actionTitle = actionTitle
         self.onSave = onSave
-        weeklyWeightTrendKg = initialProfile.weeklyWeightTrendKg
-        adherenceScore = initialProfile.adherenceScore
-        _name = State(initialValue: initialProfile.name)
-        _age = State(initialValue: initialProfile.age)
-        _heightCm = State(initialValue: initialProfile.heightCm)
-        _weightKg = State(initialValue: initialProfile.weightKg)
-        _bodyFatPercentage = State(initialValue: initialProfile.bodyFatPercentage)
-        _targetBodyFatPercentage = State(initialValue: initialProfile.targetBodyFatPercentage)
-        _workoutTimePreference = State(initialValue: initialProfile.workoutTimePreference)
+        weeklyWeightTrendKg = initialProfile?.weeklyWeightTrendKg
+        adherenceScore = initialProfile?.adherenceScore ?? 0.75
+        _name = State(initialValue: initialProfile?.name ?? "")
+        _age = State(initialValue: initialProfile.map { String($0.age) } ?? "")
+        _heightCm = State(initialValue: initialProfile.map { Self.number($0.heightCm) } ?? "")
+        _weightKg = State(initialValue: initialProfile.map { Self.number($0.weightKg) } ?? "")
+        _bodyFatPercentage = State(initialValue: initialProfile.map { Self.number($0.bodyFatPercentage) } ?? "")
+        _targetBodyFatPercentage = State(initialValue: initialProfile.map { Self.number($0.targetBodyFatPercentage) } ?? "")
+        _workoutTimePreference = State(initialValue: initialProfile?.workoutTimePreference)
     }
 
     var body: some View {
@@ -59,24 +59,25 @@ struct ProfileFormView: View {
             Section {
                 TextField("Name", text: $name)
                     .textContentType(.name)
-                Stepper("Age: \(age)", value: $age, in: 16...100)
-                measurementRow(title: "Height", value: $heightCm, range: 120...230, step: 1, unit: "cm")
+                numberField("Age", text: $age, unit: "years", keyboard: .numberPad)
+                numberField("Height", text: $heightCm, unit: "cm")
             } header: {
                 Text("About You")
             } footer: {
-                Text("Your details stay on this device during the MVP.")
+                Text("Used to personalize your projections and coaching.")
             }
 
             Section("Starting Point") {
-                measurementRow(title: "Weight", value: $weightKg, range: 35...250, step: 0.5, unit: "kg")
-                measurementRow(title: "Body fat", value: $bodyFatPercentage, range: 5...60, step: 0.5, unit: "%")
+                numberField("Weight", text: $weightKg, unit: "kg")
+                numberField("Body fat", text: $bodyFatPercentage, unit: "%")
             }
 
             Section {
-                measurementRow(title: "Target body fat", value: $targetBodyFatPercentage, range: 5...35, step: 0.5, unit: "%")
+                numberField("Target body fat", text: $targetBodyFatPercentage, unit: "%")
                 Picker("Workout time", selection: $workoutTimePreference) {
+                    Text("Select").tag(nil as WorkoutTimePreference?)
                     ForEach(WorkoutTimePreference.allCases, id: \.self) { preference in
-                        Text(preference.displayName).tag(preference)
+                        Text(preference.displayName).tag(Optional(preference))
                     }
                 }
             } header: {
@@ -87,25 +88,36 @@ struct ProfileFormView: View {
 
             Section {
                 Button(actionTitle) {
+                    guard let profile else { return }
                     onSave(profile)
                 }
                 .frame(maxWidth: .infinity)
                 .fontWeight(.semibold)
                 .disabled(!isValid)
+            } footer: {
+                if hasStarted && !isValid {
+                    Text("Complete every field with realistic values. Your target body fat must be lower than your current estimate.")
+                }
             }
         }
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    private var profile: BodyProfile {
-        BodyProfile(
+    private var profile: BodyProfile? {
+        guard let ageValue = Int(age),
+              let heightValue = decimal(heightCm),
+              let weightValue = decimal(weightKg),
+              let bodyFatValue = decimal(bodyFatPercentage),
+              let targetValue = decimal(targetBodyFatPercentage),
+              let workoutTimePreference else { return nil }
+        return BodyProfile(
             name: name.trimmingCharacters(in: .whitespacesAndNewlines),
-            age: age,
-            heightCm: heightCm,
-            weightKg: weightKg,
-            bodyFatPercentage: bodyFatPercentage,
-            targetBodyFatPercentage: targetBodyFatPercentage,
+            age: ageValue,
+            heightCm: heightValue,
+            weightKg: weightValue,
+            bodyFatPercentage: bodyFatValue,
+            targetBodyFatPercentage: targetValue,
             weeklyWeightTrendKg: weeklyWeightTrendKg,
             adherenceScore: adherenceScore,
             workoutTimePreference: workoutTimePreference
@@ -113,24 +125,35 @@ struct ProfileFormView: View {
     }
 
     private var isValid: Bool {
-        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-            && targetBodyFatPercentage < bodyFatPercentage
+        guard let profile else { return false }
+        return !profile.name.isEmpty
+            && (16...100).contains(profile.age)
+            && (120...230).contains(profile.heightCm)
+            && (35...250).contains(profile.weightKg)
+            && (5...60).contains(profile.bodyFatPercentage)
+            && (5...35).contains(profile.targetBodyFatPercentage)
+            && profile.targetBodyFatPercentage < profile.bodyFatPercentage
     }
 
-    private func measurementRow(
-        title: String,
-        value: Binding<Double>,
-        range: ClosedRange<Double>,
-        step: Double,
-        unit: String
-    ) -> some View {
-        Stepper(value: value, in: range, step: step) {
-            HStack {
-                Text(title)
-                Spacer()
-                Text("\(value.wrappedValue, specifier: step < 1 ? "%.1f" : "%.0f") \(unit)")
-                    .foregroundStyle(.secondary)
-            }
+    private var hasStarted: Bool {
+        !name.isEmpty || !age.isEmpty || !heightCm.isEmpty || !weightKg.isEmpty
+            || !bodyFatPercentage.isEmpty || !targetBodyFatPercentage.isEmpty
+    }
+
+    private func numberField(_ title: String, text: Binding<String>, unit: String, keyboard: UIKeyboardType = .decimalPad) -> some View {
+        HStack {
+            TextField(title, text: text)
+                .keyboardType(keyboard)
+            Text(unit)
+                .foregroundStyle(.secondary)
         }
+    }
+
+    private func decimal(_ value: String) -> Double? {
+        Double(value.replacingOccurrences(of: ",", with: "."))
+    }
+
+    private static func number(_ value: Double) -> String {
+        value.rounded() == value ? String(Int(value)) : String(format: "%.1f", value)
     }
 }

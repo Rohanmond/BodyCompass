@@ -1,5 +1,64 @@
 import SwiftUI
 
+struct SettingsView: View {
+    @EnvironmentObject private var app: AppStore
+
+    var body: some View {
+        List {
+            Section("Profile") {
+                NavigationLink {
+                    EditProfileView()
+                } label: {
+                    Label {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Health profile")
+                            Text("Personal details, goal, and workout time")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    } icon: {
+                        Image(systemName: "person.crop.circle")
+                    }
+                }
+            }
+
+            Section("Account") {
+                NavigationLink {
+                    DataPrivacyView()
+                } label: {
+                    Label {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Account & privacy")
+                            Text("Backup, AI allowance, export, and sign out")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                    } icon: {
+                        Image(systemName: "lock.shield")
+                    }
+                }
+            }
+        }
+        .navigationTitle("Settings")
+    }
+}
+
+private struct EditProfileView: View {
+    @EnvironmentObject private var app: AppStore
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        ProfileFormView(
+            initialProfile: app.profile,
+            title: "Health Profile",
+            actionTitle: "Save Changes"
+        ) { profile in
+            app.saveProfile(profile)
+            dismiss()
+        }
+    }
+}
+
 struct DataPrivacyView: View {
     @EnvironmentObject private var app: AppStore
     @EnvironmentObject private var training: TrainingStore

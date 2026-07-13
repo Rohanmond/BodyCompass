@@ -10,7 +10,7 @@ Last audited: July 14, 2026.
 
 - Phase 0 foundation.
 - Phase 1 Xcode project.
-- Phase 2 onboarding, profile editing, and local persistence.
+- Phase 2 account-aware onboarding with blank personal fields for new users, profile editing in Settings, and local persistence.
 - Phase 3 HealthKit permission flow, metric queries, manual fallbacks, and Today refresh; the signed-device full-permission path works, while partial/denied checks remain.
 - Phase 4 daily schedule, persisted completion, adherence history, next-best-action logic, and reminders.
 - Phase 4 structured training: pure core models (routines, days, sessions, prescriptions, logs, exceptions, versions, proposals), seeded weekly split, setup questionnaire gating detailed prescriptions, weekly routine and today's-session screens, day/exercise editing with new versions and rollback, one-day rest exceptions, set/swim logging, deterministic conservative double progression, and a mock coach proposal Confirm/Edit/Reject flow.
@@ -31,7 +31,7 @@ Last audited: July 14, 2026.
 
 - Phase 4 extras: date-range pauses, one-tap move/copy of sessions between days, and non-rest one-day exception UI (the core model supports arbitrary replacement sessions).
 - Phase 4W Apple Workout migration is simulator-build verified: WorkoutKit strength/swim mapping, iPhone scheduling, Watch handoff, runtime strength fallback, Pool/Open Water selection, completed-workout UUID matching, duration/energy/distance import, and durable manual strength details. Paired-device verification remains.
-- Phase 8/9D production HTTPS hosting is live. OTP code is implemented locally; Resend variables/domain, deployment, owner-account validation, host restore drill, and authenticated friend-device verification remain.
+- Phase 8/9D production HTTPS hosting and Resend email OTP are live and owner-account validated. The host restore drill and authenticated friend-device verification remain.
 
 ## Not Implemented
 

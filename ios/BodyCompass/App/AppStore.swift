@@ -55,19 +55,20 @@ final class AppStore: ObservableObject {
     @Published private(set) var healthHistory: [DailyHealthSnapshot] = []
     @Published private(set) var serverSync: ServerSyncStatus = .idle
 
-    static let defaultProfile = BodyProfile(
-        name: "Rohan",
-        age: 26,
-        heightCm: 176,
-        weightKg: 80,
-        bodyFatPercentage: 22,
-        adherenceScore: 0.78,
+    static let emptyProfile = BodyProfile(
+        name: "",
+        age: 0,
+        heightCm: 0,
+        weightKg: 0,
+        bodyFatPercentage: 0,
+        targetBodyFatPercentage: 12,
+        adherenceScore: 0.75,
         workoutTimePreference: .evening
     )
 
     init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
-        profile = Self.loadProfile(from: defaults) ?? Self.defaultProfile
+        profile = Self.loadProfile(from: defaults) ?? Self.emptyProfile
         hasCompletedOnboarding = defaults.bool(forKey: StorageKey.onboardingComplete)
         manualEntry = Self.loadManualEntry(from: defaults)
         adherenceRecords = Self.loadAdherenceRecords(from: defaults)
@@ -436,7 +437,7 @@ final class AppStore: ObservableObject {
         defaults.dictionaryRepresentation().keys
             .filter { $0.hasPrefix("bodycompass.") }
             .forEach(defaults.removeObject(forKey:))
-        profile = Self.defaultProfile
+        profile = Self.emptyProfile
         hasCompletedOnboarding = false
         manualEntry = nil
         adherenceRecords = []
@@ -476,7 +477,9 @@ final class AppStore: ObservableObject {
 
     private func syncCoreData() async {
         await backUp {
-            try await self.accountAPI.saveProfile(self.profile)
+            if self.hasCompletedOnboarding {
+                try await self.accountAPI.saveProfile(self.profile)
+            }
             try await self.accountAPI.saveSchedule(self.schedule)
             if self.today.weightKg != nil || self.today.bodyFatPercentage != nil || self.today.steps > 0 {
                 try await self.accountAPI.saveHealthSnapshot(self.today)
