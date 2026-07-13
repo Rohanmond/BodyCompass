@@ -241,7 +241,7 @@ Done when:
 
 ## Phase 7: Weekly Review and History
 
-Goal: turn logs into progress decisions.
+Goal: turn logs and standardized progress photos into progress decisions.
 
 Status: partially implemented.
 
@@ -249,6 +249,7 @@ Implemented so far:
 
 - History tab placeholder exists.
 - Planned history sections are visible.
+- Progress-photo capture and AI analysis are not implemented yet.
 
 Deliverables:
 
@@ -257,11 +258,18 @@ Deliverables:
 - Meal adherence view.
 - Workout and sleep consistency view.
 - Weekly projection recalculation.
+- Optional weekly morning photo check-in with front, side, and back guidance.
+- Capture-quality checks for consistent pose, framing, distance, and lighting.
+- Private progress-photo upload with metadata removal and deletion controls.
+- Dual-provider visual analysis returning a body-fat range, confidence, visible trend, and limitations.
+- Comparison with previous check-ins using weight and activity trends as additional context.
+- User correction or rejection of the AI body-fat estimate.
 - Plain-language review: what worked, what failed, what changes next.
 
 Done when:
 
 - User can see why the timeline changed.
+- User can compare weekly photos and see a non-clinical estimate range without false precision.
 - Weekly review produces a next-week action plan.
 
 ## Phase 8: Backend Persistence and Accounts
@@ -274,7 +282,7 @@ Deliverables:
 
 - Database schema for users, profiles, snapshots, meals, schedule items, and chats.
 - Basic auth or private single-user mode.
-- Image storage for meal photos.
+- Private image storage for meal and progress photos.
 - Delete/export data controls.
 
 Done when:
@@ -313,7 +321,6 @@ Status: not implemented.
 
 - Nutrition database barcode/search integration.
 - Apple Watch companion.
-- Progress photos with visual comparison.
 - Custom workout plan.
 - Streaks and habit analytics.
 - Subscription/payment model.

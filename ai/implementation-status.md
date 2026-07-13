@@ -21,11 +21,13 @@ Source of truth for detailed phase status: `docs/phases.md`.
 - Backend AI provider functions are mocks.
 - Coach chat UI and endpoint exist, but real context wiring is not implemented.
 - History UI is placeholder only.
+- Weekly progress-photo workflow and AI analysis are planned but not implemented.
 
 ## Not Implemented
 
 - Real HealthKit reads.
 - Camera/photo picker.
+- Progress-photo capture, private storage, comparison, and body-fat range analysis.
 - Real OpenAI and Gemini HTTP calls.
 - Database and object storage.
 - Auth/private user mode.

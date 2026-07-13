@@ -1,6 +1,6 @@
 # BodyCompass
 
-Native iOS fat-loss coach for reaching 12% body fat with HealthKit history, daily adherence tracking, meal-photo calorie analysis, and dual AI feedback from OpenAI and Gemini.
+Native iOS fat-loss coach for reaching 12% body fat with HealthKit history, daily adherence tracking, weekly progress-photo analysis, meal-photo calorie analysis, and dual AI feedback from OpenAI and Gemini.
 
 ## Structure
 
@@ -14,6 +14,7 @@ Native iOS fat-loss coach for reaching 12% body fat with HealthKit history, dail
 - HealthKit permission flow and daily metric snapshots.
 - Evidence-based 12% body-fat timeline projection.
 - Meal-photo analysis through both ChatGPT and Gemini.
+- Standardized weekly progress photos with an AI-estimated body-fat range and trend feedback.
 - Daily schedule and adherence dashboard.
 - Weekly review and history trends.
 - Coach chat with combined answer and provider comparison.

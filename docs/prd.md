@@ -2,7 +2,7 @@
 
 ## 1. Product Summary
 
-BodyCompass is a native iOS fat-loss coaching app for users who want to reduce body fat to 12% with disciplined daily tracking. It combines Apple Health data, manual check-ins, meal-photo analysis, and dual AI feedback from OpenAI and Gemini.
+BodyCompass is a native iOS fat-loss coaching app for users who want to reduce body fat to 12% with disciplined daily tracking. It combines Apple Health data, manual check-ins, weekly progress photos, meal-photo analysis, and dual AI feedback from OpenAI and Gemini.
 
 The product should feel like a serious personal coach: direct, evidence-based, practical, and focused on the next action.
 
@@ -31,6 +31,7 @@ The initial target user is a focused adult fitness user who:
 - “I lose discipline because I cannot see daily accountability.”
 - “Apple Health has my activity/sleep data, but it does not explain what to do.”
 - “Generic AI advice is not connected to my real history.”
+- “I cannot tell whether my physique is visibly changing from week to week.”
 
 ## 5. MVP Scope
 
@@ -46,6 +47,8 @@ The initial target user is a focused adult fitness user who:
 - Reconciled calorie/macro estimate with confidence and warnings.
 - Coach chat with combined answer and separate provider outputs.
 - Weekly review and history screen.
+- Standardized weekly morning progress-photo check-in.
+- AI visual progress comparison with a body-fat range, confidence, and corrective suggestions.
 - Beginner-friendly setup and learning docs.
 
 ### Should Have
@@ -90,15 +93,19 @@ The initial target user is a focused adult fitness user who:
 
 ### Weekly Review
 
-1. App compares weight trend, body-fat trend, meal adherence, workout consistency, and sleep.
-2. App recalculates timeline to 12%.
-3. App explains what changed and what to fix next week.
+1. User takes optional front, side, and back photos in the morning under consistent conditions.
+2. App checks photo quality and asks for a retake when pose, framing, or lighting is unsuitable.
+3. AI compares the check-in with prior weeks and estimates a body-fat range with confidence, never an exact measurement.
+4. App combines visual evidence with weight trend, HealthKit data, meal adherence, workout consistency, and sleep.
+5. App recalculates the timeline to 12% and explains what changed.
+6. User can correct or reject the AI estimate and receives a practical next-week action plan.
 
 ## 7. Success Metrics
 
 - User logs at least 2 meals per day.
 - User completes daily check-in at least 5 days per week.
 - User reviews weekly projection at least once per week.
+- User completes a standardized progress-photo check-in at least three times per month.
 - User corrects inaccurate meal estimates instead of abandoning logging.
 - App can explain timeline changes in plain language.
 
@@ -109,12 +116,18 @@ The initial target user is a focused adult fitness user who:
 - Use calorie ranges, not false precision.
 - Ask for missing portion context when confidence is low.
 - Warn that estimates can be wrong.
+- Treat photo-based body-fat estimates as broad ranges and label them as non-clinical visual estimates.
+- Prefer change over time under consistent photo conditions over claims about absolute body-fat percentage.
+- Do not infer identity, ethnicity, medical conditions, attractiveness, or other unrelated sensitive traits from progress photos.
 - Avoid medical diagnosis, extreme calorie cuts, unsafe supplement advice, or eating-disorder reinforcement.
 
 ## 9. Privacy Requirements
 
 - API keys must never be stored in the iOS app.
-- Health data and meal images must be deletable.
+- Health data, meal images, and progress photos must be deletable.
+- Progress-photo upload is optional and requires explicit consent.
+- Remove image metadata before upload and allow face-free framing.
+- Progress photos must use private object storage with short-lived access URLs and a configurable retention policy.
 - HealthKit permissions must be requested clearly and only for needed data.
 - User data should not be used for training unless the user explicitly opts in.
 

@@ -6,6 +6,7 @@ Call both OpenAI and Gemini for:
 
 - meal-photo analysis,
 - coach chat.
+- weekly progress-photo analysis.
 
 Then return:
 
@@ -42,6 +43,19 @@ Coach answers should use:
 - weekly trend when available.
 
 Answers should end with one next best action.
+
+## Progress Photo Prompt Goals
+
+For each standardized weekly check-in, providers should return:
+
+- a broad body-fat percentage range,
+- confidence and image-quality limitations,
+- visible change compared with prior comparable photos,
+- areas where no reliable conclusion can be made,
+- suggestions grounded in weight, adherence, activity, and sleep trends,
+- one next-week action.
+
+Providers must not identify the person, judge attractiveness, infer unrelated sensitive traits, diagnose conditions, or present the estimate as a clinical measurement.
 
 ## Safety Rules
 

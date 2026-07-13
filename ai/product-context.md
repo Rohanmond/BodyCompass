@@ -10,6 +10,7 @@ The user wants:
 - daily accountability,
 - meal-photo calorie/macro estimates,
 - Apple Health history,
+- weekly morning progress-photo comparison,
 - daily schedule tracking,
 - feedback from both ChatGPT and Gemini,
 - guidance while learning iOS development.
@@ -21,6 +22,7 @@ BodyCompass should answer:
 1. Am I on pace?
 2. What went wrong today?
 3. What should I do next?
+4. Is my physique visibly changing under comparable conditions?
 
 ## Tone
 
@@ -29,3 +31,5 @@ The app should feel like a focused coach: direct, calm, practical, and evidence-
 ## Safety Boundary
 
 BodyCompass is not a medical device. It must not diagnose, treat medical conditions, encourage extreme calorie deficits, or reinforce eating-disorder behavior. Health, injury, or symptom concerns should be routed to a qualified professional.
+
+Photo-based body-fat feedback is a non-clinical visual estimate. It should use a range, disclose uncertainty, and prioritize week-over-week change alongside measured weight and health trends.

@@ -10,7 +10,9 @@ flowchart TD
     IOS --> API["BodyCompass Node API"]
     API --> OpenAI["OpenAI Provider"]
     API --> Gemini["Gemini Provider"]
-    API --> Store["Future DB / Object Storage"]
+    API --> Store["Private DB / Object Storage"]
+    IOS --> Photos["Meal and Weekly Progress Photos"]
+    Photos --> API
 ```
 
 ## iOS App
@@ -21,7 +23,7 @@ Responsibilities:
 
 - SwiftUI screens and navigation.
 - HealthKit authorization and metric reads.
-- Camera/photo picker in a later phase.
+- Camera/photo picker for meals and standardized weekly progress check-ins.
 - Local user state and manual fallback inputs.
 - Display AI comparison and reconciled recommendations.
 
@@ -54,6 +56,7 @@ Responsibilities:
 
 - Keep OpenAI and Gemini API keys server-side.
 - Analyze meals through both providers.
+- Compare weekly progress photos through both providers using health trends as context.
 - Create combined coach chat answers.
 - Accept health snapshots and future persisted logs.
 - Calculate or mirror goal projections for API clients.
@@ -70,9 +73,11 @@ Current state:
 Future state:
 
 - PostgreSQL for structured user/profile/meal/log/chat data.
-- Object storage for meal images.
+- Private object storage for meal and progress images with short-lived URLs.
 - Local encrypted cache on iOS for offline UX.
 
 ## Important Boundary
 
 Never put OpenAI or Gemini API keys in the iOS app. All provider calls must go through `server`.
+
+Progress photos are sensitive user data. Strip metadata before upload, avoid including the face where possible, never expose public URLs, and delete provider-bound temporary files after analysis.

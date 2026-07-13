@@ -36,3 +36,9 @@ Accepts meal context and an optional image payload. The backend sends the reques
 ## `POST /api/chat`
 
 Sends a coaching question to both providers and returns a combined answer with provider details.
+
+## `POST /api/progress-check-ins/analyze` (Planned)
+
+Accepts standardized weekly front, side, and back progress photos plus recent weight and health trends. Both AI providers return a non-clinical body-fat range, confidence, visible changes, limitations, and suggestions. The reconciled result emphasizes week-over-week direction instead of claiming an exact measurement.
+
+Progress photos must remain private, have metadata removed, and be deletable by the user.

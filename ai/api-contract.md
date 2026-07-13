@@ -102,3 +102,33 @@ Request:
 ```
 
 Current storage is in-memory only.
+
+## `POST /api/progress-check-ins/analyze` (Planned)
+
+Multipart request:
+
+- optional front, side, and back images,
+- capture time and standardization confirmations,
+- recent weight and health trend,
+- optional previous check-in identifier.
+
+Response:
+
+```json
+{
+  "openai": {
+    "bodyFatRange": { "minimum": 16, "maximum": 20 },
+    "confidence": 0.62,
+    "visibleChanges": [],
+    "limitations": []
+  },
+  "gemini": {},
+  "reconciled": {
+    "bodyFatRange": { "minimum": 17, "maximum": 20 },
+    "trend": "likely_decreasing",
+    "nextWeekAction": "Keep the current deficit and improve sleep consistency."
+  }
+}
+```
+
+The endpoint must reject unsuitable images, remove metadata, avoid public image URLs, and return ranges rather than a single body-fat measurement.
