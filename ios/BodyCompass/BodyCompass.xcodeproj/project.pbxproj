@@ -53,6 +53,8 @@
 		9B0000000000000000000009 /* Watch Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 9A0000000000000000000008 /* Watch Assets.xcassets */; };
 		9B000000000000000000000A /* BodyCompass Watch App.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = 9A0000000000000000000009 /* BodyCompass Watch App.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		8C1B8501AC0441C9987C575C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 08B7464CBFA64999BF9A4C0A /* Assets.xcassets */; };
+		F2B2C3D4E5F60718293A4BCD /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = F2B2C3D4E5F60718293A4BCC /* PrivacyInfo.xcprivacy */; };
+		F2B2C3D4E5F60718293A4BCE /* Watch PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = F2B2C3D4E5F60718293A4BCF /* Watch PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -127,6 +129,8 @@
 		9A0000000000000000000007 /* BodyCompassWatch.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BodyCompassWatch.entitlements; sourceTree = "<group>"; };
 		9A0000000000000000000008 /* Watch Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Resources/Assets.xcassets; sourceTree = "<group>"; };
 		9A0000000000000000000009 /* BodyCompass Watch App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "BodyCompass Watch App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		F2B2C3D4E5F60718293A4BCC /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		F2B2C3D4E5F60718293A4BCF /* Watch PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -166,6 +170,7 @@
 				CB9A8FF6D38440A087540C82 /* RootView.swift */,
 				E19FB870D78A44B09B1E4706 /* Info.plist */,
 				46CFA48E5F8F4BBF894A3F95 /* BodyCompass.entitlements */,
+				F2B2C3D4E5F60718293A4BCC /* PrivacyInfo.xcprivacy */,
 				F46DD9BC07BF44839777402F /* Design */,
 				E71691CE4A3E4F1193863AF8 /* Features */,
 				C24BF8EBFF7E46FF85C51782 /* Services */,
@@ -227,6 +232,7 @@
 				9A0000000000000000000005 /* WatchRootView.swift */,
 				9A0000000000000000000006 /* Watch Info.plist */,
 				9A0000000000000000000007 /* BodyCompassWatch.entitlements */,
+				F2B2C3D4E5F60718293A4BCF /* Watch PrivacyInfo.xcprivacy */,
 				9A0000000000000000000008 /* Watch Assets.xcassets */,
 			);
 			path = WatchApp;
@@ -346,6 +352,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8C1B8501AC0441C9987C575C /* Assets.xcassets in Resources */,
+				F2B2C3D4E5F60718293A4BCD /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -354,6 +361,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				9B0000000000000000000009 /* Watch Assets.xcassets in Resources */,
+				F2B2C3D4E5F60718293A4BCE /* Watch PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

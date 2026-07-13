@@ -17,21 +17,23 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>BODYCOMPASS_API_BASE_URL</key>
 	<string>http://127.0.0.1:8080</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>BodyCompass uses the camera so you can log meal photos for calorie and macro estimates.</string>
+	<string>BodyCompass uses the camera for meal estimates and standardized weekly progress check-ins you choose to create.</string>
 	<key>NSHealthShareUsageDescription</key>
 	<string>BodyCompass reads Health data to calculate daily activity, sleep, body weight, and body-fat progress toward your goal.</string>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>BodyCompass connects to your local development server to analyze meal photos.</string>
+	<string>BodyCompass connects to your private local server for AI analysis and encrypted backup.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>BodyCompass lets you choose meal photos from your library for calorie and macro estimates.</string>
+	<string>BodyCompass lets you choose meal and progress photos for estimates and private check-ins.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsLocalNetworking</key>

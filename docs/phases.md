@@ -426,7 +426,17 @@ Phase 8 done status: functional completion criteria are implemented. Cloud hosti
 
 Goal: make it reliable enough for daily use.
 
-Status: not implemented.
+Status: implemented and simulator-build verified. Signed-device, seven-day personal beta, and TestFlight checks remain.
+
+Implemented:
+
+- Production app icons for the iPhone and Watch targets.
+- iPhone and Watch privacy manifests plus release-version and encryption metadata.
+- Clear local-first recovery messaging and one-tap retry when private server backup is offline.
+- VoiceOver summaries for dashboard metrics, adherence, schedule completion, progress photos, and trend charts.
+- Improved trend scaling and a visible 12% body-fat target reference.
+- A repeatable release preflight for metadata, icons, backend tests, Swift core checks, and both simulator builds.
+- Beginner-friendly signed-device, Series 10, live-provider, seven-day beta, and TestFlight checklist in `docs/beta-checklist.md`.
 
 Deliverables:
 
@@ -443,6 +453,8 @@ Done when:
 - App is usable for one full week of personal tracking.
 - No critical crashes in daily flows.
 - Setup and privacy docs are clear.
+
+Phase 9 done status: code-side polish and beta preparation are implemented and both simulator targets build. Final completion requires the signed iPhone/Watch checks and one full week without an unresolved critical issue.
 
 ## Phase 10: Future Ideas
 

@@ -34,6 +34,7 @@ Native iOS fat-loss coach for reaching 12% body fat with HealthKit history, dail
 - Xcode Phase 1 guide: `docs/xcode-phase-1.md`
 - AI repo context: `ai/README.md`
 - Cross-model implementation handoff: `ai/HANDOFF.md`
+- Phase 9 beta and TestFlight checklist: `docs/beta-checklist.md`
 
 ## Quick Start
 
@@ -53,5 +54,7 @@ swift run BodyCompassCoreCheck
 ```
 
 See `docs/setup.md` for full setup.
+
+Before a beta build, run `./scripts/release-preflight.sh --build` from the repository root.
 
 If Swift/iOS is new for you, start with `docs/swift-beginner-guide.md`.

@@ -30,5 +30,9 @@ struct MetricCard: View {
         .padding()
         .background(Theme.surface)
         .clipShape(RoundedRectangle(cornerRadius: 8))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(title)
+        .accessibilityValue(value)
+        .accessibilityHint(caption)
     }
 }

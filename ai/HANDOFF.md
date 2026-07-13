@@ -8,13 +8,13 @@ Use this file as the authoritative starting point for Claude, ChatGPT, Gemini, C
 
 - Repository: `Rohanmond/BodyCompass`
 - Primary branch: `main`
-- Primary implementation state: Phases 0-6 complete; Phase 4W Apple Workout handoff and basic result import simulator-build verified
+- Primary implementation state: Phases 0-8 complete; Phase 9 code-side polish implemented; Phase 4W and Phase 9 physical-device gates remain
 - iOS deployment target: iOS 17
 - App: native SwiftUI under `ios/BodyCompass`
 - Shared logic: Swift package target `BodyCompassCore`
-- Backend: dependency-light Node 20 API under `server`
-- Persistence today: `UserDefaults` plus protected local meal images on iOS, and in-memory backend state only
-- AI today: real OpenAI and Gemini meal-photo and contextual Coach adapters with no-key mock fallback
+- Backend: dependency-light Node 22.5+ API under `server`
+- Persistence today: local-first iOS storage plus SQLite and encrypted private server image storage
+- AI today: real OpenAI and Gemini meal, progress-photo, and contextual Coach adapters with no-key mock fallback
 
 Local generated files may appear as `ios/BodyCompass/.swiftpm/` and `server/pnpm-lock.yaml`. Do not stage, delete, or redesign package management around them unless the user explicitly requests it. The documented backend workflow uses npm.
 
@@ -23,8 +23,9 @@ Local generated files may appear as `ios/BodyCompass/.swiftpm/` and `server/pnpm
 The following passed during the July 13, 2026 audit:
 
 - `swift run BodyCompassCoreCheck`
-- `npm test` with 16 passing backend tests
-- Xcode iOS Simulator build with `CODE_SIGNING_ALLOWED=NO`
+- `npm test` with 26 passing backend tests
+- Xcode iOS and watchOS Simulator builds with `CODE_SIGNING_ALLOWED=NO`
+- Phase 9 release metadata/icon validation and the updated iPhone and standalone Watch simulator builds
 
 This verifies compilation and existing automated checks. It does not verify real Apple Health data, notification delivery, camera behavior, or device signing.
 
@@ -89,8 +90,6 @@ Remaining Phase 4 niceties (deferred): date-range pauses, one-tap move/copy betw
 - The app shows Combined, ChatGPT, and Gemini results, supports calorie/macro correction, and stores accepted meals in `UserDefaults` with protected photos in private Application Support storage.
 - Deleting a meal deletes both its metadata and local image. Physical-camera and live-provider-key checks remain unverified.
 
-## Partially Implemented
-
 ### Phase 6: Coach
 
 - `CoachAPIClient` sends bounded profile, HealthKit/manual snapshot, accepted meals, schedule/adherence, goal projection, training setup/routine, and recent workout logs. Meal image bytes are never included.
@@ -123,26 +122,35 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 - Goal → Data & Privacy shows backup state, configures the token, exports JSON with optional image contents, and deletes server plus local app data. Apple Health is never deleted.
 - SQLite restart, encrypted export, idempotency, auth, deletion, iOS/Watch compilation, and authenticated HTTP routes are verified. Production HTTPS and backup/restore remain operational work.
 
+### Phase 9: Polish and Beta Preparation
+
+- iPhone and Watch targets have production 1024-pixel app icons and privacy manifests.
+- Today distinguishes private-backup failure from local data loss and offers a retry action.
+- Dashboard metrics, adherence, schedule rows, progress-photo selection, and charts have VoiceOver summaries.
+- History charts use readable padded scales; body fat includes the 12% target reference.
+- `scripts/release-preflight.sh --build` validates metadata/icons, runs backend and core checks, and builds both simulator targets.
+- `docs/beta-checklist.md` is the authoritative signed-device, Series 10, live-provider, seven-day, and TestFlight checklist.
+
 ## Not Implemented
 
 - Remaining Phase 4W: physical WorkoutKit/HealthKit validation and recovery-aware suggestions. See `docs/apple-watch-plan.md`.
 - Additional typed iOS clients beyond meals, Coach, progress analysis, and account backup.
-- TestFlight/App Store preparation.
+- A completed internal TestFlight upload and clean-install smoke test.
 - Real-device HealthKit and notification verification.
 
 ## Recommended Next Work
 
-The user explicitly chose Apple Workout ownership for both strength and swimming. Validate that path next:
+Run the Phase 9 beta gates next:
 
-1. Follow `docs/apple-watch-setup.md` on the paired Series 10 and iPhone.
-2. Verify WorkoutKit authorization, iPhone scheduling, Watch `openInWorkoutApp()`, structured-strength support/fallback, and Pool/Open Water handoff.
-3. Complete workouts in Apple Workout and verify UUID-linked duration, energy, and swimming distance import.
-4. Verify reconnect delivery and UUID deduplication for separate BodyCompass set logs.
-5. Fix device-only signing or connectivity issues without reintroducing a custom active workout session.
+1. Run `./scripts/release-preflight.sh --build`.
+2. Follow `docs/beta-checklist.md` on the signed iPhone and paired Series 10.
+3. Verify WorkoutKit authorization, Apple Workout handoff/import, reconnect delivery, camera, notifications, and real HealthKit reads.
+4. Validate both live AI providers and the one-provider fallback.
+5. Complete the seven-day personal beta before treating Phase 9 as complete.
 
 Phase 6 Coach instructions now reuse the existing `RoutineChangeProposal` confirmation contract; preserve Confirm/Edit/Reject and staleness handling in future changes.
 
-Phase 9 polish/beta readiness is the next software phase. The detailed Watch plan remains `docs/apple-watch-plan.md` for paired-device validation, and Phase 8 deployment still needs HTTPS plus a backup/restore drill.
+The detailed Watch plan remains `docs/apple-watch-plan.md` for paired-device validation, and Phase 8 deployment still needs HTTPS plus a backup/restore drill.
 
 Keep the generic daily task schedule and structured training routine separate. The former tracks habits (`AppStore`); the latter owns programming, performance, and progression (`TrainingStore`).
 

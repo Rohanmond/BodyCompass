@@ -18,7 +18,7 @@ struct HistoryView: View {
                     weeklySummary
                     timeline
                     TrendChart(title: "Weight", unit: "kg", color: Theme.accent, values: chartValues(\.weightKg))
-                    TrendChart(title: "Body fat", unit: "%", color: Theme.warning, values: chartValues(\.bodyFatPercentage))
+                    TrendChart(title: "Body fat", unit: "%", color: Theme.warning, values: chartValues(\.bodyFatPercentage), target: 12)
                     progressSection
                     Text("Visual estimates are broad, non-medical ranges. Weight trend and consistent photos matter more than any single result.")
                         .font(.caption)
@@ -162,6 +162,7 @@ private struct TrendChart: View {
     let unit: String
     let color: Color
     let values: [TrendValue]
+    var target: Double? = nil
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
@@ -174,18 +175,48 @@ private struct TrendChart: View {
                 Text("Sync HealthKit or add a manual entry to begin this trend.")
                     .font(.callout).foregroundStyle(.secondary).frame(maxWidth: .infinity, minHeight: 120)
             } else {
-                Chart(values) { point in
-                    LineMark(x: .value("Date", point.date), y: .value(title, point.value)).interpolationMethod(.catmullRom)
-                    PointMark(x: .value("Date", point.date), y: .value(title, point.value))
+                Chart {
+                    ForEach(values) { point in
+                        LineMark(x: .value("Date", point.date), y: .value(title, point.value)).interpolationMethod(.catmullRom)
+                        PointMark(x: .value("Date", point.date), y: .value(title, point.value))
+                    }
+                    if let target {
+                        RuleMark(y: .value("Target", target))
+                            .foregroundStyle(.secondary)
+                            .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 4]))
+                            .annotation(position: .top, alignment: .trailing) {
+                                Text("12% target")
+                                    .font(.caption2)
+                                    .foregroundStyle(.secondary)
+                            }
+                    }
                 }
                 .foregroundStyle(color)
+                .chartYScale(domain: yDomain)
                 .chartXAxis { AxisMarks(values: .automatic(desiredCount: 4)) { _ in AxisGridLine(); AxisValueLabel(format: .dateTime.month(.abbreviated).day()) } }
                 .frame(height: 170)
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("\(title) trend")
+                .accessibilityValue(chartSummary)
             }
         }
         .padding()
         .background(Theme.surface)
         .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+
+    private var yDomain: ClosedRange<Double> {
+        let allValues = values.map(\.value) + (target.map { [$0] } ?? [])
+        guard let minimum = allValues.min(), let maximum = allValues.max() else { return 0...1 }
+        let padding = max((maximum - minimum) * 0.18, unit == "%" ? 1 : 0.5)
+        return max(0, minimum - padding)...(maximum + padding)
+    }
+
+    private var chartSummary: String {
+        guard let first = values.first, let latest = values.last else { return "No data" }
+        let direction = latest.value == first.value ? "unchanged" : (latest.value < first.value ? "down" : "up")
+        let change = abs(latest.value - first.value).formatted(.number.precision(.fractionLength(1)))
+        return "Latest \(latest.value.formatted(.number.precision(.fractionLength(1)))) \(unit), \(direction) \(change) \(unit) across \(values.count) measurements"
     }
 }
 
@@ -254,6 +285,8 @@ private struct ProgressCaptureView: View {
                 else { Image(systemName: pose.symbol).font(.title).foregroundStyle(.secondary) }
             }
             .frame(maxWidth: .infinity).aspectRatio(0.72, contentMode: .fit).clipped()
+            .accessibilityLabel("\(pose.title) progress photo")
+            .accessibilityValue(images[pose] == nil ? "Not selected" : "Selected")
             Text(pose.title).font(.caption.bold())
             HStack(spacing: 4) {
                 PhotosPicker(selection: item, matching: .images) { Image(systemName: "photo").frame(width: 32, height: 28) }.buttonStyle(.bordered)

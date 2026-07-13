@@ -19,7 +19,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 | Phase 6: Coach Chat | Complete (simulator-verified) | Contextual dual-provider chat, local history, safety routing, provider comparison, and validated confirmed-only routine proposals are implemented. Live-key validation remains. |
 | Phase 7: Weekly Review and Photos | Complete (simulator-build verified) | Persisted HealthKit trends, weekly adherence/nutrition/training review, recalculated projection, standardized three-angle check-ins, protected local photos, comparison, dual-AI range analysis, correction/rejection, and deletion are implemented. Live-key and physical-camera checks remain. |
 | Phase 8: Persistence and Accounts | Complete (simulator-build verified) | SQLite persistence, private single-user bearer auth, encrypted non-public image storage, local-first iOS backup, Keychain token, JSON export, and server/device deletion are implemented. Production deployment/restore checks remain. |
-| Phase 9: Polish and Beta | Not started | Real-device testing, accessibility, reliability, and TestFlight work are missing. |
+| Phase 9: Polish and Beta | In progress; simulator-verified | Icons, privacy manifests, offline backup recovery, accessibility summaries, improved charts, preflight automation, and the beta/TestFlight checklist are implemented and both targets build. Signed-device, seven-day, and TestFlight verification remain. |
 | Phase 10: Future Ideas | Not started | Post-MVP enhancements remain intentionally deferred. |
 
 ## Latest Completed Work
@@ -40,6 +40,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 - Completed Phase 7 weekly review: persisted 180-day health snapshots, native weight/body-fat charts, seven-day adherence/nutrition/training summaries, trend-aware 12% projection, and a standardized front/side/back check-in flow.
 - Added protected local progress-photo storage, metadata-stripping JPEG preparation, prior-week comparison, editable/rejectable visual ranges, deletion, and a bounded dual-provider progress-analysis API with quality and privacy rules.
 - Completed Phase 8 persistence: SQLite records survive restart; meal/progress images use an AES-256-GCM private file vault; bearer auth, local-first iOS backup, Keychain token storage, export, and complete server/device deletion are wired end to end.
+- Implemented Phase 9 code-side polish: iPhone/Watch icons, privacy manifests, local-first backup recovery, accessible metrics and trends, a 12% chart target, automated preflight, and a physical-device/TestFlight checklist.
 
 ## Verified
 
@@ -47,6 +48,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 - `npm test` passes with 26 backend tests.
 - The BodyCompass Xcode target builds successfully for the generic iOS Simulator destination with the meal services and embedded Watch app.
 - The BodyCompass Watch App scheme builds successfully for the generic watchOS Simulator SDK destination.
+- Phase 9 privacy manifests and 1024-pixel icon catalogs validate, and the polished iPhone and Watch targets build successfully.
 - HealthKit data access and reminder delivery are not verifiable in a build-only check and remain real-device items.
 
 Verification rerun: July 13, 2026.
@@ -59,4 +61,4 @@ Verification rerun: July 13, 2026.
 - Validate Phase 6 with live OpenAI and Gemini keys; mock mode covers the complete UI and proposal workflow locally.
 - Validate Phase 7 with a physical iPhone camera and both live provider keys; deterministic mock mode covers the full flow locally.
 - Deploy Phase 8 behind HTTPS with durable volume backup, then perform a backup/restore drill using stable API/storage secrets.
-- Phase 9: accessibility, reliability, real-device testing, app icon, and TestFlight preparation.
+- Run `./scripts/release-preflight.sh --build`, then complete the signed-device, Series 10, seven-day personal beta, and TestFlight gates in `docs/beta-checklist.md`.

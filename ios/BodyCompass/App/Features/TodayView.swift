@@ -17,6 +17,7 @@ struct TodayView: View {
                     }
 
                     healthSyncBanner
+                    serverSyncBanner
 
                     LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
                         MetricCard(title: "Steps", value: "\(store.today.steps)", caption: "Goal: 10,000", systemImage: "figure.walk")
@@ -75,6 +76,8 @@ struct TodayView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 8))
                             }
                             .buttonStyle(.plain)
+                            .accessibilityLabel("\(item.title), \(item.isDone ? "completed" : "not completed")")
+                            .accessibilityHint("Double tap to mark \(item.isDone ? "not completed" : "completed")")
                         }
 
                         if store.schedule.isEmpty {
@@ -194,6 +197,41 @@ struct TodayView: View {
         .padding()
         .background(Theme.surface)
         .clipShape(RoundedRectangle(cornerRadius: 8))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("Adherence")
+        .accessibilityValue("Today \(daily.completed) of \(daily.total), \(daily.percent) percent. Seven day average \(store.weeklyAdherence.map { "\(Int(($0 * 100).rounded())) percent" } ?? "unavailable")")
+    }
+
+    @ViewBuilder
+    private var serverSyncBanner: some View {
+        switch store.serverSync {
+        case .idle, .synced:
+            EmptyView()
+        case .syncing:
+            Label("Backing up changes privately…", systemImage: "arrow.triangle.2.circlepath")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .accessibilityLabel("Private backup in progress")
+        case .failed:
+            HStack(alignment: .center, spacing: 12) {
+                VStack(alignment: .leading, spacing: 3) {
+                    Label("Private backup is offline", systemImage: "icloud.slash")
+                        .font(.subheadline.bold())
+                    Text("Your data is still saved on this iPhone.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                Spacer()
+                Button("Retry") {
+                    Task { await store.syncNow() }
+                }
+                .buttonStyle(.bordered)
+            }
+            .padding()
+            .background(Theme.warning.opacity(0.12))
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .accessibilityElement(children: .contain)
+        }
     }
 
     @ViewBuilder
