@@ -19,7 +19,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 | Phase 6: Coach Chat | Complete; signed-device verified | Contextual dual-provider chat, safety routing, provider comparison, and confirmed-only routine proposals work; Confirm/Edit/Reject remains required. |
 | Phase 7: Weekly Review and Photos | Complete; signed-device verified | Trends, weekly summaries, transient three-angle analysis, broad non-medical ranges, correction/rejection, comparison, photo-free history, and deletion work on the signed iPhone. |
 | Phase 8: Persistence and Accounts | Complete (simulator-build verified) | SQLite result persistence, private single-user bearer auth, no-photo backup/export enforcement, legacy-photo cleanup, Keychain token, JSON export, and server/device deletion are implemented. |
-| Phase 9: Polish and Beta | In progress; Phase 9C complete | Signed launch, primary HealthKit, backup, reminders, and all Phase 9C live AI/camera flows pass. Phase 9D tooling is ready; hosting, Watch/permission checks, seven-day beta, and TestFlight remain. |
+| Phase 9: Polish and Beta | In progress; Phase 9C complete and Phase 9D hosted | Signed launch, primary HealthKit, backup, reminders, and all Phase 9C live AI/camera flows pass. The Railway backend is online with durable storage; authenticated iPhone, restore-drill, Watch/permission, seven-day beta, and TestFlight gates remain. |
 | Phase 10: Future Ideas | Not started | Post-MVP enhancements remain intentionally deferred. |
 
 ## Latest Completed Work
@@ -50,6 +50,8 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 - Added Phase 9D deployment operations: strict production configuration, liveness/readiness probes, graceful shutdown, non-root Docker/Compose packaging, durable `/data`, and checksum-verified photo-free SQLite backup/restore tooling.
 - User confirmed Phase 9C on the signed iPhone: physical meal and three-angle progress capture/analysis flows work, corrections and deletion work, and Coach routine changes retain explicit confirmation.
 - Selected Railway Hobby in Singapore for Phase 9D and added config-as-code, safe volume initialization with privilege drop, and a beginner deployment walkthrough.
+- Deployed the production backend to Railway Hobby in Southeast Asia at `https://bodycompass-production.up.railway.app`, attached the `/data` volume, verified SQLite readiness, and confirmed unauthenticated API requests are rejected.
+- Pointed the signed iOS app configuration at the Railway HTTPS endpoint; no provider key or bearer token is embedded in the app.
 - Created a Personal Team development certificate and provisioning profiles, then built, installed, trusted, and launched BodyCompass successfully on the user's physical iPhone 17 Pro. Xcode physical-Watch discovery remains deferred.
 
 ## Verified
@@ -61,6 +63,7 @@ Coding models should start with `ai/HANDOFF.md` for the audited repository hando
 - Phase 9 privacy manifests and 1024-pixel icon catalogs validate, and the polished iPhone and Watch targets build successfully.
 - Full-permission HealthKit data access and local reminder delivery passed on the signed iPhone; partial/denied HealthKit paths and Watch integrations remain physical-device items.
 - Production-mode liveness/readiness and graceful shutdown pass locally. The Docker image builds and runs successfully as the unprivileged `node` user, with SQLite readiness healthy inside the container.
+- Railway reports the service online in Southeast Asia; `/health/ready` returns persistence `ready`, and protected production routes require bearer authentication.
 
 Verification rerun: July 14, 2026.
 
@@ -68,5 +71,6 @@ Verification rerun: July 14, 2026.
 
 - Follow `docs/apple-watch-setup.md` to validate WorkoutKit permission, iPhone scheduling, Watch handoff, Apple Workout capture, HealthKit import, offline queueing, and exact-once manual-log merge.
 - Complete the remaining partial/denied HealthKit permission checks on the signed iPhone.
-- Provision the selected Railway Hobby service by following `docs/railway-deployment.md`, then run the host-level restore and authenticated iPhone checks.
+- Enter the Railway bearer token in the iPhone Keychain through Goal -> Data & Privacy, then verify backup, export, deletion, and live AI against production HTTPS.
+- Run the host-level production backup/restore drill before marking Phase 9D complete.
 - Run `./scripts/release-preflight.sh --build`, then complete the signed-device, Series 10, seven-day personal beta, and TestFlight gates in `docs/beta-checklist.md`.

@@ -22,8 +22,8 @@ This folder makes the repo AI-native. Future agents should start here before edi
 - Core logic: Swift package `BodyCompassCore`.
 - Backend: dependency-light Node API under `server`.
 - AI mode: call both OpenAI and Gemini for meal analysis and coach chat.
-- Current phase: Phases 0-8 and Phase 9C are complete; Phase 9D container/config/backup tooling is verified. Physical-camera/live-provider flows work on the signed iPhone.
-- Recommended next gates: paired-device Watch and partial/denied HealthKit validation, production HTTPS deployment/restore, seven-day personal beta, and internal TestFlight.
+- Current phase: Phases 0-8 and Phase 9C are complete; Phase 9D is hosted on Railway with HTTPS and durable SQLite storage. Physical-camera/live-provider flows work on the signed iPhone.
+- Recommended next gates: authenticated production-iPhone checks, the host restore drill, paired-device Watch and partial/denied HealthKit validation, seven-day personal beta, and internal TestFlight.
 
 ## Prime Directive
 

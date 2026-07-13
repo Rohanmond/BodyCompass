@@ -488,15 +488,15 @@ Done when both providers, each single-provider fallback, and all physical-camera
 
 #### Phase 9D: Production Backend Deployment
 
-Status: Railway Hobby in Singapore selected and deployment tooling locally verified; Railway provisioning, HTTPS iPhone checks, and host restore drill remain.
+Status: Railway Hobby is online in Southeast Asia with HTTPS and durable `/data`; authenticated iPhone checks and the host restore drill remain.
 
 - Implemented a non-root Node 22 container, localhost-bound Compose service, graceful shutdown, and liveness/readiness probes.
 - Implemented fail-fast production validation for a strong bearer token, stable owner ID, absolute durable data path, and both provider keys.
 - Implemented checksum-manifested photo-free SQLite backup and guarded integrity-checked restore commands; the automated local restore drill passes.
-- Deploy the Node backend behind HTTPS and attach a durable `/data` volume on the selected host.
+- Deployed the Node backend behind Railway HTTPS with one Southeast Asia replica and an attached durable `/data` volume.
 - Configure stable API and provider secrets outside source control; the legacy storage secret is not required because photos are not retained.
 - Complete a backup/restore drill on the production volume.
-- Verify authenticated iPhone backup, export, and deletion against the deployed service.
+- Pointed the iOS build at the Railway HTTPS endpoint; verify authenticated iPhone backup, export, live AI, and deletion after saving the bearer token in Keychain.
 
 Done when the service survives a restart and a tested backup can restore the metadata database.
 

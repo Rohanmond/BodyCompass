@@ -4,11 +4,11 @@ Read `ai/HANDOFF.md` before starting. This brief intentionally covers only the n
 
 ## Completed Software Phase
 
-Phase 8 SQLite persistence, private encrypted images, single-user authentication, local-first backup, export, and deletion are implemented and simulator-build verified.
+Phase 8 SQLite persistence, photo-free single-user authentication, local-first backup, export, and deletion are implemented. The Railway production service is live with HTTPS and durable `/data`.
 
 ## Best Next Phase
 
-Proceed to Phase 9 polish and beta readiness: accessibility, reliability and retry UX, real-device testing, app icon work, privacy/setup review, and TestFlight preparation. Keep production deployment/backup validation as an explicit Phase 8 operations track.
+Complete the Phase 9D authenticated iPhone checks and production restore drill, then proceed through paired Watch validation, the seven-day personal beta, and internal TestFlight.
 
 ## Safety And Privacy
 
@@ -48,4 +48,4 @@ cd server
 npm test
 ```
 
-Phase 9C camera/live-provider flows are user-confirmed on the signed iPhone. Physical Watch and partial/denied HealthKit validation cannot be replaced by simulator compilation and remain pending.
+Phase 9C camera/live-provider flows are user-confirmed on the signed iPhone. Production HTTPS is live and the app is configured for its Railway URL. Bearer-token iPhone checks, the host restore drill, physical Watch, and partial/denied HealthKit validation remain pending.

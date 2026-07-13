@@ -8,7 +8,7 @@ Use this file as the authoritative starting point for Claude, ChatGPT, Gemini, C
 
 - Repository: `Rohanmond/BodyCompass`
 - Primary branch: `main`
-- Primary implementation state: Phases 0-8 and Phase 9C complete; Phase 9D deployment tooling verified; production hosting, permission/Watch gates, beta, and TestFlight remain
+- Primary implementation state: Phases 0-8 and Phase 9C complete; Phase 9D Railway hosting is live; authenticated production-iPhone, restore, permission/Watch, beta, and TestFlight gates remain
 - iOS deployment target: iOS 17
 - App: native SwiftUI under `ios/BodyCompass`
 - Shared logic: Swift package target `BodyCompassCore`
@@ -25,6 +25,7 @@ The following passed during the latest audit:
 - `swift run BodyCompassCoreCheck`
 - `npm test` with 35 passing backend tests
 - Phase 9D production-mode health probes and graceful shutdown; the Docker image builds, runs as the unprivileged `node` user, and reports SQLite ready
+- Railway Hobby is online in Southeast Asia with HTTPS, one replica, an attached `/data` volume, SQLite readiness, and bearer protection verified
 - Xcode iOS and watchOS Simulator builds with `CODE_SIGNING_ALLOWED=NO`
 - Phase 9 release metadata/icon validation and the updated iPhone and standalone Watch simulator builds
 - W5 ready/recover/caution core scenarios and the updated iPhone plus standalone Watch builds
@@ -129,7 +130,7 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 - Local development permits one private owner without a token. Configuring `BODYCOMPASS_API_TOKEN` requires constant-time bearer authentication.
 - `AccountAPIClient` keeps device saves local-first and backs up profile, schedule, health, meals, and progress check-ins. Its bearer token lives in Keychain.
 - Goal → Data & Privacy shows backup state, configures the token, exports photo-free JSON, and deletes server plus local app data. Apple Health is never deleted.
-- SQLite restart, photo-free export, idempotency, auth, deletion, iOS/Watch compilation, and authenticated HTTP routes are verified. Production HTTPS and backup/restore remain operational work.
+- SQLite restart, photo-free export, idempotency, auth, deletion, iOS/Watch compilation, and authenticated HTTP routes are verified. Production HTTPS is live; the host restore drill and authenticated iPhone production checks remain operational work.
 
 ### Phase 9: Polish and Beta Preparation
 
@@ -148,14 +149,14 @@ Photo body-fat output must be a non-clinical range with confidence and limitatio
 - Additional typed iOS clients beyond meals, Coach, progress analysis, and account backup.
 - A completed internal TestFlight upload and clean-install smoke test.
 - Partial/denied real-device HealthKit verification; the signed full-permission path and local notification delivery are verified.
-- Railway Hobby Singapore is selected, with config-as-code and volume-safe container startup implemented. Railway provisioning, HTTPS iPhone verification, and the host restore drill remain.
+- Railway Hobby is provisioned in Southeast Asia with config-as-code, volume-safe startup, HTTPS, and durable `/data`. Authenticated iPhone verification and the host restore drill remain.
 
 ## Recommended Next Work
 
 Run the Phase 9 beta gates next:
 
 1. Return to partial/denied HealthKit checks and the deferred Phase 9A/9B physical Watch discovery and Apple Workout validation using `docs/apple-watch-setup.md` before release.
-2. Finish Phase 9D on the selected Railway Hobby Singapore service using `docs/railway-deployment.md`, then complete the host restore drill and authenticated iPhone checks.
+2. Finish Phase 9D by saving the Railway token in the signed iPhone app, checking backup/export/live AI/deletion, and completing the host restore drill.
 3. Complete the Phase 9E seven-day personal beta.
 4. Complete the Phase 9F internal TestFlight clean-install smoke test.
 
@@ -163,7 +164,7 @@ The detailed status, requirements, and completion criteria for Phase 9A-9F are i
 
 Phase 6 Coach instructions now reuse the existing `RoutineChangeProposal` confirmation contract; preserve Confirm/Edit/Reject and staleness handling in future changes.
 
-The detailed Watch plan remains `docs/apple-watch-plan.md` for paired-device validation. Phase 9D operations tooling is ready; production HTTPS and host/device validation remain.
+The detailed Watch plan remains `docs/apple-watch-plan.md` for paired-device validation. Phase 9D production HTTPS is live; authenticated iPhone and host restore validation remain.
 
 Keep the generic daily task schedule and structured training routine separate. The former tracks habits (`AppStore`); the latter owns programming, performance, and progression (`TrainingStore`).
 

@@ -21,7 +21,7 @@
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>BODYCOMPASS_API_BASE_URL</key>
-	<string>http://127.0.0.1:8080</string>
+	<string>https://bodycompass-production.up.railway.app</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
